@@ -37,16 +37,36 @@
     font-family:var(--body);
     color:var(--ink-text);
     background:
-      radial-gradient(650px 440px at 35% 4%, rgba(255,40,50,.34), transparent 62%),
-      radial-gradient(540px 370px at 65% 8%, rgba(40,110,255,.22), transparent 60%),
       radial-gradient(1100px 620px at 50% -12%, #46688f, transparent 62%),
-      radial-gradient(circle at 20% 80%, rgba(140,90,200,.16), transparent 42%),
-      radial-gradient(circle at 85% 78%, rgba(60,120,220,.14), transparent 44%),
+      radial-gradient(circle at 20% 80%, rgba(140,90,200,.14), transparent 42%),
+      radial-gradient(circle at 85% 78%, rgba(60,120,220,.12), transparent 44%),
       #3C5C86;
     min-height:100vh;
     overflow-x:hidden;
     -webkit-text-size-adjust:100%;
   }
+  /* animated squad-light glow + drifting fog, full viewport height, behind everything */
+  .bg-fx{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .bg-fx::before{
+    content:""; position:absolute; inset:-8%;
+    background:
+      radial-gradient(650px 460px at 34% 2%, rgba(255,40,50,.34), transparent 60%),
+      radial-gradient(540px 380px at 66% 5%, rgba(40,110,255,.22), transparent 60%),
+      radial-gradient(720px 520px at 28% 97%, rgba(255,40,50,.17), transparent 62%),
+      radial-gradient(720px 520px at 74% 92%, rgba(40,110,255,.14), transparent 62%);
+    animation:bgPulse 9s ease-in-out infinite;
+  }
+  @keyframes bgPulse{ 0%,100%{ opacity:.82; transform:scale(1); } 50%{ opacity:1; transform:scale(1.05); } }
+  .bg-fx::after{
+    content:""; position:absolute; inset:-25%;
+    background:
+      radial-gradient(440px 440px at 20% 28%, rgba(185,205,238,.10), transparent 60%),
+      radial-gradient(500px 500px at 82% 58%, rgba(150,172,214,.09), transparent 60%),
+      radial-gradient(400px 400px at 52% 88%, rgba(205,214,238,.08), transparent 60%);
+    animation:bgFog 48s ease-in-out infinite alternate;
+  }
+  @keyframes bgFog{ 0%{ transform:translate(0,0) scale(1); } 100%{ transform:translate(4%,-3%) scale(1.14); } }
+  @media (prefers-reduced-motion: reduce){ .bg-fx::before,.bg-fx::after{ animation:none; } }
   /* faint bingo-dot texture */
   body::before{
     content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:0;
@@ -136,7 +156,7 @@
     display:flex; flex-direction:column; align-items:center; gap:6px; width:82px; padding:9px 6px;
     background:#fff; border:2px solid #e5ded1; border-radius:11px; cursor:pointer; font-family:var(--body);
   }
-  .pattern-card[aria-pressed="true"]{ border-color:var(--strobe-blue); box-shadow:0 0 0 2px var(--strobe-blue); }
+  .pattern-card[aria-pressed="true"]{ border-color:var(--pink); box-shadow:0 0 0 2px var(--pink); }
   .pattern-mini{ display:grid; gap:2px; }
   .pattern-mini .pc{ width:9px; height:9px; border-radius:2px; background:#e5ded1; }
   .pattern-mini .pc.on{ background:var(--strobe-blue); }
@@ -185,6 +205,17 @@
   .rec-dot{ width:6px; height:6px; border-radius:50%; background:var(--pink); animation:recBlink 1.4s ease-in-out infinite; }
   @media print{ .rec-pill{ background:#222 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } .rec-dot{ animation:none; } }
   .letters{ display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:5px; }
+  /* wave-bounce across the header letters on card load (item 56) */
+  .letters.wave div{ animation:letterWave .55s ease both; }
+  .letters.wave div:nth-child(2){ animation-delay:.08s; }
+  .letters.wave div:nth-child(3){ animation-delay:.16s; }
+  .letters.wave div:nth-child(4){ animation-delay:.24s; }
+  .letters.wave div:nth-child(5){ animation-delay:.32s; }
+  @keyframes letterWave{ 0%{ transform:translateY(0);} 30%{ transform:translateY(-15px);} 55%{ transform:translateY(0);} 72%{ transform:translateY(-5px);} 100%{ transform:translateY(0);} }
+  /* one letter springs when its column gets dabbed (item 58) */
+  .letters div.bounce{ animation:letterBounce .45s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes letterBounce{ 0%{ transform:translateY(0);} 22%{ transform:translateY(5px);} 60%{ transform:translateY(-9px);} 100%{ transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .letters.wave div, .letters div.bounce{ animation:none; } }
   .letters div{
     font-family:var(--disp); color:#fff; text-align:center; border-radius:11px; padding:12px 0; font-size:clamp(22px,7vw,36px);
     box-shadow:0 4px 8px rgba(0,0,0,.28);
@@ -319,14 +350,32 @@
   }
   @keyframes pop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
 
+  /* big centered, closeable bonus-result notification (random roll + Dusel search) */
+  .result-note{ position:fixed; inset:0; z-index:58; display:grid; place-items:center; padding:20px; background:rgba(10,15,25,.55); }
+  .result-note[hidden]{ display:none; }
+  .result-card{ position:relative; width:min(90vw,390px); background:var(--paper); border-radius:20px;
+    padding:30px 26px 24px; box-shadow:0 22px 64px rgba(0,0,0,.55); text-align:center;
+    border-top:6px solid var(--bonus-gold); animation:winReveal .32s cubic-bezier(.2,1.4,.4,1); }
+  .result-close{ position:absolute; top:10px; right:12px; background:rgba(0,0,0,.12); color:var(--ink-text); border:none;
+    width:30px; height:30px; border-radius:50%; font-size:14px; font-weight:700; cursor:pointer; line-height:1; }
+  .result-icon{ font-size:44px; line-height:1; margin-bottom:6px; }
+  .result-title{ font-family:var(--disp); font-size:clamp(20px,6vw,26px); color:var(--ink-text); margin:2px 0 8px; }
+  .result-body{ font-family:var(--body); font-size:14.5px; color:var(--ink-text); line-height:1.5; margin:0 0 18px; }
+  .result-ok{ min-width:120px; }
+  .swap-sub{ font-family:var(--body); font-size:13.5px; color:var(--ink-text); margin:0; }
+  .swap-choices{ display:grid; gap:8px; margin-top:14px; }
+  .swap-choice{ text-align:left; padding:12px 13px; border-radius:11px; background:#efe9dc; border:1.5px solid #d9d0be;
+    font-family:var(--body); font-weight:600; font-size:14px; color:var(--ink-text); cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .swap-choice:hover, .swap-choice:focus-visible{ border-color:var(--strobe-blue); background:#fff; outline:none; }
+  .swap-choice .bonus-tag{ margin-left:auto; flex:0 0 auto; font-size:10.5px; font-weight:800; letter-spacing:.03em; color:var(--strobe-red); }
   /* Dusel the K9 runs in from the left, stops centre-stage to bark, then runs off the right */
   .k9-run{ position:fixed; inset:0; z-index:56; pointer-events:none; overflow:hidden; }
   .k9-run[hidden]{ display:none; }
   .k9-figure{ position:absolute; top:40%; left:50%; width:min(44vw,230px); will-change:transform;
-    animation:duselRun 4s cubic-bezier(.4,0,.5,1) forwards; }
+    animation:duselRun 3.5s cubic-bezier(.4,0,.5,1) forwards; }
   @keyframes duselRun{
     0%{ transform:translateX(calc(-50% - 82vw)); }   /* off the left edge */
-    25%,75%{ transform:translateX(-50%); }            /* centered — 2s pause */
+    28.5%,71.5%{ transform:translateX(-50%); }        /* centered — 1.5s pause */
     100%{ transform:translateX(calc(-50% + 82vw)); }  /* off the right edge */
   }
   .k9-svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));
@@ -334,9 +383,9 @@
   @keyframes duselBob{ from{ transform:translateY(0) rotate(-1.5deg);} to{ transform:translateY(-6px) rotate(1.5deg);} }
   .k9-bubble{ position:absolute; top:-18px; left:58%; background:#fff; color:#161311;
     font-family:var(--body); font-weight:800; font-size:15px; padding:7px 13px; border-radius:13px;
-    white-space:nowrap; box-shadow:0 5px 14px rgba(0,0,0,.35); opacity:0; animation:duselBubble 4s ease forwards; }
+    white-space:nowrap; box-shadow:0 5px 14px rgba(0,0,0,.35); opacity:0; animation:duselBubble 3.5s ease forwards; }
   .k9-bubble::after{ content:""; position:absolute; bottom:-7px; left:20px; border:8px solid transparent; border-top-color:#fff; border-bottom:0; }
-  @keyframes duselBubble{ 0%,24%{opacity:0; transform:translateY(8px) scale(.8);} 27%,73%{opacity:1; transform:translateY(0) scale(1);} 76%,100%{opacity:0; transform:translateY(-4px) scale(.9);} }
+  @keyframes duselBubble{ 0%,26%{opacity:0; transform:translateY(8px) scale(.8);} 31%,68%{opacity:1; transform:translateY(0) scale(1);} 72%,100%{opacity:0; transform:translateY(-4px) scale(.9);} }
   @media (prefers-reduced-motion: reduce){ .k9-run{ display:none !important; } }
 
   /* play-screen tool buttons (pattern viewer + closest highlighter) */
@@ -434,17 +483,22 @@
   .pm-field input, .pm-field textarea{ width:100%; }
   .pm-field textarea{ min-height:clamp(90px, 20vh, 150px); }
   .pm-field select{ width:100%; padding:9px 10px; }
+  .pm-hint{ display:block; font-weight:600; font-size:11.5px; margin-top:5px; color:#7c7385; }
+  .pm-hint.warn{ color:#c9455a; }
   .pm-check{ display:flex; align-items:center; gap:9px; margin-bottom:12px; font-weight:700; font-size:13.5px; color:var(--ink-text); cursor:pointer; }
   .pm-check input{ width:18px; height:18px; flex:0 0 auto; }
   #pmBonusFields[hidden]{ display:none; }
   .pm-hint{ font-size:12px; color:#6a5f77; margin:-6px 0 14px; line-height:1.45; }
   .pm-actions{ display:flex; gap:9px; justify-content:flex-end; flex-wrap:wrap; }
   .bonus-actions{ display:flex; gap:9px; flex-wrap:wrap; margin-top:8px; }
+  #bonusOverlay .bonus-modal{ padding-top:22px; }
+  #bonusTitle{ margin:0 0 6px; }
+  .bonus-type-name{ font-family:var(--body); font-weight:800; font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--strobe-red); margin:0 0 9px; }
   #infoModalDesc.bonus-desc{ margin-bottom:4px; }
   .bonus-reward{ font-family:var(--body); font-size:14.5px; line-height:1.5; color:var(--ink-text); margin:1.8em 0 0; font-weight:600; }
 
-  .backlink{ display:inline-block; margin-bottom:14px; color:#e9ddf6; font-weight:700; font-size:14px; background:none; }
-  .backlink:focus-visible{ outline:2px solid #fff; }
+  .backlink{ display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:999px; color:#fff; font-weight:800; font-size:14px; letter-spacing:.02em; background:rgba(255,255,255,.13); border:2px solid rgba(255,255,255,.4); cursor:pointer; line-height:1; }
+  .backlink:hover, .backlink:focus-visible{ background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.65); outline:none; }
 
   .screen{ display:none; }
   .screen.active{ display:block; }
@@ -473,6 +527,7 @@
 </style>
 </head>
 <body>
+<div class="bg-fx" aria-hidden="true"></div>
 <div class="wrap">
 
   <div class="lightbar noprint" aria-hidden="true"><span class="lr"></span><span class="lb"></span></div>
@@ -601,15 +656,16 @@
       <button type="button" class="tool-btn" id="patternViewBtn">🎯 Winning patterns</button>
       <button type="button" class="tool-btn" id="highlightToggle" aria-pressed="false">🚨 Closest to BUSTD</button>
     </div>
+    <p class="customize-label noprint" style="margin-top:20px">Font size</p>
     <div class="font-slider noprint">
       <span class="fs-a" style="font-size:13px">A</span>
       <input type="range" id="fontSlider" min="9" max="26" step="1" aria-label="Card text size" />
       <span class="fs-a" style="font-size:23px">A</span>
     </div>
-    <p class="customize-label noprint">Badge style</p>
-    <div class="badge-icons noprint" id="badgeIcons" aria-label="Choose badge shape"></div>
-    <p class="customize-label noprint">Badge color</p>
-    <div class="daubers noprint" id="daubers" aria-label="Choose badge color"></div>
+    <p class="customize-label noprint">Dauber style</p>
+    <div class="badge-icons noprint" id="badgeIcons" aria-label="Choose dauber shape"></div>
+    <p class="customize-label noprint">Dauber color</p>
+    <div class="daubers noprint" id="daubers" aria-label="Choose dauber color"></div>
     <div class="playbar noprint">
       <button class="btn primary" id="newCard">New card</button>
       <button class="btn blue" id="shareCard">Share this card</button>
@@ -684,7 +740,7 @@
   <div class="info-modal wide">
     <button class="info-close" id="pmClose" type="button" aria-label="Close">✕</button>
     <h3 id="pmHeading">Edit phrase</h3>
-    <label class="pm-field"><span>Phrase</span><input id="pmText" type="text" placeholder="e.g. Foot chase" /></label>
+    <label class="pm-field"><span>Phrase</span><input id="pmText" type="text" placeholder="e.g. Foot chase" /><span class="pm-hint" id="pmTextHint"></span></label>
     <label class="pm-field"><span>Description — optional (adds an ⓘ info box on the square)</span><textarea id="pmDesc" spellcheck="false" placeholder="What does this phrase mean?"></textarea></label>
     <label class="pm-check"><input id="pmIsBonus" type="checkbox" /> <span>Make this a ⭐ Bonus Square</span></label>
     <div id="pmBonusFields" hidden>
@@ -706,12 +762,13 @@
   </div>
 </div>
 <div class="info-overlay noprint" id="bonusOverlay" hidden>
-  <div class="info-modal">
+  <div class="info-modal bonus-modal">
     <h3 id="bonusTitle"></h3>
+    <p id="bonusTypeName" class="bonus-type-name"></p>
     <p id="bonusDesc" class="bonus-desc"></p>
     <p id="bonusReward" class="bonus-reward"></p>
     <div class="bonus-actions">
-      <button class="btn primary" id="bonusClaim" type="button">Claim bonus ⭐</button>
+      <button class="btn primary" id="bonusClaim" type="button">⭐ Claim bonus</button>
       <button class="btn ghost" id="bonusSkip" type="button">Not this time</button>
     </div>
   </div>
@@ -769,6 +826,25 @@
   </div>
 </div>
 
+<div class="info-overlay noprint" id="swapOverlay" hidden>
+  <div class="info-modal wide">
+    <button class="info-close" id="swapClose" type="button" aria-label="Close">✕</button>
+    <h3>Swap in a new phrase</h3>
+    <p class="swap-sub">Pick a replacement for this square:</p>
+    <div class="swap-choices" id="swapChoices"></div>
+  </div>
+</div>
+
+<div class="result-note noprint" id="resultNote" hidden>
+  <div class="result-card">
+    <button class="result-close" id="resultClose" type="button" aria-label="Close">✕</button>
+    <div class="result-icon" id="resultIcon"></div>
+    <h3 class="result-title" id="resultTitle"></h3>
+    <p class="result-body" id="resultBody"></p>
+    <button class="btn primary result-ok" id="resultOk" type="button">Got it</button>
+  </div>
+</div>
+
 <script>
 "use strict";
 
@@ -777,15 +853,15 @@
    (Sir/Ma'am, marijuana/alcohol, arrested/detained); spaces around the slash
    when either side is more than one word (rights / the law). */
 const DEFAULT_POOL = [
-  { text:"PIT maneuver", desc:"Officer attempts (successful or not) to nudge the back of the suspect's car into a spin.", bonus:"If the PIT is performed successfully, the driver turns out to be a woman.", bonusType:"swap" },
+  { text:"PIT maneuver", desc:"Officer attempts (successful or not) to nudge the back of the suspect's car into a spin.", bonus:"The PIT succeeds and the driver is a woman.", bonusType:"swap" },
   { text:"Race card", desc:"Suspect insists this is definitely, 100% about their race." },
   { text:"\"I'm going to sue you!\"" },
   { text:"Kicks the back seat", desc:"Going full toddler-mode in the back of the squad car.", bonus:"Causes actual damage to door, cage, camera, etc... or urinates.", bonusType:"pick" },
   { text:"Spitter", desc:"The suspect spits on or near anyone or anything.", bonus:"Beekeeper Cosplay — the suspect gets put in a spit hood.", bonusType:"pick" },
   { text:"Inappropriate touching accusation", desc:"Suspect accuses the officer of misconduct at some point — usually during a pat-down or search." },
-  { text:"\"I've only had 2 drinks\"", desc:"Suspect claims they've only had 2 drinks and therefore couldn't possibly be drunk. Those \"2 drinks\" were most likely consumed about 10 hours earlier." },
+  { text:"Admits to drinking", desc:"Those drinks were most likely consumed about 10 hours earlier.", bonus:"They claim to have only had two drinks.", bonusType:"pick" },
   { text:"\"I'm not resisting\"" },
-  { text:"Kid/pet caught in the middle", desc:"A kid or pet is stuck in the middle of the dysfunction, whether they understand what's happening or not." },
+  { text:"Kid or pet caught in the middle", desc:"A kid or pet is stuck in the middle of the dysfunction, whether they understand what's happening or not." },
   { text:"\"I didn't do anything\"" },
   { text:"Florida", desc:"You already know. You just know." },
   { text:"\"I have to go to work\"", desc:"Suspect doesn't have time for this nonsense — they've got to get to their job, where they're no doubt a stellar employee." },
@@ -798,41 +874,42 @@ const DEFAULT_POOL = [
   { text:"Asks for a lawyer", desc:"Suspect demands their attorney long before they even reach the police station." },
   { text:"Miranda rights" },
   { text:"\"Bro\"", desc:"Anyone says \"Bro\" — usually the suspect, about a hundred times." },
-  { text:"K9 appears" },
+  { text:"K9 appears or barks", desc:"And no, whining doesn't count. We don't reward whiners... no matter how cute they are." },
   { text:"Foot chase" },
+  { text:"Car chase" },
   { text:"Suspect apologizes" },
   { text:"Ends in a plea deal", desc:"The end-of-video recap mentions the suspect took a plea deal to drop some charges." },
   { text:"Hot cop", desc:"An attractive officer of any gender appears. Beauty is subjective — but let's be realistic here." },
   { text:"Complains about handcuffs" },
-  { text:"\"Do you know who I am / what I do?\"" },
+  { text:"\"Do you know who I am?!\"" },
   { text:"Nudity", desc:"Accidental...or intentional." },
   { text:"Tased", bonus:"Suspect remains standing and swats the wires away like nothing.", bonusType:"pick" },
   { text:"Slips cuffs to the front", desc:"Suspect steps through their arms so the cuffs end up in front — still cuffed, just rearranged.", bonus:"Gets the cuffs off completely.", bonusType:"pick" },
   { text:"\"Are you recording this?\"" },
-  { text:"Phone Phixation", desc:"• Where is my phone?!\n• Bring my phone!\n• Suspect continues to talk on the phone while the officer speaks to them." },
-  { text:"Wants name/badge #" },
+  { text:"Phone Phixation", desc:"• \"Where is my phone?!\"\n• \"Bring my phone!\"\n• Suspect continues to talk on the phone while the officer speaks to them." },
+  { text:"Wants name or badge #" },
   { text:"Cuffed without shoes on" },
-  { text:"Officer smells marijuana/alcohol", desc:"On the person or in the vehicle." },
+  { text:"Officer smells marijuana or alcohol", desc:"On the person or in the vehicle." },
   { text:"Field sobriety test performed", bonus:"The suspect actually passes the test.", bonusType:"pick" },
   { text:"Tactical bun", desc:"The classic tactical hair bun makes an appearance.", bonus:"If it's on a man.", bonusType:"pick" },
   { text:"\"That's not mine!\"", desc:"Suspect denies any knowledge of the drugs, weapons, or stolen goods the police just found.", bonus:"Turns out to actually be true.", bonusType:"pick" },
   { text:"Expired registration" },
   { text:"DUI", desc:"The stop is for — or ends in — a driving-under-the-influence charge." },
-  { text:"Tow truck appears" },
+  { text:"Tow truck appears", bonus:"The tow truck leaves without doing anything.", bonusType:"pick" },
   { text:"Ambulance appears" },
   { text:"Music playing in squad car", desc:"Still counts if the subtitles note the audio was muted for copyright." },
   { text:"Backup arrives" },
   { text:"Suspect has a weapon", desc:"In the vehicle, on their person, or within reach." },
   { text:"\"Lawful command\"", desc:"Anyone — suspect, officer, or bystander — says the phrase \"lawful command.\"" },
-  { text:"\"Am I being arrested/detained?\"" },
+  { text:"\"Am I being arrested or detained?\"" },
   { text:"\"Calm down\"", desc:"Anyone says it to anyone else." },
   { text:"Has warrants", desc:"Suspect has them, or the police are serving them.", bonus:"Whoops! It turns out they didn't actually have a warrant.", bonusType:"pick" },
-  { text:"Stop sticks" },
+  { text:"Stop sticks deployed" },
   { text:"Any 10-code", desc:"Known as the APCO Project 14 Aural Brevity Code. This is the way police quickly and concisely communicate on radio.\n10-4, good buddy!" },
   { text:"Cop has a shield, rifle, or 40mm" },
   { text:"A sergeant appears", desc:"• You see their chevron patch with three stripes.\n• The officer refers to themselves as a sergeant.\n• Anyone else addresses an officer as sergeant." },
-  { text:"Shots fired" },
-  { text:"Suspect/civilian filming" }
+  { text:"\"Shots fired\"", desc:"An officer calls this out. Honestly, how do cops do this job??" },
+  { text:"Suspect or civilian filming" }
 ];
 
 /* Mutually-exclusive groups: no two phrases from the same inner array will
@@ -1372,6 +1449,7 @@ function toggleDab(idx, cell, cells){
   // ---- dab ----
   state.dabs.add(idx);
   stampCell(cell, false);
+  bounceColumnLetter(idx);
   checkWin(cells);
   const val = cells[idx];
   if(val && val.bonus && !state.bonusResolved.has(idx)){
@@ -1393,10 +1471,14 @@ function effectiveBonusType(val){
   // master toggle overrides every bonus to random
   return state.bonusMode === "random" ? "random" : (val.bonusType || "pick");
 }
+function bonusTypeLabel(type){
+  return type==="swap" ? "Swap reward" : type==="search" ? "Dusel's Search" : type==="random" ? "Random reward" : "Pick reward";
+}
 function openBonusModal(sourceIdx, val){
   state._bonusSource = sourceIdx;
   state._bonusType = effectiveBonusType(val);
   $("#bonusTitle").textContent = "⭐ " + val.text;
+  $("#bonusTypeName").textContent = bonusTypeLabel(state._bonusType);
   $("#bonusDesc").textContent = val.bonus;
   $("#bonusReward").textContent = bonusTypeBlurb(state._bonusType);
   $("#bonusOverlay").hidden = false;
@@ -1415,8 +1497,16 @@ function startClaim(src, type){
   if(type === "random"){
     const rolled = ["pick","swap","search"][Math.floor(Math.random()*3)];
     state.lockedSources.add(src);   // locks on reveal — no re-rolling
-    if(rolled === "search"){ toast("🎲 Random rolled: SEARCH — Dusel's on it!"); doSearch(src, true); }
-    else { toast(rolled==="pick" ? "🎲 Random rolled: PICK!" : "🎲 Random rolled: SWAP!"); startPickMode(src, rolled, true); }
+    const names = { pick:"PICK", swap:"SWAP", search:"SEARCH" };
+    const bodies = {
+      pick:"You get a free daub on any open square.",
+      swap:"Swap any one open square for a fresh phrase.",
+      search:"Dusel picks a random open square for you — helpful or not."
+    };
+    showResultNote({
+      icon:"🎲", title:"Random rolled: " + names[rolled] + "!", body:bodies[rolled],
+      onClose:()=>{ if(rolled==="search") doSearch(src, true); else startPickMode(src, rolled, true); }
+    });
   } else if(type === "search"){
     state.lockedSources.add(src);   // Search locks in too
     doSearch(src, false);
@@ -1430,15 +1520,63 @@ function doSearch(src, wasRandom){
   const openIdxs = cells.map((c,i)=> (c && !state.dabs.has(i)) ? i : -1).filter(i=>i>=0);
   if(!openIdxs.length){ toast("No open squares for Dusel to find!"); return; }
   const target = openIdxs[Math.floor(Math.random()*openIdxs.length)];
+  const targetText = cells[target] ? cells[target].text : "Square";
   state.dabs.add(target);
   state.searchDabs.add(target);
+  state.bonusAwards.push({ sourceIdx:src, targetIdx:target, type: wasRandom?"random":"search", rolled:"search", sourceText, targetText });
+  renderBonusTracker();
   const host = $("#playCard");
-  const cell = host ? host.querySelectorAll(".cell")[target] : null;
-  if(cell) stampCell(cell, "paw");
-  state.bonusAwards.push({ sourceIdx:src, targetIdx:target, type: wasRandom?"random":"search", rolled:"search", sourceText, targetText: cells[target] ? cells[target].text : "Square" });
-  toast("🐾 Dusel dabbed a square for you!");
+  const targetCell = host ? host.querySelectorAll(".cell")[target] : null;
+  const finish = ()=>{
+    checkWin(cells);
+    saveProgress();
+    if($("#banner").hidden){   // if it didn't trigger a win, announce what Dusel did
+      showResultNote({ icon:"🐾", title:"Dusel found a square!", body:'Dusel dabbed "' + shorten(targetText) + '" for you — helpful or not, it\'s locked in!' });
+    }
+  };
+  if(targetCell){
+    playDuselSearch(targetCell, ()=>{ stampCell(targetCell, "paw"); }, finish);
+  } else {
+    finish();
+  }
+}
+function openSwapChooser(targetIdx, src, isRandom){
+  const cells = state.currentCard;
+  const onCard = new Set(cells.filter(Boolean).map(p => p.text.toLowerCase()));
+  const avail = enabledPool().filter(p => !onCard.has(p.text.toLowerCase()));   // bonus phrases allowed (bonus-in-bonus)
+  const choices = rngShuffle(avail).slice(0, 6);
+  if(!choices.length){ toast("No fresh phrases left to swap in."); cancelPickMode(); return; }
+  cancelPickMode();
+  state._swapCtx = { targetIdx, src, isRandom:!!isRandom };
+  const box = $("#swapChoices"); box.innerHTML = "";
+  choices.forEach(p=>{
+    const btn = el("button","swap-choice"); btn.type = "button";
+    const txt = el("span"); txt.textContent = p.text; btn.appendChild(txt);
+    if(p.bonus){ const tag = el("span","bonus-tag"); tag.textContent = "⭐ BONUS"; btn.appendChild(tag); }
+    btn.addEventListener("click", ()=> chooseSwap(p));
+    box.appendChild(btn);
+  });
+  $("#swapOverlay").hidden = false;
+}
+function chooseSwap(phrase){
+  const ctx = state._swapCtx; if(!ctx) return;
+  const cells = state.currentCard;
+  const orig = cells[ctx.targetIdx];
+  // bonus-in-bonus: if the chosen phrase is bonus-eligible, the new square becomes a bonus square
+  cells[ctx.targetIdx] = { text:phrase.text, desc:phrase.desc||null, bonus:phrase.bonus||null, bonusType:phrase.bonusType||null, enabled:true };
+  const srcText = cells[ctx.src] ? cells[ctx.src].text : "Bonus";
+  state.bonusAwards.push({ sourceIdx:ctx.src, targetIdx:ctx.targetIdx, type:ctx.isRandom?"random":"swap", rolled:"swap", sourceText:srcText, targetText:phrase.text, origPhrase:orig });
+  state._swapCtx = null;
+  $("#swapOverlay").hidden = true;
+  paintCard();
   renderBonusTracker();
   checkWin(cells);
+}
+function closeSwapChooser(){
+  if($("#swapOverlay").hidden) return;
+  $("#swapOverlay").hidden = true;
+  const ctx = state._swapCtx; state._swapCtx = null;
+  if(ctx) startPickMode(ctx.src, "swap", ctx.isRandom);   // let them pick a square again rather than lose the swap
 }
 function startPickMode(sourceIdx, mode, isRandom){
   state.pickMode = { sourceIdx, mode, isRandom:!!isRandom };
@@ -1470,18 +1608,7 @@ function handleBonusPick(targetIdx, cell){
   const sourceText = cells[src] ? cells[src].text : "Bonus";
 
   if(mode==="swap"){
-    // pull a fresh, non-bonus phrase that isn't already on the card
-    const onCard = new Set(cells.filter(Boolean).map(p => p.text.toLowerCase()));
-    const avail = enabledPool().filter(p => !p.bonus && !onCard.has(p.text.toLowerCase()));
-    if(!avail.length){ toast("No fresh phrases left to swap in."); cancelPickMode(); return; }
-    const fresh = rngShuffle(avail)[0];
-    const orig = cells[targetIdx];
-    cells[targetIdx] = { text:fresh.text, desc:fresh.desc||null, bonus:null, bonusType:null, enabled:true };
-    state.bonusAwards.push({ sourceIdx:src, targetIdx, type:isRandom?"random":"swap", rolled:"swap", sourceText, targetText:fresh.text, origPhrase:orig });
-    cancelPickMode();
-    paintCard();               // reflect the new phrase text
-    renderBonusTracker();
-    checkWin(cells);
+    openSwapChooser(targetIdx, src, isRandom);
     return;
   }
 
@@ -1489,10 +1616,25 @@ function handleBonusPick(targetIdx, cell){
   state.dabs.add(targetIdx);
   state.bonusDabs.add(targetIdx);
   stampCell(cell, true);
-  state.bonusAwards.push({ sourceIdx:src, targetIdx, type:isRandom?"random":"pick", rolled:"pick", sourceText, targetText: cells[targetIdx] ? cells[targetIdx].text : "Square" });
+  const pickedText = cells[targetIdx] ? cells[targetIdx].text : "Square";
+  state.bonusAwards.push({ sourceIdx:src, targetIdx, type:isRandom?"random":"pick", rolled:"pick", sourceText, targetText: pickedText });
   cancelPickMode();
   renderBonusTracker();
   checkWin(cells);
+  // acknowledge + lock (item 65): confirm the choice, then it can't be moved
+  askConfirm(
+    'Lock your free daub on "' + shorten(pickedText) + '"? You won\'t be able to move it after this.',
+    ()=>{ state.lockedSources.add(src); state.lockedSources.add(targetIdx); toast("✔ Free daub locked in!"); saveProgress(); },
+    { yes:"Lock it in", no:"Pick a different square", onNo:()=>{
+        // undo this daub and pick again
+        state.dabs.delete(targetIdx); state.bonusDabs.delete(targetIdx);
+        removeAwardByTarget(targetIdx);
+        const host=$("#playCard"); const tcell = host ? host.querySelectorAll(".cell")[targetIdx] : null;
+        if(tcell) unstampCell(tcell);
+        renderBonusTracker(); checkWin(state.currentCard);
+        startPickMode(src, "pick", isRandom);
+      } }
+  );
 }
 function removeAwardBySource(sourceIdx){
   const i = state.bonusAwards.findIndex(a => a.sourceIdx===sourceIdx);
@@ -1859,22 +2001,26 @@ function applyCardFont(cardEl){
   const T = effectiveFontSize(cols);
   const cells = [...cardEl.querySelectorAll(".cell")];
   if(!cells.length) return;
+  cells.forEach(c=>{ c.style.aspectRatio = "auto"; c.style.height = "auto"; });
+  // pass 1: for each square, find the largest size <= T where its longest word still fits on one
+  // line, then take the SMALLEST of those so every square can share one uniform, readable size.
+  let uniform = T;
   cells.forEach(c=>{
-    c.style.aspectRatio = "auto";
-    c.style.height = "auto";
     const txt = c.querySelector(".txt");
-    if(txt && !c.classList.contains("free")){
-      let size = T;
-      txt.style.fontSize = size + "px";
-      // shrink ONLY this square if a single word is too wide to sit on one line
-      let guard = 0;
-      while(size > 7 && c.scrollWidth > c.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
-    }
+    if(!txt || c.classList.contains("free")) return;
+    let size = T;
+    txt.style.fontSize = size + "px";
+    let guard = 0;
+    while(size > 7 && c.scrollWidth > c.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
+    if(size < uniform) uniform = size;
   });
+  // pass 2: apply the uniform (smallest-needed) size to every square
+  cells.forEach(c=>{ const txt = c.querySelector(".txt"); if(txt && !c.classList.contains("free")) txt.style.fontSize = uniform + "px"; });
+  // pass 3: grow every square to the tallest content height (floored at a square)
   let maxH = 0;
   cells.forEach(c=>{ if(c.scrollHeight > maxH) maxH = c.scrollHeight; });
   const w = cells[0].clientWidth || 0;
-  if(w > maxH) maxH = w;                       // never shorter than a square
+  if(w > maxH) maxH = w;
   cells.forEach(c=>{ c.style.height = maxH + "px"; });
 }
 
@@ -1900,11 +2046,77 @@ function paintCard(){
   host.appendChild(card);
   applyCardFont(card);
 }
+function playLetterWave(){
+  const row = $("#playCard .letters"); if(!row) return;
+  row.classList.remove("wave"); void row.offsetWidth; row.classList.add("wave");
+  clearTimeout(row._wt); row._wt = setTimeout(()=>row.classList.remove("wave"), 1300);
+}
+function bounceColumnLetter(idx){
+  const card = $("#playCard .card"); if(!card) return;
+  const n = state.currentCard ? Math.round(Math.sqrt(state.currentCard.length)) : 5;
+  const letter = card.querySelectorAll(".letters div")[idx % n];
+  if(!letter) return;
+  letter.classList.remove("bounce"); void letter.offsetWidth; letter.classList.add("bounce");
+}
+let _resultCloseCb = null;
+function showResultNote({icon, title, body, onClose}){
+  $("#resultIcon").textContent = icon || "";
+  $("#resultTitle").textContent = title || "";
+  $("#resultBody").textContent = body || "";
+  _resultCloseCb = onClose || null;
+  $("#resultNote").hidden = false;
+  $("#resultOk").focus();
+}
+function closeResultNote(){
+  if($("#resultNote").hidden) return;
+  $("#resultNote").hidden = true;
+  const cb = _resultCloseCb; _resultCloseCb = null;
+  if(cb) cb();
+}
+/* Dusel runs in from a random side straight to a specific square, pauses on it, then runs off.
+   onArrive fires when he reaches the square (drop the paw then); onDone fires after he leaves. */
+function playDuselSearch(targetCell, onArrive, onDone){
+  const k = $("#k9run"); const fig = k ? k.querySelector(".k9-figure") : null; const bubble = k ? k.querySelector(".k9-bubble") : null;
+  if(!k || !fig || !targetCell){ if(onArrive) onArrive(); if(onDone) onDone(); return; }
+  const vw = document.documentElement.clientWidth || window.innerWidth || 360;
+  const figW = Math.min(vw*0.44, 230);
+  const r = targetCell.getBoundingClientRect();
+  const tx = r.left + r.width/2 - figW/2;
+  const ty = r.top + r.height/2 - figW*0.30;
+  const fromLeft = Math.random() < 0.5;
+  const offX  = fromLeft ? (-figW - 40) : (vw + 40);
+  const exitX = fromLeft ? (vw + 40)    : (-figW - 40);
+  if(bubble) bubble.style.display = "none";     // no speech bubble on a search run
+  clearTimeout(k._t);
+  fig.style.animation = "none";
+  fig.style.left = "0px"; fig.style.top = "0px";
+  fig.style.transition = "none";
+  fig.style.transform = `translate(${offX}px, ${ty}px)`;
+  k.hidden = false;
+  void fig.offsetWidth;                          // commit start position
+  fig.style.transition = "transform .8s cubic-bezier(.3,0,.35,1)";
+  fig.style.transform = `translate(${tx}px, ${ty}px)`;   // run in to the square
+  k._t = setTimeout(()=>{
+    if(onArrive) onArrive();                     // he's arrived — drop the paw
+    setTimeout(()=>{
+      fig.style.transition = "transform .8s cubic-bezier(.5,0,.7,1)";
+      fig.style.transform = `translate(${exitX}px, ${ty}px)`;   // run off
+      setTimeout(()=>{
+        k.hidden = true;
+        fig.style.transition=""; fig.style.transform=""; fig.style.left=""; fig.style.top=""; fig.style.animation="";
+        if(bubble) bubble.style.display = "";
+        if(onDone) onDone();
+      }, 820);
+    }, 650);                                       // pause on the square
+  }, 820);                                         // run-in duration
+}
 function playDusel(){
   const k = $("#k9run"); if(!k) return;
+  const fig = k.querySelector(".k9-figure");
+  if(fig){ fig.style.transition=""; fig.style.transform=""; fig.style.left=""; fig.style.top=""; fig.style.animation=""; }  // clear any leftover search styles
   k.hidden = true; void k.offsetWidth; k.hidden = false;  // force-restart the run animation
   clearTimeout(k._t);
-  k._t = setTimeout(()=>{ k.hidden = true; }, 4100);
+  k._t = setTimeout(()=>{ k.hidden = true; }, 3600);
 }
 function openPlay(cells, {keepDabs=false}={}){
   renderTapeTitle();
@@ -1935,7 +2147,7 @@ function openPlay(cells, {keepDabs=false}={}){
   renderBonusTracker();
   updatePickModeUI();
   checkWin(state.currentCard);
-  if(!keepDabs) playDusel();
+  if(!keepDabs){ playDusel(); playLetterWave(); }
 }
 
 /* ---------------- print ---------------- */
@@ -2075,7 +2287,7 @@ function renderPoolList(){
     if(p.bonus || p.desc){
       const badges = el("span","pool-badges");
       if(p.bonus){
-        const t = p.bonusType==="swap" ? "Swap" : p.bonusType==="random" ? "Random" : "Pick";
+        const t = p.bonusType==="swap" ? "Swap" : p.bonusType==="random" ? "Random" : p.bonusType==="search" ? "Search" : "Pick";
         badges.appendChild(document.createTextNode(" ⭐ " + t));
       }
       if(p.desc)  badges.appendChild(document.createTextNode(" ⓘ"));
@@ -2120,6 +2332,7 @@ function openPhraseModal(idx){
   updateBonusFieldsVisibility();
   $("#phraseOverlay").hidden = false;
   $("#pmText").focus();
+  updatePhraseHint();
 }
 function closePhraseModal(){
   $("#phraseOverlay").hidden = true;
@@ -2192,6 +2405,18 @@ $("#copySetup").addEventListener("click", ()=> copy(setupLink()));
 $("#addPhrase").addEventListener("click", ()=> openPhraseModal(-1));
 $("#pmSave").addEventListener("click", savePhraseModal);
 $("#pmCancel").addEventListener("click", closePhraseModal);
+function updatePhraseHint(){
+  const hint = $("#pmTextHint"); if(!hint) return;
+  const v = ($("#pmText").value || "").trim();
+  if(!v){ hint.textContent = ""; hint.classList.remove("warn"); return; }
+  const longest = v.split(/\s+/).reduce((m,w)=> Math.max(m, w.length), 0);
+  let msg = v.length + " characters", warn = false;
+  if(longest >= 11){ msg += ` · long word (${longest}) can shrink the card's text — a space or "or" helps`; warn = true; }
+  else if(v.length > 42){ msg += " · fairly long, so cards may get tall"; warn = true; }
+  hint.textContent = msg;
+  hint.classList.toggle("warn", warn);
+}
+$("#pmText").addEventListener("input", updatePhraseHint);
 $("#pmClose").addEventListener("click", closePhraseModal);
 $("#pmIsBonus").addEventListener("change", updateBonusFieldsVisibility);
 $("#phraseOverlay").addEventListener("click", e=>{ if(e.target===$("#phraseOverlay")) closePhraseModal(); });
@@ -2228,7 +2453,9 @@ $("#bonusOverlay").addEventListener("click", e=>{ if(e.target===$("#bonusOverlay
 $("#pickCancel").addEventListener("click", cancelPickMode);
 document.addEventListener("keydown", e=>{
   if(e.key!=="Escape") return;
-  if(!$("#confirmOverlay").hidden){ closeConfirm(false); }
+  if(!$("#resultNote").hidden){ closeResultNote(); }
+  else if(!$("#swapOverlay").hidden){ closeSwapChooser(); }
+  else if(!$("#confirmOverlay").hidden){ closeConfirm(false); }
   else if(!$("#patternViewOverlay").hidden){ closePatternView(); }
   else if(!$("#banner").hidden){ dismissBanner(); }
   else if(!$("#phraseOverlay").hidden){ closePhraseModal(); }
@@ -2239,9 +2466,27 @@ document.addEventListener("keydown", e=>{
 $("#newCard").addEventListener("click", ()=> askConfirm("Deal a brand-new card? Your current dabs will be lost.", ()=> openPlay(buildCard())));
 $("#clearDabs").addEventListener("click", ()=> askConfirm("Clear all your dabs on this card?", ()=> openPlay(state.currentCard, {keepDabs:false})));
 let _confirmCb = null;
-function askConfirm(msg, cb){ $("#confirmMsg").textContent = msg; _confirmCb = cb; $("#confirmOverlay").hidden = false; $("#confirmYes").focus(); }
-function closeConfirm(run){ $("#confirmOverlay").hidden = true; const cb=_confirmCb; _confirmCb=null; if(run && cb) cb(); }
+let _confirmNoCb = null;
+function askConfirm(msg, cb, opts){
+  opts = opts || {};
+  $("#confirmMsg").textContent = msg;
+  $("#confirmYes").textContent = opts.yes || "Yes";
+  $("#confirmNo").textContent = opts.no || "Cancel";
+  _confirmCb = cb; _confirmNoCb = opts.onNo || null;
+  $("#confirmOverlay").hidden = false; $("#confirmYes").focus();
+}
+function closeConfirm(run){
+  $("#confirmOverlay").hidden = true;
+  const cb=_confirmCb, noCb=_confirmNoCb; _confirmCb=null; _confirmNoCb=null;
+  $("#confirmYes").textContent = "Yes"; $("#confirmNo").textContent = "Cancel";  // reset for next use
+  if(run){ if(cb) cb(); } else { if(noCb) noCb(); }
+}
 $("#confirmYes").addEventListener("click", ()=> closeConfirm(true));
+$("#resultClose").addEventListener("click", closeResultNote);
+$("#swapClose").addEventListener("click", closeSwapChooser);
+$("#swapOverlay").addEventListener("click", e=>{ if(e.target===$("#swapOverlay")) closeSwapChooser(); });
+$("#resultOk").addEventListener("click", closeResultNote);
+$("#resultNote").addEventListener("click", e=>{ if(e.target===$("#resultNote")) closeResultNote(); });
 $("#confirmNo").addEventListener("click", ()=> closeConfirm(false));
 $("#confirmOverlay").addEventListener("click", e=>{ if(e.target===$("#confirmOverlay")) closeConfirm(false); });
 $("#shareCard").addEventListener("click", ()=> shareOrCopy(cardLink(), "Here's your BUSTD card"));
