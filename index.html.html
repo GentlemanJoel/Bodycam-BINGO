@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>BUSTD — Bodycam Bingo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Compression for short share links (with graceful fallback if it can't load) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<style>
+  :root{
+    --paper:#F1F2F3;
+    --ink-text:#1C2D42;
+    --grape:#1C2D42;
+    --grape-2:#38506C;
+    --pink:#E53835;
+    --blue:#38506C;
+    --orange:#CDA250;
+    --green:#7F8C8D;
+    --purple:#7C4DAB;
+    --gold:#CDA250;
+    --ink:#E53835; /* active dauber color, overridden per card */
+    --line:#1C2D42;
+    --strobe-red:#FF3B30;
+    --strobe-blue:#2F7CFF;
+    --bonus-gold:#F0B429;
+    --switch-on:var(--strobe-red);
+    --disp: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
+    --body: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:var(--body);
+    color:var(--ink-text);
+    background:
+      radial-gradient(1200px 720px at 50% -8%, #14203c, transparent 60%),
+      radial-gradient(80% 60% at 50% 108%, #0e0a18, transparent 60%),
+      #090c15;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+  }
+  /* atmospheric squad-light layer: vibrant glow + rolling textured fog + vignette, full viewport */
+  .bg-fx{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  /* base colored glow — vibrant red (left) / blue (right) on the dark canvas */
+  .bg-fx::before{
+    content:""; position:absolute; inset:-12%;
+    background:
+      radial-gradient(58% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%),
+      radial-gradient(58% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%),
+      radial-gradient(50% 55% at 50% 55%, rgba(150,45,150,.24), transparent 70%);
+    animation:bgPulse 8s ease-in-out infinite;
+  }
+  @keyframes bgPulse{ 0%,100%{ opacity:.82; transform:scale(1); } 50%{ opacity:1; transform:scale(1.06); } }
+  /* thick rolling clouds — soft color gradients displaced by SVG noise into wispy fog, each drifting on its own path */
+  .fog-cloud{ position:absolute; pointer-events:none; mix-blend-mode:screen; will-change:transform, opacity; }
+  .fog-a{ left:-22vw; top:-6vh; width:82vw; height:88vh;
+    background:radial-gradient(closest-side, rgba(255,26,46,.60), rgba(255,26,46,.14) 58%, transparent 78%);
+    filter:url(#fogWisp1); animation:fogA 47s ease-in-out infinite; }
+  .fog-b{ left:44vw; top:-8vh; width:84vw; height:90vh;
+    background:radial-gradient(closest-side, rgba(32,112,255,.58), rgba(32,112,255,.14) 58%, transparent 78%);
+    filter:url(#fogWisp2); animation:fogB 59s ease-in-out infinite; }
+  .fog-c{ left:16vw; top:14vh; width:66vw; height:66vh;
+    background:radial-gradient(closest-side, rgba(168,54,205,.42), transparent 72%);
+    filter:url(#fogWisp3); animation:fogC 67s ease-in-out infinite; }
+  .fog-d{ left:-18vw; top:-14vh; width:96vw; height:74vh;
+    background:radial-gradient(closest-side, rgba(206,214,236,.24), transparent 70%);
+    filter:url(#fogWisp2); animation:fogD 41s linear infinite; }
+  .fog-e{ left:34vw; top:34vh; width:74vw; height:70vh;
+    background:radial-gradient(closest-side, rgba(255,40,60,.34), transparent 74%);
+    filter:url(#fogWisp3); animation:fogE 53s ease-in-out infinite; }
+  @keyframes fogA{ 0%{transform:translate(-6vw,3vh) scale(1);} 33%{transform:translate(20vw,-7vh) scale(1.22);} 66%{transform:translate(4vw,9vh) scale(1.1);} 100%{transform:translate(-6vw,3vh) scale(1);} }
+  @keyframes fogB{ 0%{transform:translate(6vw,-2vh) scale(1.05);} 30%{transform:translate(-14vw,8vh) scale(1.25);} 60%{transform:translate(-2vw,-8vh) scale(1.12);} 100%{transform:translate(6vw,-2vh) scale(1.05);} }
+  @keyframes fogC{ 0%{transform:translate(0,-4vh) scale(1); opacity:.9;} 50%{transform:translate(8vw,10vh) scale(1.3); opacity:1;} 100%{transform:translate(0,-4vh) scale(1); opacity:.9;} }
+  @keyframes fogD{ 0%{transform:translate(-24vw,2vh) scale(1.1); opacity:.35;} 45%{transform:translate(34vw,7vh) scale(1.35); opacity:.7;} 100%{transform:translate(96vw,-3vh) scale(1.1); opacity:.35;} }
+  @keyframes fogE{ 0%{transform:translate(4vw,4vh) scale(1); opacity:.8;} 40%{transform:translate(-18vw,-6vh) scale(1.24); opacity:1;} 75%{transform:translate(10vw,8vh) scale(1.1); opacity:.85;} 100%{transform:translate(4vw,4vh) scale(1); opacity:.8;} }
+  /* vignette for depth — darker toward the edges, source-light feel */
+  .bg-vignette{ position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(125% 105% at 50% 38%, transparent 42%, rgba(0,0,0,.5) 100%); }
+  @media (prefers-reduced-motion: reduce){ .bg-fx::before, .fog-cloud{ animation:none; } }
+  /* faint bingo-dot texture */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:0;
+    background-image:radial-gradient(rgba(255,255,255,.9) 1.5px, transparent 1.6px);
+    background-size:26px 26px;
+  }
+  .wrap{ position:relative; z-index:1; max-width:820px; margin:0 auto; padding:22px 16px 60px; }
+
+  /* ---------- Marquee wordmark ---------- */
+  .lightbar{ display:flex; gap:4px; justify-content:center; margin:14px 0 10px; height:6px; }
+  .lightbar span{ width:120px; max-width:30vw; border-radius:3px; }
+  .lightbar .lr{ background:var(--strobe-red); animation:flashRed 1s steps(2,end) infinite; }
+  .lightbar .lb{ background:var(--strobe-blue); animation:flashBlue 1s steps(2,end) infinite; animation-delay:.5s; }
+  @keyframes flashRed{
+    0%,49%{ opacity:1; box-shadow:0 0 10px 3px rgba(255,59,48,.95), 0 0 26px 9px rgba(255,59,48,.55); }
+    50%,100%{ opacity:.22; box-shadow:0 0 4px 1px rgba(255,59,48,.35); }
+  }
+  @keyframes flashBlue{
+    0%,49%{ opacity:.22; box-shadow:0 0 4px 1px rgba(47,124,255,.35); }
+    50%,100%{ opacity:1; box-shadow:0 0 10px 3px rgba(47,124,255,.95), 0 0 26px 9px rgba(47,124,255,.55); }
+  }
+  @media (prefers-reduced-motion: reduce){ .lightbar span{ animation:none; opacity:.85; box-shadow:none; } }
+  .marquee{ display:block; width:100%; overflow:visible; margin:8px 0 4px; }
+  .bodycam-icon{ width:clamp(26px,8vw,38px); height:auto; filter:drop-shadow(0 4px 0 rgba(0,0,0,.28)); }
+  .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .back-cam{ width:32px; flex:0 0 auto; }
+  .bodycam-rec-dot{ animation:recBlink 1.4s ease-in-out infinite; }
+  @keyframes recBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.2; } }
+  @media (prefers-reduced-motion: reduce){ .bodycam-rec-dot{ animation:none; opacity:.85; } }
+  .tape-title{ display:flex; flex-direction:column; align-items:center; gap:11px; width:100%; padding:22px 0; }
+  .tape-strip{
+    position:relative; background:#EED202; color:#161311; width:100%; text-align:center;
+    padding:6px 24px; border-top:3px solid rgba(0,0,0,.6); border-bottom:3px solid rgba(0,0,0,.6);
+    box-shadow:0 13px 30px rgba(0,0,0,.5); white-space:nowrap;
+  }
+  .tape-strip::before,.tape-strip::after{
+    content:""; position:absolute; top:0; bottom:0; width:16px;
+    background:repeating-linear-gradient(45deg, rgba(0,0,0,.55) 0 5px, transparent 5px 10px);
+  }
+  .tape-strip::before{ left:0; }
+  .tape-strip::after{ right:0; }
+  .tape-text{
+    display:inline-block; font-family:var(--disp); font-weight:700; text-transform:uppercase;
+    letter-spacing:.03em; line-height:1; font-size:var(--tape-size,25px); white-space:nowrap;
+  }
+  .tape-strip[hidden]{ display:none; }
+  .sect-info{
+    display:inline-grid; place-items:center; width:19px; height:19px; border-radius:50%; margin-left:8px;
+    background:var(--strobe-blue); color:#fff; font-family:var(--mono); font-weight:700; font-size:11px;
+    line-height:1; cursor:pointer; border:none; vertical-align:middle; transform:translateY(-2px);
+  }
+  .sect-info:hover, .sect-info:focus-visible{ filter:brightness(1.15); }
+  .sect-help{ display:none; }
+  #title{ text-transform:uppercase; }
+  .tag{ text-align:center; color:#e9ddf6; opacity:.8; margin:0 0 22px; font-weight:500; letter-spacing:.02em; }
+
+  /* ---------- Paper panel ---------- */
+  .paper{
+    background:var(--paper); border-radius:18px; padding:22px;
+    box-shadow:0 20px 50px rgba(0,0,0,.35), 0 2px 0 rgba(255,255,255,.06) inset;
+  }
+  .paper + .paper{ margin-top:16px; }
+  h2{ font-family:var(--disp); font-size:16px; letter-spacing:.02em; margin:0 0 12px; color:var(--ink-text); }
+  label.field{ display:block; margin:0 0 14px; }
+  .field > span{ display:block; font-weight:700; font-size:13px; margin:0 0 6px; }
+  .hint{ color:#6a5f77; font-size:12.5px; margin:6px 2px 0; line-height:1.45; }
+  .hint code{ background:#efe9dd; border-radius:4px; padding:1px 5px; font-family:var(--mono); font-size:11.5px; color:var(--ink-text); }
+  input[type=text]{
+    width:100%; font-family:var(--body); font-size:16px; padding:11px 13px;
+    border:2px solid #e5ded1; border-radius:11px; background:#fff; color:var(--ink-text);
+  }
+  textarea{
+    width:100%; min-height:210px; resize:vertical; font-family:var(--mono); font-size:14px; line-height:1.55;
+    padding:12px 13px; border:2px solid #e5ded1; border-radius:11px; background:#fff; color:var(--ink-text);
+  }
+  input:focus, textarea:focus{ outline:3px solid rgba(229,56,53,.35); border-color:var(--pink); }
+
+  .rowline{ display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; margin:4px 0 2px; }
+  .count{ font-weight:700; font-size:13px; }
+  .count .ok{ color:var(--green); }
+  .count .no{ color:#c0392b; }
+  .toggle{ display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:14px; cursor:pointer; user-select:none; }
+  .toggle input{ width:20px; height:20px; accent-color:var(--pink); }
+  .seg{ display:inline-flex; flex-wrap:wrap; border:2px solid #e5ded1; border-radius:11px; overflow:hidden; }
+  .seg.seg-stack{ display:flex; flex-direction:column; width:100%; }
+  .seg.seg-stack .segbtn{ text-align:left; padding:13px 15px; font-size:14px; }
+  .seg.seg-stack .segbtn:not(:last-child){ border-right:none; border-bottom:2px solid #e5ded1; }
+  .patterns-grid{ display:flex; flex-wrap:wrap; gap:10px; }
+  .pattern-card{
+    display:flex; flex-direction:column; align-items:center; gap:6px; width:82px; padding:9px 6px;
+    background:#fff; border:2px solid #e5ded1; border-radius:11px; cursor:pointer; font-family:var(--body);
+  }
+  .pattern-card[aria-pressed="true"]{ border-color:var(--pink); box-shadow:0 0 0 2px var(--pink); }
+  .pattern-conflict{ margin-top:12px; padding:11px 13px; border-radius:11px; background:#fff5e0; border:1.5px solid #f0c874;
+    color:#6b4e12; font-family:var(--body); font-size:12.5px; line-height:1.5; display:flex; flex-direction:column; gap:5px; }
+  .pattern-conflict[hidden]{ display:none; }
+  .pattern-conflict .pcn-head{ font-weight:800; }
+  .pattern-conflict .pcn-line b{ color:#5a3d00; }
+  .pattern-mini{ display:grid; gap:2px; }
+  .pattern-mini .pc{ width:9px; height:9px; border-radius:2px; background:#e5ded1; }
+  .pattern-mini .pc.on{ background:var(--strobe-blue); }
+  .pattern-card[aria-pressed="true"] .pattern-mini .pc.on{ background:var(--pink); }
+  .pattern-label{ font-size:10.5px; font-weight:700; text-align:center; line-height:1.2; color:var(--ink-text); }
+  .segbtn{ padding:8px 10px; font-weight:700; font-size:11.5px; background:#fff; color:var(--ink-text); border:none; cursor:pointer; font-family:var(--body); }
+  .segbtn:not(:last-child){ border-right:2px solid #e5ded1; }
+  .segbtn[aria-pressed="true"]{ background:var(--pink); color:#fff; }
+  .pool-sortbar{ display:flex; align-items:center; gap:9px; margin:0 0 11px; flex-wrap:wrap; }
+  .pool-sort-opt{ padding:6px 12px; font-weight:700; font-size:11.5px; background:#fff; color:var(--ink-text); border:none; cursor:pointer; font-family:var(--body); }
+  .pool-sort-opt:not(:last-child){ border-right:2px solid #e5ded1; }
+  .pool-sort-opt[aria-pressed="true"]{ background:var(--strobe-blue); color:#fff; }
+  .bonus-mode-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .bonus-mode-label{ font-weight:600; font-size:14px; }
+  #bonusPerCardRow.disabled{ opacity:.42; pointer-events:none; }
+  .num{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+  .num input{ width:74px; text-align:center; padding:8px; border:2px solid #e5ded1; border-radius:10px; font-size:16px; }
+
+  /* ---------- Buttons ---------- */
+  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .actions.actions-stack{ flex-direction:column; }
+  .actions.actions-stack .btn{ width:100%; text-align:center; padding:14px 16px; }
+  button{ font-family:var(--body); cursor:pointer; border:none; }
+  .btn{
+    font-weight:700; font-size:15px; padding:13px 18px; border-radius:13px; letter-spacing:.01em;
+    box-shadow:0 4px 0 rgba(0,0,0,.18); transition:transform .06s ease, box-shadow .06s ease;
+  }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.18); }
+  .btn.primary{ background:var(--pink); color:#fff; }
+  .btn.gold-claim{
+    background:linear-gradient(160deg,#FFDE7A,#F0B429 55%,#D89418);
+    color:#3A2600; text-shadow:0 1px 0 rgba(255,255,255,.35);
+    box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 22px rgba(240,180,41,.35);
+    animation:goldClaimGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes goldClaimGlow{
+    0%,100%{ box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 16px rgba(240,180,41,.3); }
+    50%{ box-shadow:0 0 0 1px rgba(255,222,122,.8) inset, 0 4px 18px rgba(240,180,41,.6), 0 0 30px rgba(240,180,41,.55); }
+  }
+  @media (prefers-reduced-motion: reduce){ .btn.gold-claim{ animation:none; } }
+  .btn.blue{ background:var(--blue); color:#fff; }
+  .btn.dark{ background:var(--ink-text); color:#fff; }
+  .btn.ghost{ background:#fff; color:var(--ink-text); box-shadow:0 0 0 2px #e5ded1 inset, 0 4px 0 rgba(0,0,0,.10); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .btn:focus-visible{ outline:3px solid #fff; outline-offset:2px; }
+
+  details.help{ margin-top:16px; background:#fff; border:2px solid #efe9dd; border-radius:12px; padding:2px 14px; }
+  details.help summary{ cursor:pointer; font-weight:700; font-size:13.5px; padding:11px 0; list-style:none; }
+  details.help summary::-webkit-details-marker{ display:none; }
+  details.help summary::before{ content:"▸ "; color:var(--pink); }
+  details.help[open] summary::before{ content:"▾ "; }
+  details.help p{ font-size:13px; color:#4b4256; line-height:1.55; margin:2px 0 12px; }
+  .faq-list{ margin:2px 0 12px; padding:0 0 0 20px; list-style:disc; }
+  .faq-list li{ font-size:13px; color:#4b4256; line-height:1.55; margin:0 0 11px; }
+  .faq-list li:last-child{ margin-bottom:0; }
+  .faq-list li > b:first-child{ color:var(--strobe-blue); }
+  details.help b{ color:var(--ink-text); }
+
+  /* ---------- Card (shared look) ---------- */
+  .card{
+    --ink:var(--ink);
+    background:var(--paper); border-radius:16px; padding:12px; width:min(94vw,560px); margin:0 auto;
+    box-shadow:0 16px 40px rgba(0,0,0,.3);
+  }
+  .rec-pill{
+    display:inline-flex; align-items:center; gap:4px; background:var(--grape); color:#fff;
+    font-family:var(--mono); font-weight:500; font-size:10px; letter-spacing:.06em;
+    padding:3px 7px 3px 5px; border-radius:20px; flex-shrink:0;
+  }
+  .rec-dot{ width:6px; height:6px; border-radius:50%; background:var(--pink); animation:recBlink 1.4s ease-in-out infinite; }
+  @media print{ .rec-pill{ background:#222 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } .rec-dot{ animation:none; } }
+  .letters{ display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:5px; }
+  /* wave-bounce across the header letters on card load (item 56) */
+  .letters.wave div{ animation:letterWave .55s ease both; }
+  .letters.wave div:nth-child(2){ animation-delay:.08s; }
+  .letters.wave div:nth-child(3){ animation-delay:.16s; }
+  .letters.wave div:nth-child(4){ animation-delay:.24s; }
+  .letters.wave div:nth-child(5){ animation-delay:.32s; }
+  @keyframes letterWave{ 0%{ transform:translateY(0);} 30%{ transform:translateY(-15px);} 55%{ transform:translateY(0);} 72%{ transform:translateY(-5px);} 100%{ transform:translateY(0);} }
+  /* one letter springs when its column gets dabbed (item 58) */
+  .letters div.bounce{ animation:letterBounce .45s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes letterBounce{ 0%{ transform:translateY(0);} 22%{ transform:translateY(5px);} 60%{ transform:translateY(-9px);} 100%{ transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .letters.wave div, .letters div.bounce{ animation:none; } }
+  .letters div{
+    font-family:var(--disp); color:#fff; text-align:center; border-radius:11px; padding:12px 0; font-size:clamp(22px,7vw,36px);
+    box-shadow:0 4px 8px rgba(0,0,0,.28);
+  }
+  .letters div:nth-child(1){ background:var(--pink); }
+  .letters div:nth-child(2){ background:var(--orange); color:#14171C; }
+  .letters div:nth-child(3){ background:var(--green); color:#1C2D42; }
+  .letters div:nth-child(4){ background:var(--blue); }
+  .letters div:nth-child(5){ background:#1C2D42; }
+  .grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
+  .cell{
+    position:relative; aspect-ratio:1/1; background:#fff; border:2px solid #e7e0d3; border-radius:9px;
+    display:grid; place-items:center; padding:3px; overflow:hidden;
+    font-family:var(--disp); font-weight:600; text-align:center; color:var(--ink-text);
+    font-size:13px; line-height:1.07; letter-spacing:.005em; word-break:normal; overflow-wrap:normal; hyphens:none;
+  }
+  .cell.iconpad{ padding-top:19px; }
+  .cell .txt{ position:relative; z-index:2; }
+  .cell.free{
+    background:#5B1220;
+    border-color:var(--gold);
+  }
+  .cell.free .pleadeal{ display:block; text-align:center; }
+  .cell.free .txt{ font-family:var(--disp); font-weight:800; color:var(--paper); font-size:clamp(11px,3.9vw,17px); letter-spacing:.03em; line-height:1.08; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+  /* the dauber badge stamp — solid-color police shield, inserted as an SVG on dab */
+  .badge-stamp{
+    position:absolute; z-index:1; left:50%; top:50%; width:76%; height:76%; pointer-events:none;
+    transform:translate(-50%,-50%) rotate(var(--rot,0deg));
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));
+    animation:stamp .18s cubic-bezier(.2,1.4,.4,1);
+  }
+  .cell.dabbed .txt{
+    color:var(--ink-text-on-dab, #1A1220);
+    text-shadow:
+      -1px -1px 0 var(--ink-outline-on-dab, rgba(255,255,255,.85)),
+       1px -1px 0 var(--ink-outline-on-dab, rgba(255,255,255,.85)),
+      -1px  1px 0 var(--ink-outline-on-dab, rgba(255,255,255,.85)),
+       1px  1px 0 var(--ink-outline-on-dab, rgba(255,255,255,.85));
+  }
+  .cell:focus-visible{ outline:3px solid var(--ink); outline-offset:1px; }
+  .cell[role="button"]{ cursor:pointer; }
+  .info-icon{
+    position:absolute; z-index:5; top:3px; right:3px; width:15px; height:15px; border-radius:50%;
+    background:rgba(0,0,0,.4); color:#fff; border:1px solid rgba(255,255,255,.6);
+    font-family:var(--mono); font-weight:700; font-size:9px; line-height:13px; text-align:center;
+    padding:0; cursor:pointer;
+  }
+  .info-icon:hover, .info-icon:focus-visible{ background:var(--purple); }
+  /* bonus square: source indicator (top-left, mirrors the ⓘ) */
+  .bonus-indicator{
+    position:absolute; z-index:5; top:3px; left:3px; width:16px; height:16px;
+    background:var(--grape); border:1px solid var(--bonus-gold); border-radius:50%;
+    display:grid; place-items:center; pointer-events:none;
+  }
+  .bonus-indicator-svg{ width:11px; height:11px; display:block; }
+  /* a square daubed via a claimed bonus: gold chevrons + dark text */
+  .cell.bonus-dab .txt{
+    color:#1A1220;
+    text-shadow:-1px -1px 0 rgba(255,255,255,.9), 1px -1px 0 rgba(255,255,255,.9), -1px 1px 0 rgba(255,255,255,.9), 1px 1px 0 rgba(255,255,255,.9);
+  }
+  #play.picking .cell[role="button"]:not(.dabbed){ border-color:var(--bonus-gold); position:relative; z-index:3; animation:goldPulse 2.6s ease-in-out infinite; }
+  @keyframes stamp{ 0%{ transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1.35); opacity:0; } 60%{ opacity:1; } 100%{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .badge-stamp{ animation:none; } .btn{ transition:none; } .rec-dot{ animation:none; opacity:.85; } }
+
+  /* pick-a-square banner + bonus tracker */
+  .pick-banner{
+    width:min(94vw,560px); margin:12px auto 0; background:linear-gradient(90deg,var(--bonus-gold),#F5C542);
+    color:#1A1220; font-weight:700; font-size:13.5px; border-radius:12px; padding:11px 14px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 6px 18px rgba(240,180,41,.4);
+  }
+  .pick-banner[hidden]{ display:none; }
+  .resume-banner{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:rgba(47,124,255,.16); border:2px solid var(--strobe-blue); border-radius:12px;
+    padding:11px 14px; margin:0 0 14px; font-weight:700; font-size:13.5px; color:#fff;
+  }
+  .resume-banner[hidden]{ display:none; }
+  .resume-banner .btn{ padding:7px 13px; font-size:12.5px; }
+  .pick-cancel{ background:rgba(0,0,0,.18); color:#1A1220; border-radius:8px; padding:6px 11px; font-weight:700; cursor:pointer; font-size:12.5px; flex-shrink:0; }
+  .bonus-tracker{
+    width:min(94vw,560px); margin:10px auto 0; background:var(--paper); border-radius:12px;
+    padding:10px 14px 11px; box-shadow:0 8px 24px rgba(0,0,0,.25); border-top:3px solid var(--bonus-gold);
+  }
+  .bonus-tracker[hidden]{ display:none; }
+  .bonus-tracker-title{ font-family:var(--disp); font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:#8a6d12; margin-bottom:4px; }
+  .bonus-tracker-row{ font-size:13px; font-weight:600; color:var(--ink-text); padding:1px 0; }
+
+  /* play screen chrome */
+  .playbar{ display:flex; flex-direction:column; gap:12px; margin:26px auto 0; width:min(94vw,560px); }
+  .playbar .btn{ width:100%; text-align:center; padding:15px 16px; }
+  .customize-label{ text-align:center; color:#e9ddf6; opacity:.75; font-weight:700; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; margin:26px 0 10px; }
+  .badge-icons{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:0 auto 4px; width:min(94vw,560px); }
+  .icon-swatch{ width:38px; height:38px; border-radius:9px; background:#fff; border:3px solid rgba(255,255,255,.4); display:grid; place-items:center; cursor:pointer; padding:0; }
+  .icon-swatch svg{ width:22px; height:22px; display:block; }
+  .icon-swatch[aria-pressed="true"]{ border-color:var(--gold); box-shadow:0 0 0 2px var(--gold); }
+  .daubers{ display:flex; gap:9px; justify-content:center; margin:0 auto 4px; }
+  .swatch{ width:30px; height:30px; border-radius:50%; border:3px solid rgba(255,255,255,.55); box-shadow:0 3px 8px rgba(0,0,0,.3); cursor:pointer; }
+  .swatch[aria-pressed="true"]{ border-color:#fff; transform:scale(1.18); }
+  /* win overlay (dismissible) */
+  .win-overlay{ position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:20px; overflow:hidden;
+    background:rgba(10,15,25,.6); }
+  .win-overlay[hidden]{ display:none; }
+  /* slate jail-cell doors: vertical bars over a dark gap, slamming in from each side */
+  .jail-door{ position:absolute; top:0; bottom:0; width:53%; z-index:1;
+    background-color:#4c5460;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.35)),
+      repeating-linear-gradient(90deg,
+        #838b98 0 3px, #5a626e 3px 13px, #363c46 13px 17px, rgba(14,18,24,.9) 17px 46px);
+    box-shadow:inset 0 0 50px rgba(0,0,0,.55); }
+  .jail-left{ left:0; transform:translateX(-103%); }
+  .jail-right{ right:0; transform:translateX(103%); }
+  .win-overlay:not([hidden]) .jail-left{ animation:slamLeft .55s cubic-bezier(.55,0,.85,.2) forwards; }
+  .win-overlay:not([hidden]) .jail-right{ animation:slamRight .55s cubic-bezier(.55,0,.85,.2) forwards; }
+  @keyframes slamLeft{ from{ transform:translateX(-103%);} to{ transform:translateX(0);} }
+  @keyframes slamRight{ from{ transform:translateX(103%);} to{ transform:translateX(0);} }
+  .win-card{ position:relative; z-index:2; width:min(90vw,440px); text-align:center; font-family:var(--disp); color:#fff;
+    background:linear-gradient(135deg,var(--pink),var(--orange)); padding:36px 26px 26px; border-radius:20px;
+    box-shadow:0 22px 64px rgba(0,0,0,.55); opacity:0; }
+  .win-overlay:not([hidden]) .win-card{ animation:winReveal .4s cubic-bezier(.2,1.4,.4,1) .52s forwards; }
+  @keyframes winReveal{ from{ transform:scale(.8); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .win-text{ position:relative; z-index:2; font-size:clamp(28px,9vw,46px); line-height:1.08; }
+  .win-sub{ position:relative; z-index:2; font-family:var(--body); font-weight:600; font-size:13px; opacity:.85; margin:12px 0 0; }
+  .win-close{ position:absolute; z-index:3; top:9px; right:11px; background:rgba(0,0,0,.28); color:#fff; border:none;
+    width:32px; height:32px; border-radius:50%; font-size:15px; font-weight:700; cursor:pointer; line-height:1; }
+  .fireworks{ position:absolute; inset:0; z-index:1; pointer-events:none; overflow:visible; }
+  .fw-particle{ position:absolute; width:7px; height:7px; border-radius:50%; opacity:0;
+    box-shadow:0 0 6px 1px currentColor; animation:fwFly .9s ease-out forwards; }
+  @keyframes fwFly{ 0%{ transform:translate(-50%,-50%) scale(1); opacity:1;} 100%{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.2); opacity:0;} }
+  @media (prefers-reduced-motion: reduce){
+    .win-overlay:not([hidden]) .jail-left,.win-overlay:not([hidden]) .jail-right,.win-overlay:not([hidden]) .win-card{ animation-duration:.01s; animation-delay:0s; }
+    .fw-particle{ display:none; }
+  }
+  @keyframes pop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+
+  /* big centered, closeable bonus-result notification (random roll + Dusel search) */
+  .result-note{ position:fixed; inset:0; z-index:58; display:grid; place-items:center; padding:20px; background:rgba(10,15,25,.55); }
+  .result-note[hidden]{ display:none; }
+  .result-card{ position:relative; width:min(90vw,390px); background:var(--paper); border-radius:20px;
+    padding:30px 26px 24px; box-shadow:0 22px 64px rgba(0,0,0,.55); text-align:center;
+    border-top:6px solid var(--bonus-gold); animation:winReveal .32s cubic-bezier(.2,1.4,.4,1); }
+  .result-close{ position:absolute; top:10px; right:12px; background:rgba(0,0,0,.12); color:var(--ink-text); border:none;
+    width:30px; height:30px; border-radius:50%; font-size:14px; font-weight:700; cursor:pointer; line-height:1; }
+  .result-icon{ font-size:44px; line-height:1; margin-bottom:6px; }
+  .result-title{ font-family:var(--disp); font-size:clamp(20px,6vw,26px); color:var(--ink-text); margin:2px 0 8px; }
+  .result-body{ font-family:var(--body); font-size:14.5px; color:var(--ink-text); line-height:1.5; margin:0 0 18px; }
+  .result-ok{ min-width:120px; }
+  .swap-sub{ font-family:var(--body); font-size:13.5px; color:var(--ink-text); margin:0; }
+  .swap-choices{ display:grid; gap:8px; margin-top:14px; }
+  .swap-choice{ text-align:left; padding:12px 13px; border-radius:11px; background:#efe9dc; border:1.5px solid #d9d0be;
+    font-family:var(--body); font-weight:600; font-size:14px; color:var(--ink-text); cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .swap-choice:hover, .swap-choice:focus-visible{ border-color:var(--strobe-blue); background:#fff; outline:none; }
+  .swap-choice .bonus-tag{ margin-left:auto; flex:0 0 auto; font-size:10.5px; font-weight:800; letter-spacing:.03em; color:var(--strobe-red); }
+  /* Dusel the K9 runs in from the left, stops centre-stage to bark, then runs off the right */
+  .k9-run{ position:fixed; inset:0; z-index:56; pointer-events:none; overflow:hidden; }
+  .k9-run[hidden]{ display:none; }
+  .k9-figure{ position:absolute; top:40%; left:50%; width:min(44vw,230px); will-change:transform;
+    animation:duselRun 3.5s cubic-bezier(.4,0,.5,1) forwards; }
+  @keyframes duselRun{
+    0%{ transform:translateX(calc(-50% - 82vw)); }   /* off the left edge */
+    28.5%,71.5%{ transform:translateX(-50%); }        /* centered — 1.5s pause */
+    100%{ transform:translateX(calc(-50% + 82vw)); }  /* off the right edge */
+  }
+  .k9-svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));
+    animation:duselBob .3s ease-in-out infinite alternate; transform-origin:center bottom; }
+  @keyframes duselBob{ from{ transform:translateY(0) rotate(-1.5deg);} to{ transform:translateY(-6px) rotate(1.5deg);} }
+  .k9-bubble{ position:absolute; top:-18px; left:58%; background:#fff; color:#161311;
+    font-family:var(--body); font-weight:800; font-size:15px; padding:7px 13px; border-radius:13px;
+    white-space:nowrap; box-shadow:0 5px 14px rgba(0,0,0,.35); opacity:0; animation:duselBubble 3.5s ease forwards; }
+  .k9-bubble::after{ content:""; position:absolute; bottom:-7px; left:20px; border:8px solid transparent; border-top-color:#fff; border-bottom:0; }
+  @keyframes duselBubble{ 0%,26%{opacity:0; transform:translateY(8px) scale(.8);} 31%,68%{opacity:1; transform:translateY(0) scale(1);} 72%,100%{opacity:0; transform:translateY(-4px) scale(.9);} }
+  @media (prefers-reduced-motion: reduce){ .k9-run{ display:none !important; } }
+
+  /* play-screen tool buttons (pattern viewer + closest highlighter) */
+  .play-tools{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin:16px auto 0; width:min(94vw,560px); }
+  .tool-btn{ background:rgba(255,255,255,.1); color:#fff; border:2px solid rgba(255,255,255,.32); border-radius:10px;
+    padding:9px 14px; font-weight:700; font-size:13px; cursor:pointer; font-family:var(--body); }
+  .tool-btn[aria-pressed="true"]{ background:var(--strobe-blue); border-color:var(--strobe-blue); }
+  .font-slider{ display:flex; align-items:center; gap:12px; justify-content:center; margin:12px auto 0; width:min(94vw,560px); }
+  .font-slider input[type=range]{ flex:1; max-width:300px; accent-color:var(--strobe-blue); height:22px; cursor:pointer; }
+  .font-slider .fs-a{ font-family:var(--disp); font-weight:800; color:#fff; opacity:.85; line-height:1; }
+
+  /* pattern viewer modal */
+  .pv-intro,.pv-foot{ font-size:13.5px; color:var(--ink-text); line-height:1.5; margin:0; }
+  .pv-foot{ margin-top:12px; color:#6a5f77; }
+  .pv-grid{ display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin:16px 0 4px; }
+  .pv-item{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .pv-item .pattern-mini .pc{ width:15px; height:15px; }
+  .pv-item .pattern-mini .pc.on{ background:var(--pink); }
+  .pv-label{ font-weight:700; font-size:12.5px; color:var(--ink-text); }
+
+  /* closest-to-win highlight: pulsing red/blue squad lights on the cell border */
+  .cell.closest{ position:relative; z-index:3; animation:copFlash 1s steps(2,end) infinite; }
+  @keyframes copFlash{
+    0%,49%{ box-shadow:0 0 0 2px var(--strobe-red), 0 0 13px 4px rgba(255,59,48,.63), 0 0 25px 10px rgba(255,59,48,.35); }
+    50%,100%{ box-shadow:0 0 0 2px var(--strobe-blue), 0 0 13px 4px rgba(47,124,255,.63), 0 0 25px 10px rgba(47,124,255,.35); }
+  }
+  @media (prefers-reduced-motion: reduce){ .cell.closest{ animation:none; box-shadow:0 0 0 3px var(--strobe-blue); } }
+  /* one-away auto glow: a slow, subtle gold pulse (distinct from the red/blue closest flash) */
+  .cell.one-away{ position:relative; z-index:3; animation:goldPulse 2.6s ease-in-out infinite; }
+  @keyframes goldPulse{
+    0%,100%{ box-shadow:0 0 0 2px rgba(214,169,80,.45), 0 0 7px 2px rgba(240,190,60,.22); }
+    50%{ box-shadow:0 0 0 3px rgba(240,190,60,.9), 0 0 13px 4px rgba(240,190,60,.5); }
+  }
+  @media (prefers-reduced-motion: reduce){ .cell.one-away, #play.picking .cell[role="button"]:not(.dabbed){ animation:none; box-shadow:0 0 0 2px rgba(240,190,60,.7); } }
+
+  /* caller manual-pick list */
+  .caller-pick{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-height:240px; overflow-y:auto; margin-top:6px; padding:4px; }
+  .caller-chip{ background:#efe9dc; color:var(--ink-text); border:1px solid #d9d0be; border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .caller-chip.called{ opacity:.4; text-decoration:line-through; cursor:default; }
+
+  /* caller */
+  .caller-face{ text-align:center; }
+  .drawn{ font-family:var(--disp); font-size:clamp(30px,9vw,64px); color:var(--ink-text); line-height:1.1; margin:6px 0; min-height:1.2em; }
+  .remaining{ color:#6a5f77; font-weight:600; font-size:13px; }
+  .history{ display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+  .history span{ background:#fff; border:2px solid #efe9dd; border-radius:8px; padding:4px 9px; font-size:12.5px; font-weight:600; }
+
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink-text); color:#fff; padding:12px 18px; border-radius:12px; font-weight:600; font-size:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50; max-width:88vw; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .info-overlay{ position:fixed; inset:0; background:rgba(10,10,15,.6); display:flex; align-items:center; justify-content:center; padding:20px; z-index:100; }
+  .info-overlay[hidden]{ display:none; }
+  .info-modal{ position:relative; background:var(--paper); border-radius:16px; padding:24px 22px 22px; max-width:340px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,.45); max-height:90vh; overflow-y:auto; }
+  .info-close{ position:absolute; top:9px; right:9px; width:28px; height:28px; border-radius:50%; background:var(--grape); color:#fff; font-size:14px; line-height:1; cursor:pointer; }
+  .info-close:focus-visible{ outline:2px solid var(--gold); }
+  #infoModalTitle{ font-family:var(--disp); font-size:18px; color:var(--ink-text); margin:0 18px 8px 0; }
+  #infoModalDesc{ font-family:var(--body); font-size:14.5px; line-height:1.5; color:var(--ink-text); margin:0; white-space:pre-line; }
+
+  /* ---- pool editor ---- */
+  .pool-editor{ display:flex; flex-direction:column; gap:6px; max-height:360px; overflow-y:auto; padding:6px; margin-bottom:10px; border:2px solid #e5ded1; border-radius:12px; background:#faf7f0; }
+  .pool-empty{ padding:16px; text-align:center; color:#8a8072; font-size:13px; }
+  .pool-row{ display:flex; align-items:center; gap:9px; padding:7px 9px; background:#fff; border:1.5px solid #eee6d6; border-radius:10px; }
+  .pool-row.off{ opacity:.5; }
+  .pool-text{ flex:1; min-width:0; font-size:13.5px; line-height:1.25; overflow-wrap:anywhere; }
+  .pool-badges{ display:inline-flex; gap:4px; flex-shrink:0; font-size:13px; }
+  .pool-icon-btn{ flex-shrink:0; width:27px; height:27px; border-radius:7px; background:#f2ece0; color:var(--ink-text); font-size:13px; line-height:1; cursor:pointer; border:none; }
+  .pool-icon-btn:hover{ background:#e6ddcb; }
+  .pool-icon-btn.del:hover{ background:#f3d2d2; }
+  .pool-icon-btn:focus-visible{ outline:2px solid var(--blue); }
+  .pool-tools{ display:flex; gap:9px; flex-wrap:wrap; }
+  .pill-btn{ font-family:var(--body); font-weight:700; font-size:13px; padding:9px 14px; border-radius:10px; background:#fff; color:var(--ink-text); box-shadow:0 0 0 2px #e5ded1 inset; cursor:pointer; border:none; }
+  .pill-btn:hover{ background:#f6f1e7; }
+  .pill-btn:focus-visible{ outline:2px solid var(--pink); }
+  .bulk-wrap{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .bulk-wrap[hidden]{ display:none; }
+  .bulk-wrap textarea{ min-height:120px; }
+
+  /* ---- toggle switch ---- */
+  .switch{ position:relative; display:inline-block; width:38px; height:22px; flex-shrink:0; }
+  .switch input{ position:absolute; inset:0; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .switch .slider{ position:absolute; inset:0; background:#c9c2b4; border-radius:22px; transition:background .15s; pointer-events:none; }
+  .switch .slider::before{ content:""; position:absolute; width:16px; height:16px; left:3px; top:3px; background:#fff; border-radius:50%; box-shadow:0 1px 2px rgba(0,0,0,.3); transition:transform .15s; }
+  .switch input:checked + .slider{ background:var(--switch-on); }
+  .switch input:checked + .slider::before{ transform:translateX(16px); }
+  .switch input:focus-visible + .slider{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* ---- phrase edit modal ---- */
+  .info-modal.wide{ max-width:430px; }
+  .pm-field{ display:block; margin-bottom:12px; }
+  .pm-field > span{ display:block; font-weight:700; font-size:12.5px; margin-bottom:5px; color:var(--ink-text); }
+  .pm-field input, .pm-field textarea{ width:100%; }
+  .pm-field textarea{ min-height:clamp(90px, 20vh, 150px); }
+  .pm-field select{ width:100%; padding:9px 10px; }
+  #pmTextHint{ display:block; font-weight:600; font-size:11.5px; margin:10px 0 0; color:#7c7385; line-height:1.4; }
+  #pmTextHint.warn{ color:#c9455a; }
+  .pm-check{ display:flex; align-items:center; gap:9px; margin-bottom:12px; font-weight:700; font-size:13.5px; color:var(--ink-text); cursor:pointer; }
+  .pm-check input{ width:18px; height:18px; flex:0 0 auto; }
+  #pmBonusFields[hidden]{ display:none; }
+  .pm-hint{ font-size:12px; color:#6a5f77; margin:-6px 0 14px; line-height:1.45; }
+  .pm-actions{ display:flex; gap:9px; justify-content:flex-end; flex-wrap:wrap; }
+  .bonus-actions{ display:flex; gap:9px; flex-wrap:wrap; margin-top:8px; }
+  #bonusOverlay .bonus-modal{ padding-top:22px; }
+  #bonusTitle{ margin:0 0 6px; }
+  .reward-type{ color:#B8860B; font-weight:800; letter-spacing:.02em; }
+  #infoModalDesc.bonus-desc{ margin-bottom:4px; }
+  .bonus-reward{ font-family:var(--body); font-size:14.5px; line-height:1.5; color:var(--ink-text); margin:1.8em 0 0; font-weight:600; }
+
+  .backlink{ display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:999px; color:#fff; font-weight:800; font-size:14px; letter-spacing:.02em; background:rgba(255,255,255,.13); border:2px solid rgba(255,255,255,.4); cursor:pointer; line-height:1; }
+  .backlink:hover, .backlink:focus-visible{ background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.65); outline:none; }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* ---------- PRINT ---------- */
+  #printArea{ }
+  .print-card{ background:#fff; }
+  @media screen{
+    .print-preview{ display:grid; gap:16px; margin-top:16px; }
+    .print-preview .card{ width:100%; }
+  }
+  @media print{
+    body{ background:#fff !important; }
+    body::before{ display:none; }
+    .wrap{ max-width:none; padding:0; }
+    .noprint{ display:none !important; }
+    .print-preview{ display:block; }
+    .print-preview .card{
+      width:100%; max-width:6.6in; margin:0 auto 0.35in; box-shadow:none; border:1px solid #999; page-break-inside:avoid; break-inside:avoid;
+    }
+    .print-preview .card:nth-child(even){ page-break-after:always; }
+    .letters div{ background:#222 !important; box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .cell{ border-color:#999; }
+    .cell.free .txt{ color:#222 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true">
+  <div class="fog-cloud fog-a"></div>
+  <div class="fog-cloud fog-b"></div>
+  <div class="fog-cloud fog-c"></div>
+  <div class="fog-cloud fog-d"></div>
+  <div class="fog-cloud fog-e"></div>
+  <div class="bg-vignette"></div>
+</div>
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="fogWisp1" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="4" seed="7" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="170" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fogWisp2" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.012" numOctaves="4" seed="23" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="185" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fogWisp3" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.016" numOctaves="3" seed="44" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="150" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<div class="wrap">
+
+  <div class="lightbar noprint" aria-hidden="true"><span class="lr"></span><span class="lb"></span></div>
+  <div class="marquee noprint" id="marquee" aria-hidden="true">
+    <div class="tape-title" id="tapeTitle">
+      <div class="tape-strip" id="tapeStrip1"><span class="tape-text"></span></div>
+      <div class="tape-strip" id="tapeStrip2" hidden><span class="tape-text"></span></div>
+    </div>
+  </div>
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup" class="screen active">
+    <p class="tag noprint">Build a phrase pool → watch the footage → dab your card → call BUSTD.</p>
+    <div class="resume-banner noprint" id="resumeBanner" hidden>
+      <span>You have a card in progress — didn't mean to close it?</span>
+      <button type="button" class="btn primary" id="resumeCard">Resume card</button>
+      <button type="button" class="btn ghost" id="discardCard">Discard</button>
+    </div>
+    <div class="paper">
+      <h2>1 · Game title <button class="sect-info" type="button" data-help="help-title" aria-label="About Game title">i</button></h2>
+      <label class="field"><span>Shown as the chips in the banner up top — max 20 characters</span>
+        <input id="title" type="text" maxlength="20" placeholder="Bodycam BINGO" /></label>
+      <div class="sect-help" id="help-title" hidden>Leave it as the default or make it your own — like "Joel's BUSTD Bingo". It centers and shrinks to fit automatically.</div>
+    </div>
+
+    <div class="paper">
+      <h2>2 · Your phrase pool <button class="sect-info" type="button" data-help="help-pool" aria-label="About the phrase pool">i</button></h2>
+      <div class="pool-sortbar">
+        <div class="seg pool-sort-seg" role="group" aria-label="Sort phrases">
+          <button type="button" class="pool-sort-opt" data-sort="custom" aria-pressed="true">Added</button>
+          <button type="button" class="pool-sort-opt" data-sort="alpha" aria-pressed="false">A→Z</button>
+          <button type="button" class="pool-sort-opt" data-sort="bonus" aria-pressed="false">Bonuses</button>
+        </div>
+      </div>
+      <div class="pool-editor" id="poolList"></div>
+      <div class="pool-tools">
+        <button type="button" class="pill-btn" id="addPhrase">+ Add phrase</button>
+        <button type="button" class="pill-btn" id="bulkToggle">Bulk paste ▾</button>
+      </div>
+      <div class="bulk-wrap" id="bulkWrap" hidden>
+        <textarea id="bulkText" spellcheck="false" placeholder="One phrase per line. Add | description after a line to give that square an ⓘ info box."></textarea>
+        <button type="button" class="pill-btn" id="bulkAdd">Add these</button>
+      </div>
+      <div class="sect-help" id="help-pool" hidden>Flip a phrase <b>off</b> to keep it out of cards without deleting it. Tap <b>✎</b> to change the wording, add a description (adds an ⓘ on the square), or turn it into a ⭐ Bonus Square. Tap <b>✕</b> to remove it for good.</div>
+    </div>
+
+    <div class="paper">
+      <h2>3 · Card size <button class="sect-info" type="button" data-help="help-size" aria-label="About card size">i</button></h2>
+      <div class="rowline">
+        <div class="seg seg-stack" role="group" aria-label="Card size">
+          <button type="button" class="segbtn" id="sizeFull" aria-pressed="true">Classic 5×5 · BUSTD</button>
+          <button type="button" class="segbtn" id="sizeQuick" aria-pressed="false">Quick 4×4 · BUST</button>
+          <button type="button" class="segbtn" id="sizeMini" aria-pressed="false">Mini 3×3 · CAM</button>
+        </div>
+      </div>
+      <div class="rowline">
+        <span class="count" id="count"></span>
+        <label class="toggle"><input id="free" type="checkbox" checked /> Free center space</label>
+      </div>
+      <div class="rowline" id="bonusPerCardRow">
+        <label class="num">⭐ Bonus squares per card <input id="bonusPerCard" type="number" min="0" max="8" value="2" /></label>
+      </div>
+      <div class="rowline bonus-mode-row">
+        <span class="bonus-mode-label">⭐ Bonus rewards</span>
+        <div class="seg" role="group" aria-label="Bonus reward mode">
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="default" aria-pressed="true">Default</button>
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="random" aria-pressed="false">Random</button>
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="none" aria-pressed="false">None</button>
+        </div>
+      </div>
+      <div class="sect-help" id="help-size" hidden>Each card draws a random, unique mix from your enabled phrases, so no two are alike. Quick 4×4 has no center square (even grids don't have one) — Classic 5×5 and Mini 3×3 can both use the free space if you want it.<br><br><b>Bonus squares per card</b> keeps every player's card fair; it's capped by how many ⭐ Bonus Squares you have turned on (set it to 0 for none).<br><br><b>Bonus rewards</b> sets how Bonus Squares behave: <b>Default</b> uses the reward type set on each phrase, <b>Random</b> makes every one roll a surprise reward (Pick, Swap, or Search) at claim time, and <b>None</b> turns bonuses off entirely for a straight game.</div>
+    </div>
+
+    <div class="paper" id="patternsPanel">
+      <h2>4 · Winning patterns <button class="sect-info" type="button" data-help="help-patterns" aria-label="About winning patterns">i</button></h2>
+      <div class="sect-help" id="help-patterns" hidden>Pick which shapes count as a win, on top of a full blackout card (blackout always wins). Choose as many as you like — a card wins as soon as any one selected shape is fully dabbed. Only available for Classic 5×5 and Quick 4×4.<br><br><b>Heads up:</b> <b>Any Line</b> needs the fewest dabs of any shape, so if it's selected alongside a bigger shape (Frame, X, Plus, Siren Bars, etc.), Any Line will almost always win first — the bigger shape rarely gets to be the deciding one. Deselect Any Line if you want a specific shape to matter.</div>
+      <div class="patterns-grid" id="patternsGrid"></div>
+      <div class="pattern-conflict" id="patternConflictNote" hidden></div>
+    </div>
+
+    <div class="paper">
+      <h2>5 · Do something with it</h2>
+      <div class="rowline">
+        <label class="num">Cards to print <input id="numCards" type="number" min="1" max="60" value="4" /></label>
+      </div>
+      <div class="actions actions-stack">
+        <button class="btn primary" id="goPlay">Play a card</button>
+        <button class="btn blue" id="goPrint">Print cards</button>
+        <button class="btn dark" id="goCaller">Be the caller</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="shareGame">Share a unique card</button>
+        <button class="btn ghost" id="copyGame">Copy unique card link</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="shareSetup">Share game setup</button>
+        <button class="btn ghost" id="copySetup">Copy setup link</button>
+      </div>
+
+      <details class="help">
+        <summary>How do I get cards onto other people's devices?</summary>
+        <ul class="faq-list">
+          <li><b>Text a link (group play):</b> tap <b>Share a unique card</b>. Everyone who opens it gets their <b>own unique card</b> drawn from your pool — exactly how bingo should work. This needs the page to live at a web address (see below).</li>
+          <li><b>Let someone build their own game:</b> tap <b>Share game setup</b> instead. They land on the Setup screen with your pool and settings pre-loaded, so they can tweak the pool or size before generating their own card — good for handing off hosting duties.</li>
+          <li><b>Email with no setup:</b> just email this <b>bingo.html</b> file as an attachment. Whoever opens it on their device gets the full app offline — they build or play cards right there, nothing to host.</li>
+          <li><b>To make link-sharing work:</b> this one file has to be hosted somewhere public and free — GitHub Pages, Cloudflare Pages, or Netlify all work. Drop the file, get a URL like <b>yoursite/bingo.html</b>, and every share link points back to it. Ask me and I'll walk you through whichever host you like.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ PLAY ============ -->
+  <section id="play" class="screen">
+    <div class="back-row noprint">
+      <svg class="bodycam-icon back-cam" viewBox="0 0 100 140" aria-hidden="true">
+        <rect x="30" y="4" width="40" height="20" rx="6" fill="var(--gold)"/>
+        <rect x="10" y="20" width="80" height="102" rx="16" fill="var(--grape)" stroke="var(--gold)" stroke-width="3.5"/>
+        <circle cx="50" cy="56" r="21" fill="#0B131C" stroke="var(--gold)" stroke-width="3"/>
+        <circle cx="50" cy="56" r="12" fill="var(--purple)"/>
+        <circle cx="50" cy="56" r="5" fill="var(--blue)"/>
+        <rect x="22" y="94" width="34" height="7" rx="3.5" fill="rgba(255,255,255,.28)"/>
+        <circle class="bodycam-rec-dot" cx="72" cy="97" r="6" fill="var(--pink)"/>
+      </svg>
+      <button class="backlink" data-back>Back to setup</button>
+    </div>
+    <div id="playCard"></div>
+    <div class="pick-banner noprint" id="pickBanner" hidden>
+      <span id="pickBannerText">⭐ Bonus! Tap any open square to claim your free daub.</span>
+      <button type="button" class="pick-cancel" id="pickCancel">Cancel</button>
+    </div>
+    <div class="bonus-tracker noprint" id="bonusTracker" hidden></div>
+    <div class="win-overlay noprint" id="banner" hidden>
+      <div class="jail-door jail-left" aria-hidden="true"></div>
+      <div class="jail-door jail-right" aria-hidden="true"></div>
+      <div class="win-card">
+        <div class="fireworks" id="fireworks" aria-hidden="true"></div>
+        <button class="win-close" id="bannerClose" type="button" aria-label="Dismiss">✕</button>
+        <div class="win-text" id="bannerText"></div>
+        <p class="win-sub">Tap ✕ to keep playing</p>
+      </div>
+    </div>
+    <div class="play-tools noprint">
+      <button type="button" class="tool-btn" id="patternViewBtn">🎯 Winning patterns</button>
+      <button type="button" class="tool-btn" id="highlightToggle" aria-pressed="false">🚨 Closest to BUSTD</button>
+    </div>
+    <p class="customize-label noprint">Font size</p>
+    <div class="font-slider noprint">
+      <span class="fs-a" style="font-size:13px">A</span>
+      <input type="range" id="fontSlider" min="9" max="26" step="1" aria-label="Card text size" />
+      <span class="fs-a" style="font-size:23px">A</span>
+    </div>
+    <p class="customize-label noprint">Dauber style</p>
+    <div class="badge-icons noprint" id="badgeIcons" aria-label="Choose dauber shape"></div>
+    <p class="customize-label noprint">Dauber color</p>
+    <div class="daubers noprint" id="daubers" aria-label="Choose dauber color"></div>
+    <div class="playbar noprint">
+      <button class="btn primary" id="newCard">New card</button>
+      <button class="btn blue" id="shareCard">Share this card</button>
+      <button class="btn ghost" id="clearDabs">Clear dabs</button>
+    </div>
+  </section>
+
+  <!-- ============ PRINT ============ -->
+  <section id="print" class="screen">
+    <div class="back-row noprint">
+      <svg class="bodycam-icon back-cam" viewBox="0 0 100 140" aria-hidden="true">
+        <rect x="30" y="4" width="40" height="20" rx="6" fill="var(--gold)"/>
+        <rect x="10" y="20" width="80" height="102" rx="16" fill="var(--grape)" stroke="var(--gold)" stroke-width="3.5"/>
+        <circle cx="50" cy="56" r="21" fill="#0B131C" stroke="var(--gold)" stroke-width="3"/>
+        <circle cx="50" cy="56" r="12" fill="var(--purple)"/>
+        <circle cx="50" cy="56" r="5" fill="var(--blue)"/>
+        <rect x="22" y="94" width="34" height="7" rx="3.5" fill="rgba(255,255,255,.28)"/>
+        <circle class="bodycam-rec-dot" cx="72" cy="97" r="6" fill="var(--pink)"/>
+      </svg>
+      <button class="backlink" data-back>Back to setup</button>
+    </div>
+    <div class="paper noprint" style="text-align:center">
+      <h2 style="margin-bottom:8px">Ready to print</h2>
+      <p class="hint" style="margin-top:0">Preview below. About two cards fit per page. Use your browser's print dialog to save as PDF or send to a printer.</p>
+      <div class="actions" style="justify-content:center">
+        <button class="btn primary" id="doPrint">Print now</button>
+        <button class="btn ghost" id="reshuffle">Reshuffle set</button>
+      </div>
+    </div>
+    <div class="print-preview" id="printArea"></div>
+  </section>
+
+  <!-- ============ CALLER ============ -->
+  <section id="caller" class="screen">
+    <div class="back-row noprint">
+      <svg class="bodycam-icon back-cam" viewBox="0 0 100 140" aria-hidden="true">
+        <rect x="30" y="4" width="40" height="20" rx="6" fill="var(--gold)"/>
+        <rect x="10" y="20" width="80" height="102" rx="16" fill="var(--grape)" stroke="var(--gold)" stroke-width="3.5"/>
+        <circle cx="50" cy="56" r="21" fill="#0B131C" stroke="var(--gold)" stroke-width="3"/>
+        <circle cx="50" cy="56" r="12" fill="var(--purple)"/>
+        <circle cx="50" cy="56" r="5" fill="var(--blue)"/>
+        <rect x="22" y="94" width="34" height="7" rx="3.5" fill="rgba(255,255,255,.28)"/>
+        <circle class="bodycam-rec-dot" cx="72" cy="97" r="6" fill="var(--pink)"/>
+      </svg>
+      <button class="backlink" data-back>Back to setup</button>
+    </div>
+    <div class="paper caller-face">
+      <h2 style="text-align:center">Caller</h2>
+      <div class="drawn" id="drawn">—</div>
+      <div class="remaining" id="remaining"></div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn ghost" id="undoCall">↩ Undo last call</button>
+        <button class="btn ghost" id="resetCaller">Reset</button>
+      </div>
+      <div class="history" id="callHistory"></div>
+      <p class="customize-label" style="color:#6a5f77;margin-bottom:2px">Or call one yourself</p>
+      <div class="caller-pick" id="callerPick"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="info-overlay noprint" id="infoOverlay" hidden>
+  <div class="info-modal">
+    <button class="info-close" id="infoClose" type="button" aria-label="Close">✕</button>
+    <h3 id="infoModalTitle"></h3>
+    <p id="infoModalDesc"></p>
+  </div>
+</div>
+<div class="info-overlay noprint" id="phraseOverlay" hidden>
+  <div class="info-modal wide">
+    <button class="info-close" id="pmClose" type="button" aria-label="Close">✕</button>
+    <h3 id="pmHeading">Edit phrase</h3>
+    <label class="pm-field"><span>Phrase</span><input id="pmText" type="text" placeholder="e.g. Foot chase" /><span class="pm-hint" id="pmTextHint"></span></label>
+    <label class="pm-field"><span>Description — optional (adds an ⓘ info box on the square)</span><textarea id="pmDesc" spellcheck="false" placeholder="What does this phrase mean?"></textarea></label>
+    <label class="pm-check"><input id="pmIsBonus" type="checkbox" /> <span>Make this a ⭐ Bonus Square</span></label>
+    <div id="pmBonusFields" hidden>
+      <label class="pm-field"><span>Bonus type</span>
+        <select id="pmBonusType">
+          <option value="pick">Pick — free daub on any open square</option>
+          <option value="swap">Swap — swap an open square for a fresh phrase</option>
+          <option value="search">Search — Dusel dabs a random open square (locks in)</option>
+          <option value="random">Random — surprise (Pick, Swap, or Search), and it locks in</option>
+        </select>
+      </label>
+      <label class="pm-field"><span>Bonus condition — the extra thing that has to happen</span><input id="pmBonus" type="text" placeholder="e.g. The suspect actually passes the test." /></label>
+    </div>
+    <p class="pm-hint">A Bonus Square is a normal phrase with a twist: when it happens you daub it as usual, then it asks if the bonus condition <i>also</i> happened. If it did, you claim the reward for the type you chose above.</p>
+    <div class="pm-actions">
+      <button class="btn ghost" id="pmCancel" type="button">Cancel</button>
+      <button class="btn primary" id="pmSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+<div class="info-overlay noprint" id="bonusOverlay" hidden>
+  <div class="info-modal bonus-modal">
+    <h3 id="bonusTitle"></h3>
+    <p id="bonusDesc" class="bonus-desc"></p>
+    <p id="bonusReward" class="bonus-reward"><b class="reward-type" id="bonusRewardType"></b> <span id="bonusRewardText"></span></p>
+    <div class="bonus-actions">
+      <button class="btn primary gold-claim" id="bonusClaim" type="button">⭐ Claim bonus</button>
+      <button class="btn ghost" id="bonusSkip" type="button">Not this time</button>
+    </div>
+  </div>
+</div>
+<div class="k9-run noprint" id="k9run" hidden aria-hidden="true">
+  <div class="k9-figure">
+    <div class="k9-bubble">Good luck!</div>
+    <svg class="k9-svg" viewBox="0 0 260 152" xmlns="http://www.w3.org/2000/svg">
+      <!-- tail -->
+      <path d="M62 72 Q30 54 13 80 Q6 94 20 101 Q29 89 44 88 Q57 86 64 79 Z" fill="#c88a46"/>
+      <path d="M13 80 Q6 94 20 101 Q24 92 22 83 Q17 79 13 80 Z" fill="#241d18"/>
+      <!-- far legs (behind body) -->
+      <path d="M92 96 Q96 118 80 131 L72 143 Q68 145 66 141 L73 127 Q78 110 80 97 Z" fill="#9c6a30"/>
+      <path d="M164 98 Q162 118 175 133 L182 141 Q186 143 187 139 L181 125 Q174 109 173 97 Z" fill="#9c6a30"/>
+      <!-- body -->
+      <path d="M56 76 Q58 52 92 49 Q132 45 170 54 Q189 59 192 80 Q193 98 176 106 Q150 113 120 111 Q86 111 65 103 Q52 93 56 76 Z" fill="#c88a46"/>
+      <!-- black saddle -->
+      <path d="M78 55 Q120 46 168 56 Q186 61 188 78 Q150 66 120 68 Q95 68 76 77 Q74 63 78 55 Z" fill="#241d18"/>
+      <!-- cream chest/belly -->
+      <path d="M70 101 Q102 111 142 108 Q118 113 94 108 Q80 106 70 101 Z" fill="#ecd7ac" opacity=".9"/>
+      <!-- near legs -->
+      <path d="M104 101 Q108 121 95 135 L87 147 Q83 149 81 145 L88 131 Q94 113 93 100 Z" fill="#c88a46"/>
+      <ellipse cx="85" cy="147" rx="6.5" ry="3" fill="#241d18"/>
+      <path d="M178 101 Q178 121 192 135 L199 143 Q203 145 204 141 L198 127 Q190 111 188 100 Z" fill="#c88a46"/>
+      <ellipse cx="200" cy="143" rx="6.5" ry="3" fill="#241d18"/>
+      <!-- neck + head -->
+      <path d="M176 72 Q186 55 203 51 Q224 49 234 61 Q242 68 241 76 L231 82 Q235 71 227 65 Q215 59 205 63 Q193 69 189 83 Q181 82 176 78 Z" fill="#c88a46"/>
+      <!-- ears -->
+      <path d="M205 53 L201 33 L217 49 Z" fill="#241d18"/>
+      <path d="M216 51 L217 32 L229 51 Z" fill="#241d18"/>
+      <!-- muzzle -->
+      <path d="M226 64 Q241 68 241 76 L230 82 Q224 78 224 71 Q224 66 226 64 Z" fill="#241d18"/>
+      <!-- eye -->
+      <circle cx="219" cy="65" r="2.5" fill="#14100d"/>
+      <circle cx="220" cy="64" r=".8" fill="#fff"/>
+    </svg>
+  </div>
+</div>
+<div class="info-overlay noprint" id="patternViewOverlay" hidden>
+  <div class="info-modal wide">
+    <button class="info-close" id="patternViewClose" type="button" aria-label="Close">✕</button>
+    <h3>Ways to win this game</h3>
+    <div id="patternViewBody"></div>
+  </div>
+</div>
+
+<div class="info-overlay noprint" id="confirmOverlay" hidden>
+  <div class="info-modal">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMsg"></p>
+    <div class="bonus-actions">
+      <button class="btn primary" id="confirmYes" type="button">Yes</button>
+      <button class="btn ghost" id="confirmNo" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="info-overlay noprint" id="swapOverlay" hidden>
+  <div class="info-modal wide">
+    <button class="info-close" id="swapClose" type="button" aria-label="Close">✕</button>
+    <h3>Swap in a new phrase</h3>
+    <p class="swap-sub">Pick a replacement for this square:</p>
+    <div class="swap-choices" id="swapChoices"></div>
+  </div>
+</div>
+
+<div class="result-note noprint" id="resultNote" hidden>
+  <div class="result-card">
+    <button class="result-close" id="resultClose" type="button" aria-label="Close">✕</button>
+    <div class="result-icon" id="resultIcon"></div>
+    <h3 class="result-title" id="resultTitle"></h3>
+    <p class="result-body" id="resultBody"></p>
+    <button class="btn primary result-ok" id="resultOk" type="button">Got it</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------------- default pool ----------------
+   Slash convention used below: no spaces for single-word either/or pairs
+   (Sir/Ma'am, marijuana/alcohol, arrested/detained); spaces around the slash
+   when either side is more than one word (rights / the law). */
+const DEFAULT_POOL = [
+  { text:"PIT maneuver", desc:"Officer attempts (successful or not) to nudge the back of the suspect's car into a spin.", bonus:"The PIT succeeds and the driver is a woman.", bonusType:"swap" },
+  { text:"Race card", desc:"Suspect insists this is definitely, 100% about their race." },
+  { text:"\"I'm going to sue you!\"" },
+  { text:"Kicks the back seat", desc:"Going full toddler-mode in the back of the squad car.", bonus:"Causes actual damage to door, cage, camera, etc... or urinates.", bonusType:"pick" },
+  { text:"Spitter", desc:"The suspect spits on or near anyone or anything.", bonus:"Beekeeper Cosplay — the suspect gets put in a spit hood.", bonusType:"pick" },
+  { text:"Inappropriate touching accusation", desc:"Suspect accuses the officer of misconduct at some point — usually during a pat-down or search." },
+  { text:"Admits to drinking", desc:"They'll cop to a couple, but they claim it was like 10 hours ago. Suurrre, buddy.", bonus:"They claim to have only had two drinks.", bonusType:"pick" },
+  { text:"\"I'm not resisting\"" },
+  { text:"Kid or pet caught in the middle", desc:"A kid or pet is stuck in the middle of the dysfunction, whether they understand what's happening or not." },
+  { text:"\"I didn't do anything\"" },
+  { text:"Florida", desc:"You already know. You just know." },
+  { text:"\"I have to go to work\"", desc:"Suspect doesn't have time for this nonsense — they've got to get to their job, where they're no doubt a stellar employee." },
+  { text:"Fake name given" },
+  { text:"\"I don't have an ID\"" },
+  { text:"Double negative", desc:"Example: \"I didn't do nothing\" — technically a confession." },
+  { text:"\"Call your supervisor\"", desc:"Suspect demands the officer get a sergeant or supervisor on scene." },
+  { text:"\"I know my rights / the law!\"" },
+  { text:"Name drops", desc:"Cousin's a cop, uncle's a judge, best friend is the mayor. Never checks out, and wouldn't matter if it did." },
+  { text:"Asks for a lawyer", desc:"Suspect demands their attorney long before they even reach the police station." },
+  { text:"Miranda rights" },
+  { text:"\"Bro\"", desc:"Anyone says \"Bro\" — usually the suspect, about a hundred times." },
+  { text:"K9 appears or barks", desc:"And no, whining doesn't count. We don't reward whiners... no matter how cute they are." },
+  { text:"Foot chase" },
+  { text:"Car chase" },
+  { text:"Suspect apologizes" },
+  { text:"Ends in a plea deal", desc:"The end-of-video recap mentions the suspect took a plea deal to drop some charges." },
+  { text:"Hot cop", desc:"An attractive officer of any gender appears. Beauty is subjective — but let's be realistic here." },
+  { text:"Complains about handcuffs" },
+  { text:"\"Do you know who I am?!\"" },
+  { text:"Nudity", desc:"Accidental...or intentional." },
+  { text:"Tased", bonus:"Suspect remains standing and swats the wires away like nothing.", bonusType:"pick" },
+  { text:"Slips cuffs to the front", desc:"Suspect steps through their arms so the cuffs end up in front — still cuffed, just rearranged.", bonus:"Gets the cuffs off completely.", bonusType:"pick" },
+  { text:"\"Are you recording this?\"" },
+  { text:"Phone Phixation", desc:"• \"Where is my phone?!\"\n• \"Bring my phone!\"\n• Suspect continues to talk on the phone while the officer speaks to them." },
+  { text:"Wants name or badge #" },
+  { text:"Cuffed without shoes on" },
+  { text:"Officer smells marijuana or alcohol", desc:"On the person or in the vehicle." },
+  { text:"Field sobriety test performed", bonus:"The suspect actually passes the test.", bonusType:"pick" },
+  { text:"Tactical bun", desc:"The classic tactical hair bun makes an appearance.", bonus:"If it's on a man.", bonusType:"pick" },
+  { text:"\"That's not mine!\"", desc:"Suspect denies any knowledge of the drugs, weapons, or stolen goods the police just found.", bonus:"Turns out to actually be true.", bonusType:"pick" },
+  { text:"Expired registration" },
+  { text:"DUI", desc:"The stop is for — or ends in — a driving-under-the-influence charge." },
+  { text:"Tow truck appears", bonus:"The tow truck leaves without doing anything.", bonusType:"pick" },
+  { text:"Ambulance appears", bonus:"The ambulance leaves without the suspect in it.", bonusType:"swap" },
+  { text:"Music playing in squad car", desc:"Still counts if the subtitles note the audio was muted for copyright." },
+  { text:"Backup arrives" },
+  { text:"Suspect has a weapon", desc:"In the vehicle, on their person, or within reach." },
+  { text:"\"Lawful command\"", desc:"Anyone — suspect, officer, or bystander — says the phrase \"lawful command.\"" },
+  { text:"\"Am I being arrested or detained?\"" },
+  { text:"\"Calm down\"", desc:"Anyone says it to anyone else." },
+  { text:"Has warrants", desc:"Suspect has them, or the police are serving them.", bonus:"Whoops! It turns out they didn't actually have a warrant.", bonusType:"pick" },
+  { text:"Stop sticks deployed" },
+  { text:"Any 10-code", desc:"Known as the APCO Project 14 Aural Brevity Code. This is the way police quickly and concisely communicate on radio.\n10-4, good buddy!" },
+  { text:"Cop has a shield, rifle, or 40mm" },
+  { text:"A sergeant appears", desc:"• You see their chevron patch with three stripes.\n• The officer refers to themselves as a sergeant.\n• Anyone else addresses an officer as sergeant." },
+  { text:"Suspect or civilian filming" }
+];
+
+/* Mutually-exclusive groups: no two phrases from the same inner array will
+   ever land on the same card. Empty by default — add arrays of phrase texts
+   here to hard-block genuine conflicts (see notes). */
+const MUTEX_GROUPS = [];
+
+/* ---------------- state ---------------- */
+const state = {
+  title: "Bodycam BINGO",
+  pool: DEFAULT_POOL.map(p => ({ text:p.text, desc:p.desc||null, bonus:p.bonus||null, bonusType: p.bonus ? (p.bonusType||"pick") : null, enabled:true })),
+  free: true,
+  printCards: 4,
+  bonusPerCard: 2,       // how many ⭐ Bonus Squares each card gets (creator-set, equal across cards)
+  bonusMode: "default",  // "default" = each bonus uses its own type; "random" = every bonus rolls at claim time
+  poolSort: "custom",    // phrase-list display order: "custom" (added) | "alpha" | "bonus" (display only)
+  // play
+  currentCard: null,     // array length size*size, null = free
+  dabs: new Set(),
+  ink: getComputedStyle(document.documentElement).getPropertyValue('--pink').trim() || "#E4007C",
+  badgeIcon: "sheriffBadge",
+  // bonus squares
+  bonusDabs: new Set(),      // cell indices daubed via a claimed bonus (gold chevron)
+  searchDabs: new Set(),     // cell indices auto-daubed by Dusel's Search bonus (gold paw) — locked
+  bonusResolved: new Set(),  // bonus-source indices already offered (claimed or skipped)
+  bonusAwards: [],           // [{sourceIdx, targetIdx, type, rolled, sourceText, targetText, origPhrase}]
+  lockedSources: new Set(),  // random-bonus sources that have rolled — can't be un-dabbed
+  pickMode: null,            // {sourceIdx, mode, isRandom} while awaiting the player to pick a target
+  bannerDismissed: null,     // "BUSTD" | "BLACKOUT" when the win overlay was dismissed (so it can re-pop on a new/different win)
+  tapeTilt1: null, tapeTilt2: null, // rolled once per session (3-10deg, random direction) for the caution-tape title
+  highlightOn: false,        // "Closest to BUSTD" highlighter toggle
+  fontScale: null,           // player's chosen card text size (px); null = auto default per grid size, remembered across sessions
+  _bonusSource: null,        // transient: source idx for the open bonus modal
+  _bonusType: null,          // transient: bonus type for the open modal
+  editingPhraseIdx: null,    // pool editor modal state (-1 = adding new)
+  // caller
+  called: [],
+  size: 5,                // 5 = Classic BUSTD, 4 = Quick BUST, 3 = Mini CAM
+  lastFreePreference: true, // remembers the free-space choice across odd-size grids
+  winPatterns: ["anyline"], // which shapes count as a win, besides blackout (5x5/4x4 only)
+};
+const INKS = ["#E53835","#E8710A","#2F9E52","#0E9AA7","#38506C","#7C4DAB","#D6336C","#7F8C8D"];
+const LETTERS_BY_SIZE = { 5:["B","U","S","T","D"], 4:["B","U","S","T"], 3:["C","A","M"] };
+
+/* Winning-pattern registry. "coords" is a list of cell-groups (each a list of
+   [row,col] pairs); a card wins the pattern if ANY one group is fully dabbed —
+   that's what makes "Postage Stamp" work as "any corner", not just one fixed
+   corner. "anyline" has no coords: it's computed dynamically in checkWin()
+   since it's just every row/column/diagonal for whatever size the card is. */
+const PATTERNS_5 = [
+  { key:"anyline", label:"Any Line" },
+  { key:"fourcorners", label:"Four Corners", coords:[[[0,0],[0,4],[4,0],[4,4]]] },
+  { key:"x", label:"X Marks the Spot", coords:[[[0,0],[1,1],[2,2],[3,3],[4,4],[0,4],[1,3],[3,1],[4,0]]] },
+  { key:"stamp", label:"Postage Stamp", coords:[
+      [[0,0],[0,1],[1,0],[1,1]],
+      [[0,3],[0,4],[1,3],[1,4]],
+      [[3,0],[3,1],[4,0],[4,1]],
+      [[3,3],[3,4],[4,3],[4,4]]
+    ] },
+  { key:"plus", label:"Plus Sign", coords:[[[0,2],[1,2],[2,0],[2,1],[2,2],[2,3],[2,4],[3,2],[4,2]]] },
+  { key:"frame", label:"Frame", coords:[[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[1,4],[2,0],[2,4],[3,0],[3,4],[4,0],[4,1],[4,2],[4,3],[4,4]]] },
+  { key:"diamond", label:"Diamond", coords:[[[0,2],[1,1],[1,3],[2,0],[2,4],[3,1],[3,3],[4,2]]] },
+  { key:"star", label:"Badge Star", coords:[[[0,2],[1,1],[1,3],[2,0],[2,1],[2,2],[2,3],[2,4],[3,1],[3,3],[4,0],[4,4]]] },
+  { key:"siren", label:"Siren Bars", coords:[[[1,0],[1,1],[1,2],[1,3],[1,4],[3,0],[3,1],[3,2],[3,3],[3,4]]] },
+  { key:"cuffs", label:"Cuffs", coords:[[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2],[2,3],[2,4],[3,2],[3,4],[4,2],[4,3],[4,4]]] }
+];
+const PATTERNS_4 = [
+  { key:"anyline", label:"Any Line" },
+  { key:"fourcorners", label:"Four Corners", coords:[[[0,0],[0,3],[3,0],[3,3]]] },
+  { key:"x", label:"X Marks the Spot", coords:[[[0,0],[1,1],[2,2],[3,3],[0,3],[1,2],[2,1],[3,0]]] },
+  { key:"stamp", label:"Postage Stamp", coords:[
+      [[0,0],[0,1],[1,0],[1,1]],
+      [[0,2],[0,3],[1,2],[1,3]],
+      [[2,0],[2,1],[3,0],[3,1]],
+      [[2,2],[2,3],[3,2],[3,3]]
+    ] },
+  { key:"frame", label:"Frame", coords:[[[0,0],[0,1],[0,2],[0,3],[1,0],[1,3],[2,0],[2,3],[3,0],[3,1],[3,2],[3,3]]] },
+  { key:"diamond", label:"Diamond", coords:[[[0,1],[0,2],[1,0],[1,3],[2,0],[2,3],[3,1],[3,2]]] },
+  { key:"siren", label:"Siren Bars", coords:[[[1,0],[1,1],[1,2],[1,3],[2,0],[2,1],[2,2],[2,3]]] },
+  { key:"cuffs", label:"Cuffs", coords:[[[0,0],[0,1],[1,0],[1,1],[1,2],[2,1],[2,2],[2,3],[3,2],[3,3]]] }
+];
+function patternsForSize(n){ return n===5 ? PATTERNS_5 : n===4 ? PATTERNS_4 : null; }
+/* ---- pattern conflict detection (item 71) ----
+   Pattern A "dominates" B when every way to complete B already contains a full way
+   to complete A — so B can never be the deciding shape while A is also selected. */
+function patternGroups(key, n){
+  if(key === "anyline"){
+    const groups = [];
+    for(let r=0;r<n;r++){ const g=[]; for(let c=0;c<n;c++) g.push(r+","+c); groups.push(new Set(g)); }
+    for(let c=0;c<n;c++){ const g=[]; for(let r=0;r<n;r++) g.push(r+","+c); groups.push(new Set(g)); }
+    const d1=[], d2=[]; for(let i=0;i<n;i++){ d1.push(i+","+i); d2.push(i+","+(n-1-i)); }
+    groups.push(new Set(d1)); groups.push(new Set(d2));
+    return groups;
+  }
+  const def = (patternsForSize(n)||[]).find(d=>d.key===key);
+  if(!def || !def.coords) return [];
+  return def.coords.map(group => new Set(group.map(([r,c])=> r+","+c)));
+}
+function isSubsetOf(a, b){ for(const x of a) if(!b.has(x)) return false; return true; }
+function patternDominates(aKey, bKey, n){
+  const ag = patternGroups(aKey, n), bg = patternGroups(bKey, n);
+  if(!ag.length || !bg.length) return false;
+  return bg.every(gB => ag.some(gA => gA.size <= gB.size && isSubsetOf(gA, gB)));
+}
+function patternConflicts(){
+  const n = state.size;
+  if(n!==5 && n!==4) return [];
+  const sel = state.winPatterns.length ? state.winPatterns : ["anyline"];
+  const label = k => ((patternsForSize(n)||[]).find(d=>d.key===k)||{}).label || k;
+  const out = [], seen = new Set();
+  sel.forEach(bKey=>{
+    for(const aKey of sel){
+      if(aKey===bKey) continue;
+      if(patternDominates(aKey, bKey, n)){
+        if(!seen.has(bKey)){ seen.add(bKey); out.push({ shadowed: label(bKey), by: label(aKey) }); }
+        break;
+      }
+    }
+  });
+  return out;
+}
+function updatePatternConflictNote(){
+  const note = $("#patternConflictNote"); if(!note) return;
+  const conflicts = patternConflicts();
+  note.innerHTML = "";
+  if(!conflicts.length){ note.hidden = true; return; }
+  note.hidden = false;
+  const head = el("span","pcn-head"); head.textContent = "⚠️ Heads up:";
+  note.appendChild(head);
+  conflicts.forEach(c=>{
+    const line = el("span","pcn-line");
+    const b = el("b"); b.textContent = c.shadowed;
+    const a = el("b"); a.textContent = c.by;
+    line.appendChild(b);
+    line.appendChild(document.createTextNode(" can’t be the deciding shape while "));
+    line.appendChild(a);
+    line.appendChild(document.createTextNode(" is on — " + c.by + " always completes first."));
+    note.appendChild(line);
+  });
+}
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const el = (t,c) => { const n=document.createElement(t); if(c) n.className=c; return n; };
+function getContrastText(hex){
+  const c = hex.replace("#","");
+  const r = parseInt(c.substr(0,2),16)/255, g = parseInt(c.substr(2,2),16)/255, b = parseInt(c.substr(4,2),16)/255;
+  const lin = v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  const L = 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b);
+  const ratioWhite = 1.05 / (L + 0.05);
+  const ratioBlack = (L + 0.05) / 0.05;
+  return ratioBlack >= ratioWhite
+    ? { text:"#1A1220", outline:"rgba(255,255,255,.85)" }
+    : { text:"#FFFFFF", outline:"rgba(0,0,0,.6)" };
+}
+function rngShuffle(arr){
+  const a = arr.slice();
+  const rand = (n)=>{
+    if(window.crypto && crypto.getRandomValues){ const u=new Uint32Array(1); crypto.getRandomValues(u); return u[0]/4294967296*n; }
+    return Math.random()*n;
+  };
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function parsePool(text){
+  const seen=new Set(), out=[];
+  text.split("\n").forEach(raw=>{
+    const line = raw.trim();
+    if(!line) return;
+    let t = line, d = null;
+    const pipeIdx = line.indexOf("|");
+    if(pipeIdx !== -1){
+      t = line.slice(0, pipeIdx).trim();
+      d = line.slice(pipeIdx+1).trim() || null;
+    }
+    if(!t) return;
+    const key = t.toLowerCase();
+    if(seen.has(key)) return;
+    seen.add(key);
+    out.push({ text:t, desc:d, bonus:null, bonusType:null, enabled:true });
+  });
+  return out;
+}
+function poolToText(pool){
+  return pool.map(p => p.desc ? `${p.text} | ${p.desc}` : p.text).join("\n");
+}
+function enabledPool(){ return state.pool.filter(p => p.enabled); }
+function pickPhrases(need){
+  const shuffled = rngShuffle(enabledPool());
+  const chosen = [], usedGroups = new Set();
+  for(const item of shuffled){
+    if(chosen.length >= need) break;
+    const grp = MUTEX_GROUPS.findIndex(g => g.includes(item.text));
+    if(grp !== -1){ if(usedGroups.has(grp)) continue; usedGroups.add(grp); }
+    chosen.push(item);
+  }
+  // if mutex filtering left us short (rare), backfill ignoring the groups
+  if(chosen.length < need){
+    for(const item of shuffled){
+      if(chosen.length >= need) break;
+      if(!chosen.includes(item)) chosen.push(item);
+    }
+  }
+  return chosen.slice(0, need);
+}
+function usesFree(){ return state.free && state.size%2===1; } // only odd grids (5x5, 3x3) can have a true center
+function needed(){ return state.size*state.size - (usesFree()?1:0); }
+function buildCard(){
+  const total = state.size*state.size;
+  const useFree = usesFree();
+  const centerIdx = useFree ? Math.floor(total/2) : -1;
+  const slots = total - (useFree?1:0);
+
+  // Separate pools so every card gets the SAME number of bonus squares (fair across players).
+  let pool = enabledPool();
+  if(state.bonusMode === "none") pool = pool.map(p => ({ ...p, bonus:null, bonusType:null }));
+  const bonusPhrases   = pool.filter(p => p.bonus);
+  const regularPhrases = pool.filter(p => !p.bonus);
+  const nBonus = state.bonusMode === "none" ? 0 : Math.min(state.bonusPerCard || 0, bonusPhrases.length, slots);
+
+  const chosenBonus = rngShuffle(bonusPhrases).slice(0, nBonus);
+  let need = slots - chosenBonus.length;
+  let chosenRegular = rngShuffle(regularPhrases).slice(0, need);
+  // if there aren't enough regular phrases, backfill from the leftover bonus phrases
+  if(chosenRegular.length < need){
+    const leftover = rngShuffle(bonusPhrases.filter(p => !chosenBonus.includes(p)));
+    chosenRegular = chosenRegular.concat(leftover.slice(0, need - chosenRegular.length));
+  }
+
+  const picks = rngShuffle(chosenBonus.concat(chosenRegular)); // scatter bonus squares around the card
+  const cells = [];
+  let p = 0;
+  for(let i=0;i<total;i++){
+    if(useFree && i===centerIdx){ cells.push(null); }
+    else { cells.push(picks[p++] || null); }
+  }
+  return cells;
+}
+
+/* ---------------- toast ---------------- */
+let toastTimer;
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ---------------- info modal ---------------- */
+function openInfoModal(title, desc){
+  $("#infoModalTitle").textContent = title;
+  $("#infoModalDesc").textContent = desc;
+  $("#infoOverlay").hidden = false;
+  $("#infoClose").focus();
+}
+function closeInfoModal(){ $("#infoOverlay").hidden = true; }
+function openSectionHelp(key){
+  const src = document.getElementById(key); if(!src) return;
+  const btn = document.querySelector('.sect-info[data-help="'+key+'"]');
+  const heading = btn ? btn.closest("h2") : null;
+  const title = heading && heading.firstChild ? heading.firstChild.textContent.trim() : "About this section";
+  $("#infoModalTitle").textContent = title;
+  $("#infoModalDesc").innerHTML = src.innerHTML;   // trusted, author-written help markup
+  $("#infoOverlay").hidden = false;
+  $("#infoClose").focus();
+}
+document.addEventListener("click", e=>{
+  const b = e.target.closest && e.target.closest(".sect-info");
+  if(b) openSectionHelp(b.dataset.help);
+});
+$("#infoClose").addEventListener("click", closeInfoModal);
+$("#infoOverlay").addEventListener("click", e=>{ if(e.target===$("#infoOverlay")) closeInfoModal(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#infoOverlay").hidden) closeInfoModal(); });
+
+/* ---------------- URL encode / decode ---------------- */
+function encodeState(obj){
+  const json = JSON.stringify(obj);
+  try{ if(window.LZString){ return "z"+LZString.compressToEncodedURIComponent(json); } }catch(e){}
+  return "u"+encodeURIComponent(json);
+}
+function decodeState(str){
+  if(!str) return null;
+  const tag=str[0], body=str.slice(1);
+  try{
+    if(tag==="z" && window.LZString){ const s=LZString.decompressFromEncodedURIComponent(body); return s?JSON.parse(s):null; }
+    if(tag==="u"){ return JSON.parse(decodeURIComponent(body)); }
+  }catch(e){ return null; }
+  return null;
+}
+function baseUrl(){ return location.origin + location.pathname; }
+
+/* ---------------- progress persistence (survives accidental tab close/back) ----------------
+   Snapshots the whole play state to localStorage on every dab/bonus change. On a normal
+   (no-share-link) load, if a snapshot exists, the setup screen offers to resume it instead
+   of silently discarding it — so backing out by accident never loses a card mid-game. */
+const PROGRESS_KEY = "bustd_progress_v1";
+function saveProgress(){
+  if(!state.currentCard) return;
+  try{
+    const snap = {
+      title: state.title, size: state.size, winPatterns: state.winPatterns,
+      ink: state.ink, badgeIcon: state.badgeIcon, pool: state.pool, bonusPerCard: state.bonusPerCard,
+      cells: state.currentCard,
+      dabs: [...state.dabs], bonusDabs: [...state.bonusDabs], searchDabs: [...state.searchDabs], bonusMode: state.bonusMode, bonusResolved: [...state.bonusResolved],
+      bonusAwards: state.bonusAwards, lockedSources: [...state.lockedSources]
+    };
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(snap));
+  }catch(e){ /* private browsing / storage disabled — fail silently, nothing else depends on this */ }
+}
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function clearProgress(){
+  try{ localStorage.removeItem(PROGRESS_KEY); }catch(e){}
+}
+function renderResumeBanner(){
+  const box = $("#resumeBanner");
+  if(!box) return;
+  const saved = loadProgress();
+  box.hidden = !(saved && Array.isArray(saved.cells));
+}
+function resumeProgress(){
+  const saved = loadProgress();
+  if(!saved || !Array.isArray(saved.cells)) return;
+  state.title = saved.title || state.title;
+  state.size = saved.size || state.size;
+  state.winPatterns = Array.isArray(saved.winPatterns) && saved.winPatterns.length ? saved.winPatterns : ["anyline"];
+  state.ink = saved.ink || state.ink;
+  state.badgeIcon = saved.badgeIcon || state.badgeIcon;
+  if(Array.isArray(saved.pool) && saved.pool.length) state.pool = saved.pool;
+  if(typeof saved.bonusPerCard === "number") state.bonusPerCard = saved.bonusPerCard;
+  state.currentCard = saved.cells;
+  state.dabs = new Set(saved.dabs || []);
+  state.bonusDabs = new Set(saved.bonusDabs || []);
+  state.searchDabs = new Set(saved.searchDabs || []);
+  if(saved.bonusMode) state.bonusMode = saved.bonusMode;
+  state.bonusResolved = new Set(saved.bonusResolved || []);
+  state.bonusAwards = Array.isArray(saved.bonusAwards) ? saved.bonusAwards : [];
+  state.lockedSources = new Set(saved.lockedSources || []);
+  openPlay(state.currentCard, {keepDabs:true});
+}
+/* compact pool encode/decode — keys kept short for shorter links.
+   bonus type rides along as y: 0=pick, 1=swap, 2=random, 3=search. */
+function encodePoolCompact(pool){
+  return pool.map(p=>{
+    const o = { t:p.text };
+    if(p.desc)  o.d = p.desc;
+    if(p.bonus){ o.b = p.bonus; o.y = p.bonusType==="swap" ? 1 : p.bonusType==="random" ? 2 : p.bonusType==="search" ? 3 : 0; }
+    return o;
+  });
+}
+function decodePoolCompact(arr){
+  return arr.map(o=>{
+    const bonus = (o.b || o.bonus) || null;
+    let bonusType = null;
+    if(bonus){ const y=o.y; bonusType = y===1 ? "swap" : y===2 ? "random" : y===3 ? "search" : (o.bonusType || "pick"); }
+    return { text:o.t || o.text || "", desc:(o.d || o.desc) || null, bonus, bonusType, enabled:true };
+  }).filter(p=>p.text);
+}
+function gameLink(){
+  const payload = { v:1, m:"g", t:state.title, f:state.free?1:0, s:state.size, wp:state.winPatterns, bpc:state.bonusPerCard, bm:state.bonusMode, p:encodePoolCompact(enabledPool()) };
+  return baseUrl() + "#g=" + encodeState(payload);
+}
+function setupLink(){
+  const payload = { v:1, m:"s", t:state.title, f:state.free?1:0, s:state.size, wp:state.winPatterns, bpc:state.bonusPerCard, bm:state.bonusMode, p:encodePoolCompact(enabledPool()) };
+  return baseUrl() + "#s=" + encodeState(payload);
+}
+function cardLink(){
+  const payload = { v:1, m:"c", t:state.title, s:state.size, wp:state.winPatterns, bpc:state.bonusPerCard, bm:state.bonusMode, w:state.currentCard, p:encodePoolCompact(enabledPool()) };
+  return baseUrl() + "#c=" + encodeState(payload);
+}
+async function shareOrCopy(url, label){
+  if(navigator.share){
+    try{ await navigator.share({ title:state.title, text:label, url }); return; }
+    catch(e){ if(e && e.name==="AbortError") return; }
+  }
+  copy(url);
+}
+function copy(url){
+  const done=()=>toast("Link copied — paste it into a text or email");
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(()=>prompt("Copy this link:",url)); }
+  else{ prompt("Copy this link:", url); }
+}
+
+/* ---------------- screen switching ---------------- */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $("#"+id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* ---------------- render a card (static or interactive) ---------------- */
+function renderCard(cells, {interactive=false}={}){
+  const cols = Math.round(Math.sqrt(cells.length)) || 5;
+  const cardLetters = LETTERS_BY_SIZE[cols] || LETTERS_BY_SIZE[5];
+  const card = el("div","card");
+  card.style.setProperty("--ink", state.ink);
+  const contrast = getContrastText(state.ink);
+  card.style.setProperty("--ink-text-on-dab", contrast.text);
+  card.style.setProperty("--ink-outline-on-dab", contrast.outline);
+  const letters = el("div","letters"); letters.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  cardLetters.forEach(L=>{ const d=el("div"); d.textContent=L; letters.appendChild(d); });
+  card.appendChild(letters);
+  const grid = el("div","grid"); grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  cells.forEach((val,idx)=>{
+    const cell = el("div","cell");
+    if(val===null){
+      cell.classList.add("free");
+      cell.innerHTML = '<span class="txt pleadeal">PLEA<br>DEAL</span>';
+    } else {
+      const span = el("span","txt"); span.textContent = val.text; cell.appendChild(span);
+      if(interactive && val.bonus){
+        const ind = el("span","bonus-indicator");
+        ind.setAttribute("title","Bonus Square");
+        ind.appendChild(buildStarSVG("var(--bonus-gold)","bonus-indicator-svg"));
+        cell.appendChild(ind);
+      }
+      if(interactive && val.desc){
+        const infoBtn = document.createElement("button");
+        infoBtn.type = "button";
+        infoBtn.className = "info-icon";
+        infoBtn.textContent = "i";
+        infoBtn.setAttribute("aria-label", "More info: "+val.text);
+        infoBtn.addEventListener("click", e=>{ e.stopPropagation(); openInfoModal(val.text, val.desc); });
+        infoBtn.addEventListener("keydown", e=>{ e.stopPropagation(); });
+        cell.appendChild(infoBtn);
+      }
+      if(interactive && (val.bonus || val.desc)) cell.classList.add("iconpad");
+    }
+    if(interactive && val!==null){
+      cell.setAttribute("role","button");
+      cell.tabIndex = 0;
+      cell.setAttribute("aria-pressed", state.dabs.has(idx) ? "true":"false");
+      if(state.dabs.has(idx)) stampCell(cell, state.searchDabs.has(idx) ? "paw" : state.bonusDabs.has(idx) ? "chevron" : "normal");
+      const onActivate = ()=>{
+        if(state.pickMode){ handleBonusPick(idx, cell); return; }
+        toggleDab(idx, cell, cells);
+      };
+      cell.addEventListener("click", onActivate);
+      cell.addEventListener("keydown", e=>{
+        if(e.target!==cell) return; // ignore bubbling from the nested info button
+        if(e.key==="Enter" || e.key===" "){ e.preventDefault(); onActivate(); }
+      });
+    }
+    grid.appendChild(cell);
+  });
+  card.appendChild(grid);
+  return card;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+
+/* Badge shape registry. "inner" is raw SVG markup (paths/rects) with no fill
+   of its own — it inherits color from the wrapping <g fill="..."> at render
+   time, so any shape here can be recolored to whichever badge color the
+   player picks. The uploaded svgrepo.com icons are CC0 (public domain). */
+const ICONS = {
+  sheriffBadge: {
+    label: "Sheriff badge",
+    viewBox: "0 0 297 297",
+    inner: `<path d="M275.427,100.777c-5.552,0-10.586,2.266-14.249,5.924l-64.559-13.076l-33.665-59.956c3.019-3.569,4.852-8.185,4.852-13.232C167.807,9.168,158.714,0,147.536,0c-11.173,0-20.264,9.168-20.264,20.437c0,5.046,1.832,9.661,4.849,13.229L98.459,93.625l-64.998,13.166c-3.344-2.454-7.445-3.921-11.89-3.921c-11.175,0-20.267,9.168-20.267,20.435c0,11.27,9.092,20.438,20.267,20.438c2.057,0,4.042-0.316,5.915-0.893l40.663,44.4l-7.976,69.267c-9.315,1.84-16.368,10.125-16.368,20.047c0,11.268,9.093,20.436,20.27,20.436c11.173,0,20.264-9.168,20.264-20.436c0-0.786-0.055-1.559-0.14-2.32l63.338-29.104l63.345,29.104c-0.086,0.762-0.141,1.534-0.141,2.32c0,11.268,9.092,20.436,20.267,20.436c11.177,0,20.269-9.168,20.269-20.436c0-9.924-7.055-18.209-16.372-20.048l-7.975-69.266l42.582-46.495c1.873,0.578,3.858,0.894,5.916,0.894c11.176,0,20.269-9.167,20.269-20.437C295.695,109.944,286.603,100.777,275.427,100.777z"/>`
+  },
+  rosetteBadge: {
+    label: "Rosette badge",
+    viewBox: "0 0 512 512",
+    inner: `<path d="m 237.59142,23.950128 c -15.48769,9.432598 -34.17058,12.318766 -44.1673,12.318766 -10.00366,0 -23.79926,-0.194925 -43.9503,-11.829131 -8.35467,-4.823577 -9.86134,-5.708699 -14.34686,-5.708699 -12.91322,0 -71.396413,58.375934 -72.363034,66.334414 -0.966622,7.958452 32.120593,28.163932 33.71248,57.150952 1.591887,28.98703 -19.183619,61.80636 -27.756183,87.39706 -17.765566,52.9498 -22.581636,58.94861 -22.581622,85.85861 3.91678,77.65208 56.609859,131.68607 130.916129,144.25034 31.84641,4.83094 44.87352,9.46439 59.11229,21.0237 5.93519,4.34906 12.47815,10.68983 19.74398,11.52033 l 0,0.0278 c 0.0299,-0.003 0.0591,-0.01 0.089,-0.0142 0.0299,0.003 0.0591,0.0114 0.089,0.0142 l 0,-0.0278 c 7.26582,-0.8305 13.80879,-7.17127 19.74397,-11.52033 14.23877,-11.55931 27.26588,-16.19276 59.11229,-21.0237 74.30628,-12.56427 126.99934,-66.59826 130.91614,-144.25034 0,-26.91 -4.81606,-32.90881 -22.58162,-85.85861 -8.57257,-25.5907 -29.34807,-58.41003 -27.75619,-87.39706 1.59189,-28.98702 34.6791,-49.1925 33.71248,-57.150952 -0.96662,-7.95848 -59.44983,-66.334414 -72.36304,-66.334414 -4.48553,0 -5.99218,0.885122 -14.34685,5.708699 -20.15104,11.634206 -33.94664,11.829131 -43.95031,11.829131 -9.99671,0 -28.6796,-2.886168 -44.16729,-12.318766 -4.52967,-2.74526 -10.03057,-5.344254 -18.40861,-5.344254 -6.60122,0 -13.34704,2.294383 -18.4086,5.344254 z"/>`
+  },
+  policeHat: {
+    label: "Police hat",
+    viewBox: "0 0 297 297",
+    inner: `<path d="M296.407,108.939c-1.997-10.381-8.836-17.764-17.85-19.267c-44.83-7.479-67.003-20.646-84.732-50.317c-1.816-3.041-5.098-4.902-8.641-4.902h-73.368c-3.543,0-6.824,1.861-8.641,4.902c-17.73,29.672-39.902,42.839-84.731,50.317C9.43,91.175,2.591,98.558,0.593,108.939c-2.027,10.546,0.885,24.656,12.744,38.111h270.327C295.522,133.595,298.435,119.486,296.407,108.939z M148.5,127.925c-13.043,0-23.654-10.611-23.654-23.654s10.611-23.654,23.654-23.654s23.654,10.611,23.654,23.654S161.543,127.925,148.5,127.925z"/><path d="M148.5,94.708c-5.273,0-9.563,4.29-9.563,9.563c0,5.273,4.29,9.563,9.563,9.563c5.272,0,9.562-4.289,9.562-9.563C158.063,98.998,153.773,94.708,148.5,94.708z"/><path d="M266.959,180.267c5.278,0,9.596-4.05,9.596-9v-1.125c0-4.95-4.317-9-9.596-9H30.041c-5.281,0-9.596,4.05-9.596,9v1.125c0,4.95,4.315,9,9.596,9H266.959z"/><path d="M62.341,242.788c23.539,12.742,54.139,19.76,86.159,19.76c32.022,0,62.622-7.018,86.161-19.76c23.5-12.721,37.482-30.232,38.852-48.429H23.488C24.857,212.556,38.839,230.068,62.341,242.788z"/>`
+  },
+  jail: {
+    label: "Jail bars",
+    viewBox: "0 0 297 297",
+    inner: `<path d="M287.116,60.536c5.458,0,9.884-4.425,9.884-9.883V18.037c0-5.458-4.426-9.883-9.884-9.883H9.884C4.426,8.154,0,12.579,0,18.037v32.616c0,5.458,4.426,9.883,9.884,9.883h6.424v175.927H9.884c-5.458,0-9.884,4.426-9.884,9.884v32.616c0,5.458,4.426,9.883,9.884,9.883h277.232c5.458,0,9.884-4.425,9.884-9.883v-32.616c0-5.458-4.426-9.884-9.884-9.884h-6.424v-45.625c4.632-0.818,8.153-4.855,8.153-9.723v-65.23c0-4.868-3.522-8.904-8.153-9.723V60.536H287.116z M65.231,236.463H36.075v-78.079h29.156V236.463z M65.231,138.616H36.075v-78.08h29.156V138.616z M114.154,236.463H84.998v-78.079h29.156V236.463z M114.154,138.616H84.998v-78.08h29.156V138.616z M163.078,236.463h-29.156v-78.079h29.156V236.463z M163.078,138.616h-29.156v-78.08h29.156V138.616z M212.002,236.463h-29.157v-78.079h21.003v22.731c0,4.868,3.522,8.904,8.154,9.723V236.463z M212.002,106.162c-4.632,0.818-8.154,4.854-8.154,9.723v22.731h-21.003v-78.08h29.157V106.162z M260.925,236.463h-29.156v-45.464h29.156V236.463z M233.498,143.559c0-7.085,5.765-12.849,12.849-12.849c7.085,0,12.849,5.764,12.849,12.849c0,4.102-1.939,7.752-4.941,10.106v4.719c0,4.366-3.54,7.906-7.907,7.906c-4.366,0-7.906-3.54-7.906-7.906v-4.719C235.438,151.311,233.498,147.66,233.498,143.559z M260.925,106.001h-29.156V60.536h29.156V106.001z"/>`
+  },
+  handcuffs: {
+    label: "Handcuffs",
+    viewBox: "0 0 297 297",
+    inner: `<path d="M221.476,107.395c-0.629,0-1.232,0.188-1.748,0.541c-0.676,0.464-1.131,1.166-1.281,1.975l-5.02,27.119l-4.295,1.212c-25.205,7.118-44.566,28.333-49.326,54.046c-6.943,37.537,17.914,73.741,55.412,80.704c4.191,0.778,8.457,1.173,12.68,1.173h0.006c33.283,0,61.848-23.817,67.922-56.632c4.736-25.6-5.059-51.384-25.561-67.291l-3.451-2.678l5.123-27.731c0.307-1.666-0.797-3.273-2.463-3.582l-47.441-8.806C221.853,107.413,221.663,107.395,221.476,107.395z M235.038,133.835c1.344-1.333,3.189-2.102,5.076-2.102c1.885,0,3.74,0.769,5.074,2.102c1.342,1.332,2.1,3.188,2.1,5.074c0,1.886-0.758,3.74-2.1,5.074c-1.334,1.332-3.189,2.102-5.074,2.102c-1.887,0-3.732-0.77-5.076-2.102c-1.332-1.334-2.1-3.188-2.1-5.074C232.939,137.023,233.706,135.167,235.038,133.835z M227.812,177.203c14.914,0,27.328,12.15,27.674,27.085c0.17,7.399-2.547,14.421-7.654,19.77c-5.105,5.349-11.986,8.386-19.377,8.553c-0.203,0.004-0.393,0.006-0.584,0.006c-14.943,0-27.381-12.15-27.725-27.085c-0.17-7.4,2.549-14.421,7.654-19.77c5.104-5.348,11.984-8.385,19.375-8.552C227.403,177.205,227.611,177.203,227.812,177.203z"/><path d="M69.709,274.612c18.482-0.416,36.729-8.02,49.491-21.389c12.758-13.368,19.551-30.913,19.125-49.4c-0.602-26.063-16.279-50.078-39.941-61.18l-4.023-1.887l-0.592-25.464c-0.039-1.657-1.416-3.004-3.07-3.004l-47.516,1.072c-0.81,0.018-1.596,0.364-2.152,0.948c-0.563,0.588-0.873,1.387-0.854,2.196l0.594,25.575l-3.928,2.073c-10.166,5.368-18.928,13.307-25.332,22.956c-7.846,11.817-11.82,25.592-11.492,39.83c0.42,18.211,7.826,35.248,20.854,47.973C33.88,267.619,51.561,274.61,69.709,274.612 M62.825,135.885c1.342-1.332,3.188-2.102,5.074-2.102c1.896,0,3.74,0.77,5.074,2.102c1.342,1.332,2.102,3.188,2.102,5.074c0,1.886-0.76,3.741-2.102,5.074c-1.334,1.333-3.178,2.102-5.074,2.102c-1.887,0-3.732-0.768-5.074-2.102c-1.332-1.333-2.102-3.188-2.102-5.074C60.724,139.063,61.493,137.217,62.825,135.885z M69.177,233.089c-14.914,0-27.328-12.15-27.676-27.085c-0.17-7.402,2.549-14.423,7.656-19.771c5.102-5.348,11.982-8.385,19.375-8.551c0.229-0.005,0.434-0.007,0.637-0.007c14.914,0,27.328,12.149,27.674,27.085c0.17,7.4-2.549,14.421-7.654,19.77c-5.105,5.349-11.986,8.386-19.377,8.552C69.605,233.086,69.39,233.089,69.177,233.089z"/><path d="M42.859,99.014l20.727-0.468c-0.277-0.659-0.422-1.285-0.488-1.74c-0.313-2.148,0.24-4.395,1.555-6.327l7.785-11.441c1.656-2.434,4.305-3.947,6.924-3.962c1.533,2.482,3.473,4.671,5.723,6.502c-0.045,1.66-0.576,3.409-1.629,4.956l-7.785,11.44c-0.072,0.107-0.156,0.201-0.232,0.305L90.3,97.943c0.121-0.003,0.26-0.005,0.398-0.005c3.002,0,5.84,0.789,8.324,2.159l1.381-2.03c2.207-3.243,3.689-6.757,4.488-10.338c3.519-0.241,6.951-1.098,10.227-2.571l12.619-5.678c3.26-1.468,6.125-3.445,8.541-5.777c3.934,1.922,8.393,3.015,13.117,3.015h13.84c4.725,0,9.184-1.093,13.117-3.015c2.416,2.332,5.281,4.31,8.543,5.777l12.619,5.678c3.092,1.392,6.324,2.23,9.635,2.524c0.688,3.108,1.895,6.168,3.641,9.044c0.268-0.208,0.527-0.424,0.811-0.618c2.916-2.005,6.332-3.065,9.875-3.065c1.059,0,2.127,0.099,3.17,0.291l9.82,1.822l-5.867-8.622c-0.961-1.412-1.486-2.993-1.607-4.52c2.475-1.908,4.602-4.231,6.258-6.9c2.432,0.208,4.83,1.661,6.367,3.923l7.785,11.441c1.314,1.933,1.867,4.179,1.555,6.327c-0.041,0.279-0.111,0.624-0.221,0.999l20.172,3.745c0.125-0.593,0.248-1.186,0.336-1.792c1.053-7.237-0.684-14.628-4.891-20.812l-7.785-11.441c-4.809-7.068-12.23-11.649-20.33-12.701c-2.104-8.109-7.932-15.367-16.43-19.191l-12.619-5.678c-3.908-1.759-8.039-2.65-12.275-2.65c-4.225,0-8.277,0.924-11.916,2.596c-5.15-4.637-12.109-7.492-19.762-7.492h-13.84c-7.652,0-14.611,2.855-19.762,7.492c-3.637-1.672-7.69-2.596-11.914-2.596c-4.236,0-8.367,0.892-12.277,2.65l-12.619,5.678c-8.476,3.814-14.295,11.046-16.412,19.132c-8.332,0.899-15.998,5.521-20.926,12.761L47.7,78.946c-4.064,5.975-5.814,13.076-4.979,20.077C42.767,99.022,42.814,99.015,42.859,99.014z M191.905,48.337c0.908-0.356,1.93-0.551,3.008-0.551c1.316,0,2.617,0.284,3.863,0.845l12.619,5.678c2.678,1.205,4.525,3.502,5.051,5.87c-2.531,2.007-4.602,4.42-6.188,7.1c-0.156,0.008-0.309,0.028-0.469,0.028c-1.316,0-2.617-0.285-3.863-0.846l-12.619-5.678c-1.186-0.533-2.203-1.284-3.023-2.156c1.068-2.84,1.652-5.894,1.652-9.074C191.937,49.146,191.923,48.74,191.905,48.337z M149.396,42.89h13.84c2.26,0,4.338,0.791,5.84,2.041c-1.18,3.336-1.635,6.792-1.428,10.197c-1.285,0.684-2.801,1.088-4.412,1.088h-13.84c-1.609,0-3.127-0.404-4.41-1.088c0.205-3.405-0.248-6.861-1.428-10.197C145.058,43.681,147.136,42.89,149.396,42.89z M101.237,54.309l12.619-5.678c1.246-0.56,2.547-0.845,3.863-0.845c1.076,0,2.098,0.194,3.008,0.551c-0.019,0.403-0.033,0.809-0.033,1.216c0,3.181,0.586,6.234,1.652,9.074c-0.818,0.872-1.838,1.623-3.023,2.156l-12.619,5.678c-1.246,0.561-2.547,0.846-3.863,0.846c-0.363,0-0.721-0.023-1.068-0.066c-1.479-2.487-3.371-4.745-5.668-6.659C96.499,58.072,98.407,55.582,101.237,54.309z"/>`
+  },
+  patrolCar: {
+    label: "Patrol car",
+    viewBox: "0 0 120 66",
+    inner: `<path d="M112,50 L113,42 C113,40 111,39 108,38 L92,38 L78,24 L52,24 L40,38 L10,40 C8,40 7,42 7,44 L7,50 L23,50 C23,40 27,36 32,36 C37,36 41,40 41,50 L79,50 C79,40 83,36 88,36 C93,36 97,40 97,50 L112,50 Z"/><rect x="56" y="16" width="18" height="8" rx="2"/><path fill-rule="evenodd" d="M32,40 a10,10 0 1,0 0,20 a10,10 0 1,0 0,-20 Z M32,45.5 a4.5,4.5 0 1,0 0,9 a4.5,4.5 0 1,0 0,-9 Z"/><path fill-rule="evenodd" d="M88,40 a10,10 0 1,0 0,20 a10,10 0 1,0 0,-20 Z M88,45.5 a4.5,4.5 0 1,0 0,9 a4.5,4.5 0 1,0 0,-9 Z"/>`
+  },
+  k9: {
+    label: "K9 unit",
+    viewBox: "0 0 116 92",
+    inner: `<path d="M12,42 C10,38 13,35 18,35 L30,34 L25,14 L36,34 L41,33 L49,13 L58,34 C61,37 63,41 64,45 L94,42 C103,39 108,26 103,19 C110,23 108,40 97,47 L95,86 L86,86 L86,52 L46,54 L46,86 L37,86 L38,50 C32,49 27,47 23,45 L19,52 C13,50 12,46 12,42 Z"/>`
+  }
+};
+const ICON_ORDER = ["sheriffBadge","rosetteBadge","policeHat","jail","handcuffs","patrolCar","k9"];
+
+function buildBadgeSVG(iconKey, fillColor){
+  const icon = ICONS[iconKey] || ICONS.sheriffBadge;
+  const svg = document.createElementNS(SVGNS,"svg");
+  svg.setAttribute("class","badge-stamp");
+  svg.setAttribute("viewBox", icon.viewBox);
+  svg.setAttribute("aria-hidden","true");
+  const g = document.createElementNS(SVGNS,"g");
+  g.setAttribute("fill", fillColor);
+  g.innerHTML = icon.inner; // trusted, hand-authored markup — not user input
+  svg.appendChild(g);
+  return svg;
+}
+/* Gold star = the marker on a Bonus Square (its source corner, top-left).
+   Sergeant chevrons (below) = the marker on a square daubed via a claimed
+   bonus. Two different icons so "this is a bonus" reads differently from
+   "this square was won with a bonus." */
+function buildStarSVG(fill, className){
+  const svg = document.createElementNS(SVGNS,"svg");
+  if(className) svg.setAttribute("class",className);
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.setAttribute("aria-hidden","true");
+  const path = document.createElementNS(SVGNS,"path");
+  path.setAttribute("fill", fill);
+  path.setAttribute("d","M50 5 L60.6 35.4 L92.8 36.1 L67.1 55.6 L76.5 86.4 L50 68 L23.5 86.4 L32.9 55.6 L7.2 36.1 L39.4 35.4 Z");
+  svg.appendChild(path);
+  return svg;
+}
+function buildChevronSVG(color, className){
+  const svg = document.createElementNS(SVGNS,"svg");
+  if(className) svg.setAttribute("class",className);
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.setAttribute("aria-hidden","true");
+  const g = document.createElementNS(SVGNS,"g");
+  g.setAttribute("fill","none");
+  g.setAttribute("stroke", color);
+  g.setAttribute("stroke-width","11");
+  g.setAttribute("stroke-linecap","round");
+  g.setAttribute("stroke-linejoin","round");
+  ["M18 46 L50 24 L82 46","M18 64 L50 42 L82 64","M18 82 L50 60 L82 82"].forEach(d=>{
+    const p=document.createElementNS(SVGNS,"path"); p.setAttribute("d",d); g.appendChild(p);
+  });
+  svg.appendChild(g);
+  return svg;
+}
+function buildPawSVG(color, className){
+  const svg = document.createElementNS(SVGNS,"svg");
+  if(className) svg.setAttribute("class",className);
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.setAttribute("aria-hidden","true");
+  const g = document.createElementNS(SVGNS,"g");
+  g.setAttribute("fill", color);
+  // main pad + four toe beans
+  g.innerHTML = '<ellipse cx="50" cy="66" rx="20" ry="16"/>'
+    + '<ellipse cx="27" cy="45" rx="8.5" ry="11"/>'
+    + '<ellipse cx="44" cy="34" rx="8.5" ry="11.5"/>'
+    + '<ellipse cx="60" cy="33" rx="8.5" ry="11.5"/>'
+    + '<ellipse cx="75" cy="44" rx="8.5" ry="11"/>';
+  svg.appendChild(g);
+  return svg;
+}
+function stampCell(cell, kind){
+  kind = kind === true ? "chevron" : (kind || "normal");   // back-compat: old truthy = chevron
+  cell.style.setProperty("--rot", (Math.random()*24-12).toFixed(1)+"deg");
+  cell.classList.add("dabbed");
+  cell.classList.toggle("bonus-dab", kind !== "normal");
+  cell.setAttribute("aria-pressed","true");
+  const old = cell.querySelector(".badge-stamp"); if(old) old.remove();
+  let svg;
+  if(kind === "chevron")   svg = buildChevronSVG("var(--bonus-gold)","badge-stamp");
+  else if(kind === "paw")  svg = buildPawSVG("var(--bonus-gold)","badge-stamp");
+  else                     svg = buildBadgeSVG(state.badgeIcon, "var(--ink)");
+  cell.appendChild(svg);
+}
+function unstampCell(cell){
+  cell.classList.remove("dabbed","bonus-dab");
+  cell.setAttribute("aria-pressed","false");
+  const old = cell.querySelector(".badge-stamp"); if(old) old.remove();
+}
+
+/* ---------------- dab / un-dab ---------------- */
+function toggleDab(idx, cell, cells){
+  if(state.dabs.has(idx)){
+    if(state.lockedSources.has(idx) || state.searchDabs.has(idx)){ toast("This bonus is locked in — it can't be undone."); return; }
+    // ---- un-dab ----
+    state.dabs.delete(idx);
+    unstampCell(cell);
+    // if this was a bonus TARGET (a gold-chevron square), drop that award
+    if(state.bonusDabs.has(idx)){
+      state.bonusDabs.delete(idx);
+      removeAwardByTarget(idx);
+      renderBonusTracker();
+    }
+    // if this was a resolved bonus SOURCE, revoke its award and let it re-trigger
+    const val = cells[idx];
+    if(val && val.bonus && state.bonusResolved.has(idx)){
+      state.bonusResolved.delete(idx);
+      if(removeAwardBySource(idx)) renderBonusTracker();
+    }
+    checkWin(cells);
+    return;
+  }
+  // ---- dab ----
+  state.dabs.add(idx);
+  stampCell(cell, false);
+  bounceColumnLetter(idx);
+  checkWin(cells);
+  const val = cells[idx];
+  if(val && val.bonus && !state.bonusResolved.has(idx)){
+    openBonusModal(idx, val);
+  }
+}
+
+/* ---------------- bonus-square flow ----------------
+   1. Daubing a Bonus Square opens a yes/no modal (did the condition happen?).
+   2. "Claim" enters pick-mode: the player taps any one open square.
+   3. That square is daubed with the gold chevron and logged in the tracker. */
+function bonusTypeBlurb(type){
+  if(type==="swap")   return "Swap any one open square for a fresh phrase.";
+  if(type==="search") return "Dusel picks a random open square for you — helpful or not, and it locks in.";
+  if(type==="random") return "Roll for a surprise reward — Pick, Swap, or Search — and it locks in.";
+  return "Claim a free daub on any open square.";
+}
+function effectiveBonusType(val){
+  // master toggle overrides every bonus to random
+  return state.bonusMode === "random" ? "random" : (val.bonusType || "pick");
+}
+function bonusTypeLabel(type){
+  return type==="swap" ? "Swap reward" : type==="search" ? "Dusel's Search" : type==="random" ? "Random reward" : "Pick reward";
+}
+function openBonusModal(sourceIdx, val){
+  state._bonusSource = sourceIdx;
+  state._bonusType = effectiveBonusType(val);
+  $("#bonusTitle").textContent = "⭐ " + val.text;
+  $("#bonusDesc").textContent = val.bonus;
+  $("#bonusRewardType").textContent = bonusTypeLabel(state._bonusType).toUpperCase() + ":";
+  $("#bonusRewardText").textContent = bonusTypeBlurb(state._bonusType);
+  $("#bonusOverlay").hidden = false;
+  $("#bonusClaim").focus();
+}
+function closeBonusModal(resolve){
+  const src = state._bonusSource;
+  const type = state._bonusType;
+  $("#bonusOverlay").hidden = true;
+  state._bonusSource = null;
+  state._bonusType = null;
+  if(resolve && src!=null) state.bonusResolved.add(src);
+  return { src, type };
+}
+function startClaim(src, type){
+  if(type === "random"){
+    const rolled = ["pick","swap","search"][Math.floor(Math.random()*3)];
+    state.lockedSources.add(src);   // locks on reveal — no re-rolling
+    const names = { pick:"PICK", swap:"SWAP", search:"SEARCH" };
+    const bodies = {
+      pick:"You get a free daub on any open square.",
+      swap:"Swap any one open square for a fresh phrase.",
+      search:"Dusel picks a random open square for you — helpful or not."
+    };
+    showResultNote({
+      icon:"🎲", title:"Random rolled: " + names[rolled] + "!", body:bodies[rolled],
+      onClose:()=>{ if(rolled==="search") doSearch(src, true); else startPickMode(src, rolled, true); }
+    });
+  } else if(type === "search"){
+    state.lockedSources.add(src);   // Search locks in too
+    doSearch(src, false);
+  } else {
+    startPickMode(src, type, false);
+  }
+}
+function doSearch(src, wasRandom){
+  const cells = state.currentCard;
+  const sourceText = cells[src] ? cells[src].text : "Bonus";
+  const openIdxs = cells.map((c,i)=> (c && !state.dabs.has(i)) ? i : -1).filter(i=>i>=0);
+  if(!openIdxs.length){ toast("No open squares for Dusel to find!"); return; }
+  const target = openIdxs[Math.floor(Math.random()*openIdxs.length)];
+  const targetText = cells[target] ? cells[target].text : "Square";
+  state.dabs.add(target);
+  state.searchDabs.add(target);
+  state.bonusAwards.push({ sourceIdx:src, targetIdx:target, type: wasRandom?"random":"search", rolled:"search", sourceText, targetText });
+  renderBonusTracker();
+  const host = $("#playCard");
+  const targetCell = host ? host.querySelectorAll(".cell")[target] : null;
+  const finish = ()=>{
+    checkWin(cells);
+    saveProgress();
+    if($("#banner").hidden){   // if it didn't trigger a win, announce what Dusel did
+      showResultNote({ icon:"🐾", title:"Dusel found a square!", body:'Dusel dabbed "' + shorten(targetText) + '" for you — helpful or not, it\'s locked in!' });
+    }
+  };
+  if(targetCell){
+    playDuselSearch(targetCell, ()=>{ stampCell(targetCell, "paw"); }, finish);
+  } else {
+    finish();
+  }
+}
+function openSwapChooser(targetIdx, src, isRandom){
+  const cells = state.currentCard;
+  const onCard = new Set(cells.filter(Boolean).map(p => p.text.toLowerCase()));
+  const avail = enabledPool().filter(p => !onCard.has(p.text.toLowerCase()));   // bonus phrases allowed (bonus-in-bonus)
+  const choices = rngShuffle(avail).slice(0, 6);
+  if(!choices.length){ toast("No fresh phrases left to swap in."); cancelPickMode(); return; }
+  cancelPickMode();
+  state._swapCtx = { targetIdx, src, isRandom:!!isRandom };
+  const box = $("#swapChoices"); box.innerHTML = "";
+  choices.forEach(p=>{
+    const btn = el("button","swap-choice"); btn.type = "button";
+    const txt = el("span"); txt.textContent = p.text; btn.appendChild(txt);
+    if(p.bonus){ const tag = el("span","bonus-tag"); tag.textContent = "⭐ BONUS"; btn.appendChild(tag); }
+    btn.addEventListener("click", ()=> chooseSwap(p));
+    box.appendChild(btn);
+  });
+  $("#swapOverlay").hidden = false;
+}
+function chooseSwap(phrase){
+  const ctx = state._swapCtx; if(!ctx) return;
+  const cells = state.currentCard;
+  const orig = cells[ctx.targetIdx];
+  // bonus-in-bonus: if the chosen phrase is bonus-eligible, the new square becomes a bonus square
+  cells[ctx.targetIdx] = { text:phrase.text, desc:phrase.desc||null, bonus:phrase.bonus||null, bonusType:phrase.bonusType||null, enabled:true };
+  const srcText = cells[ctx.src] ? cells[ctx.src].text : "Bonus";
+  state.bonusAwards.push({ sourceIdx:ctx.src, targetIdx:ctx.targetIdx, type:ctx.isRandom?"random":"swap", rolled:"swap", sourceText:srcText, targetText:phrase.text, origPhrase:orig });
+  state._swapCtx = null;
+  $("#swapOverlay").hidden = true;
+  paintCard();
+  renderBonusTracker();
+  checkWin(cells);
+}
+function closeSwapChooser(){
+  if($("#swapOverlay").hidden) return;
+  $("#swapOverlay").hidden = true;
+  const ctx = state._swapCtx; state._swapCtx = null;
+  if(ctx) startPickMode(ctx.src, "swap", ctx.isRandom);   // let them pick a square again rather than lose the swap
+}
+function startPickMode(sourceIdx, mode, isRandom){
+  state.pickMode = { sourceIdx, mode, isRandom:!!isRandom };
+  const banner = $("#pickBannerText");
+  if(banner){
+    const prefix = isRandom
+      ? "🎲 Rolled " + (mode==="swap" ? "SWAP" : "PICK") + "! "
+      : (mode==="swap" ? "🔀 Swap! " : "⭐ Bonus! ");
+    banner.textContent = prefix + (mode==="swap"
+      ? "Tap any open square to swap it for a fresh phrase."
+      : "Tap any open square to claim your free daub.");
+  }
+  updatePickModeUI();
+}
+function cancelPickMode(){
+  state.pickMode = null;
+  updatePickModeUI();
+}
+function updatePickModeUI(){
+  const on = !!state.pickMode;
+  const banner = $("#pickBanner"); if(banner) banner.hidden = !on;
+  const play = $("#play"); if(play) play.classList.toggle("picking", on);
+}
+function handleBonusPick(targetIdx, cell){
+  if(!state.pickMode) return;
+  if(state.dabs.has(targetIdx)){ toast("Pick a square that isn't dabbed yet"); return; }
+  const { sourceIdx:src, mode, isRandom } = state.pickMode;
+  const cells = state.currentCard;
+  const sourceText = cells[src] ? cells[src].text : "Bonus";
+
+  if(mode==="swap"){
+    openSwapChooser(targetIdx, src, isRandom);
+    return;
+  }
+
+  // pick — free daub with the gold chevron
+  state.dabs.add(targetIdx);
+  state.bonusDabs.add(targetIdx);
+  stampCell(cell, true);
+  const pickedText = cells[targetIdx] ? cells[targetIdx].text : "Square";
+  state.bonusAwards.push({ sourceIdx:src, targetIdx, type:isRandom?"random":"pick", rolled:"pick", sourceText, targetText: pickedText });
+  cancelPickMode();
+  renderBonusTracker();
+  checkWin(cells);
+  // acknowledge + lock (item 65): confirm the choice, then it can't be moved
+  askConfirm(
+    'Lock your free daub on "' + shorten(pickedText) + '"? You won\'t be able to move it after this.',
+    ()=>{ state.lockedSources.add(src); state.lockedSources.add(targetIdx); toast("✔ Free daub locked in!"); saveProgress(); },
+    { yes:"Lock it in", no:"Pick a different square", onNo:()=>{
+        // undo this daub and pick again
+        state.dabs.delete(targetIdx); state.bonusDabs.delete(targetIdx);
+        removeAwardByTarget(targetIdx);
+        const host=$("#playCard"); const tcell = host ? host.querySelectorAll(".cell")[targetIdx] : null;
+        if(tcell) unstampCell(tcell);
+        renderBonusTracker(); checkWin(state.currentCard);
+        startPickMode(src, "pick", isRandom);
+      } }
+  );
+}
+function removeAwardBySource(sourceIdx){
+  const i = state.bonusAwards.findIndex(a => a.sourceIdx===sourceIdx);
+  if(i===-1) return false;
+  const award = state.bonusAwards[i];
+  state.bonusAwards.splice(i,1);
+  if(award.rolled==="swap"){
+    // put the original phrase back and clear any daub that square picked up
+    if("origPhrase" in award) state.currentCard[award.targetIdx] = award.origPhrase;
+    state.dabs.delete(award.targetIdx);
+    state.bonusDabs.delete(award.targetIdx);
+    paintCard();
+  } else {
+    // pull the free daub off the target square
+    state.dabs.delete(award.targetIdx);
+    state.bonusDabs.delete(award.targetIdx);
+    state.searchDabs.delete(award.targetIdx);
+    const host = $("#playCard");
+    const targetCell = host ? host.querySelectorAll(".cell")[award.targetIdx] : null;
+    if(targetCell) unstampCell(targetCell);
+  }
+  return true;
+}
+function removeAwardByTarget(targetIdx){
+  // Only a PICK award actually daubs its target; a swap award leaves its target
+  // open. So when a chevron-daubbed square is un-dabbed, remove the pick award —
+  // never a swap award that happens to share the same target index.
+  const i = state.bonusAwards.findIndex(a => a.targetIdx===targetIdx && a.rolled!=="swap");
+  if(i===-1) return false;
+  state.bonusAwards.splice(i,1);
+  return true;
+}
+function shorten(s, n){
+  n = n || 26;
+  s = String(s).replace(/^"|"$/g,"").trim();
+  return s.length>n ? s.slice(0,n-1).trim()+"…" : s;
+}
+function renderBonusTracker(){
+  const box = $("#bonusTracker");
+  if(!box) return;
+  if(!state.bonusAwards.length){ box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  box.innerHTML = '<div class="bonus-tracker-title">⭐ Bonus results</div>';
+  state.bonusAwards.forEach(a=>{
+    const row = el("div","bonus-tracker-row");
+    const icon = a.type==="random" ? "🎲 " : (a.rolled==="search" ? "🐾 " : a.rolled==="swap" ? "🔀 " : "⭐ ");
+    const arrow = a.rolled==="swap" ? " 🔀 " : (a.rolled==="search" ? " 🐾 " : " → ");
+    row.textContent = icon + shorten(a.sourceText) + arrow + shorten(a.targetText);
+    box.appendChild(row);
+  });
+}
+
+/* ---------------- win detection (works for any N×N grid) ---------------- */
+function isMarked(cells, i){ return cells[i]===null || state.dabs.has(i); }
+function checkWin(cells){
+  saveProgress();
+  const n = Math.round(Math.sqrt(cells.length)) || 5;
+  const idx = [...Array(n).keys()];
+  const dynamicLines=[];
+  for(let r=0;r<n;r++) dynamicLines.push(idx.map(c=>r*n+c));
+  for(let c=0;c<n;c++) dynamicLines.push(idx.map(r=>r*n+c));
+  dynamicLines.push(idx.map(i=>i*n+i)); dynamicLines.push(idx.map(i=>i*n+(n-1-i)));
+
+  const defs = patternsForSize(n);
+  const activeKeys = defs ? (state.winPatterns.length ? state.winPatterns : ["anyline"]) : ["anyline"];
+  let bingo = false;
+  for(const key of activeKeys){
+    if(key==="anyline"){
+      if(dynamicLines.some(line=>line.every(i=>isMarked(cells,i)))){ bingo=true; break; }
+      continue;
+    }
+    const def = defs && defs.find(p=>p.key===key);
+    if(!def || !def.coords) continue;
+    const groups = def.coords.map(group=>group.map(([r,c])=>r*n+c));
+    if(groups.some(group=>group.every(i=>isMarked(cells,i)))){ bingo=true; break; }
+  }
+  const blackout = cells.every((_,i)=>isMarked(cells,i));
+  const b=$("#banner"), bt=$("#bannerText");
+  if(blackout || bingo){
+    const kind = blackout ? "BLACKOUT" : "BUSTD";
+    if(bt) bt.textContent = blackout ? "🚨 FULL SCENE — BLACKOUT! 🚨" : "🚔 BUSTD! 🚔";
+    if(b){
+      b.dataset.kind = kind;
+      if(state.bannerDismissed !== kind && b.hidden){ b.hidden = false; launchFireworks(); }
+    }
+  } else {
+    if(b) b.hidden = true;
+    state.bannerDismissed = null;   // cleared, so a fresh win later can pop again
+  }
+  applyHighlight();
+}
+function launchFireworks(){
+  const box = $("#fireworks"); if(!box) return;
+  box.innerHTML = "";
+  const colors = ["#FFD34E","#FF5A5A","#5AA9FF","#7CF29B","#FF9F40","#E86BFF","#FFFFFF"];
+  const bursts = 5;
+  for(let bIdx=0;bIdx<bursts;bIdx++){
+    setTimeout(()=>{
+      const banner = $("#banner");
+      if(!banner || banner.hidden) return;   // overlay closed before this burst — skip
+      const cx = 12 + Math.random()*76, cy = 10 + Math.random()*55;
+      const n = 12;
+      for(let i=0;i<n;i++){
+        const p = el("span","fw-particle");
+        const ang = (Math.PI*2*i)/n + Math.random()*0.35;
+        const dist = 42 + Math.random()*46;
+        p.style.left = cx+"%"; p.style.top = cy+"%";
+        const col = colors[Math.floor(Math.random()*colors.length)];
+        p.style.background = col; p.style.color = col;
+        p.style.setProperty("--dx", (Math.cos(ang)*dist).toFixed(1)+"px");
+        p.style.setProperty("--dy", (Math.sin(ang)*dist).toFixed(1)+"px");
+        box.appendChild(p);
+        setTimeout(()=>p.remove(), 1000);
+      }
+    }, 560 + bIdx*300);   // start just after the doors slam shut, then stagger
+  }
+}
+function dismissBanner(){
+  const b=$("#banner"); if(!b) return;
+  state.bannerDismissed = b.dataset.kind || "BUSTD";
+  b.hidden = true;
+}
+
+/* ---------------- closest-to-win highlighter ----------------
+   Finds every winning group (lines for Any Line + each active shape's groups),
+   counts how many squares each still needs, then highlights all the squares in
+   whichever group(s) are tied for fewest-needed — so the player sees every live
+   path at once. Recomputed on every dab while the toggle is on. */
+function winningGroups(){
+  const cells = state.currentCard;
+  if(!cells) return [];
+  const n = Math.round(Math.sqrt(cells.length)) || 5;
+  const idxArr = [...Array(n).keys()];
+  const defs = patternsForSize(n);
+  const active = defs ? (state.winPatterns.length ? state.winPatterns : ["anyline"]) : ["anyline"];
+  const groups = [];
+  if(!defs || active.includes("anyline")){
+    for(let r=0;r<n;r++) groups.push(idxArr.map(c=>r*n+c));
+    for(let c=0;c<n;c++) groups.push(idxArr.map(r=>r*n+c));
+    groups.push(idxArr.map(i=>i*n+i));
+    groups.push(idxArr.map(i=>i*n+(n-1-i)));
+  }
+  if(defs){
+    active.forEach(key=>{
+      if(key==="anyline") return;
+      const def = defs.find(p=>p.key===key);
+      if(def && def.coords) def.coords.forEach(g=> groups.push(g.map(([r,c])=>r*n+c)));
+    });
+  }
+  return groups;
+}
+function closestCells(){
+  const cells = state.currentCard; if(!cells) return new Set();
+  const groups = winningGroups();
+  let min = Infinity;
+  const needs = groups.map(g=>{ const undab = g.filter(i=> !isMarked(cells,i)); if(undab.length>0 && undab.length<min) min=undab.length; return undab; });
+  const result = new Set();
+  if(min===Infinity) return result;
+  needs.forEach(undab=>{ if(undab.length===min) undab.forEach(i=>result.add(i)); });
+  return result;
+}
+/* squares that would complete a win on their own (a group needing exactly 1 more) */
+function oneAwayCells(){
+  const cells = state.currentCard; if(!cells) return new Set();
+  const result = new Set();
+  winningGroups().forEach(g=>{ const undab = g.filter(i=> !isMarked(cells,i)); if(undab.length===1) result.add(undab[0]); });
+  return result;
+}
+function applyHighlight(){
+  const host = $("#playCard"); if(!host) return;
+  const cells = host.querySelectorAll(".cell");
+  cells.forEach(c=>{ c.classList.remove("closest"); c.classList.remove("one-away"); });
+  if(!state.currentCard) return;
+  const closest = state.highlightOn ? closestCells() : new Set();
+  closest.forEach(i=>{ if(cells[i]) cells[i].classList.add("closest"); });
+  // always-on subtle gold pulse for one-away squares — but never on a cell already flashing red/blue
+  oneAwayCells().forEach(i=>{ if(cells[i] && !closest.has(i)) cells[i].classList.add("one-away"); });
+}
+
+/* ---------------- pattern viewer modal ---------------- */
+function renderPatternView(){
+  const body = $("#patternViewBody"); if(!body) return;
+  body.innerHTML = "";
+  const n = state.size;
+  const defs = patternsForSize(n);
+  const intro = el("p","pv-intro");
+  const grid = el("div","pv-grid");
+  if(defs){
+    intro.textContent = "A card wins as soon as any one of these shapes is fully dabbed:";
+    const active = state.winPatterns.length ? state.winPatterns : ["anyline"];
+    defs.filter(d=>active.includes(d.key)).forEach(def=>{
+      const item = el("div","pv-item");
+      item.appendChild(buildPatternMini(def, n));
+      const lbl = el("span","pv-label"); lbl.textContent = def.label;
+      item.appendChild(lbl);
+      grid.appendChild(item);
+    });
+  } else {
+    intro.textContent = "On a Mini 3×3 card, you win with any full line — a row, column, or diagonal.";
+    const item = el("div","pv-item");
+    item.appendChild(buildPatternMini({key:"anyline"}, n));
+    const lbl = el("span","pv-label"); lbl.textContent = "Any Line";
+    item.appendChild(lbl);
+    grid.appendChild(item);
+  }
+  body.appendChild(intro);
+  body.appendChild(grid);
+  const foot = el("p","pv-foot"); foot.textContent = "Dabbing every square (a full blackout) always wins, too.";
+  body.appendChild(foot);
+}
+function openPatternView(){ renderPatternView(); $("#patternViewOverlay").hidden = false; }
+function closePatternView(){ $("#patternViewOverlay").hidden = true; }
+
+/* ---------------- caller manual pick ---------------- */
+function renderCallerPick(){
+  const box = $("#callerPick"); if(!box) return;
+  box.innerHTML = "";
+  const calledTexts = new Set(state.called.map(c=>c.text));
+  enabledPool().forEach(item=>{
+    const btn = el("button","caller-chip");
+    btn.type = "button"; btn.textContent = item.text;
+    if(calledTexts.has(item.text)){ btn.classList.add("called"); btn.disabled = true; }
+    else btn.addEventListener("click", ()=> callSpecific(item));
+    box.appendChild(btn);
+  });
+}
+function callSpecific(item){
+  state.called.push(item);
+  $("#drawn").textContent = item.text;
+  const chip = el("span"); chip.textContent = item.text; $("#callHistory").prepend(chip);
+  updateRemaining();
+  renderCallerPick();
+}
+
+/* ---------------- badge icon picker ---------------- */
+function renderBadgeIcons(){
+  const row=$("#badgeIcons"); row.innerHTML="";
+  ICON_ORDER.forEach(key=>{
+    const icon = ICONS[key];
+    const btn = el("button","icon-swatch");
+    btn.type = "button";
+    btn.setAttribute("aria-label", icon.label);
+    btn.setAttribute("aria-pressed", key===state.badgeIcon ? "true":"false");
+    const preview = buildBadgeSVG(key, state.ink);
+    preview.removeAttribute("class");
+    preview.setAttribute("width","22"); preview.setAttribute("height","22");
+    btn.appendChild(preview);
+    btn.addEventListener("click", ()=>{
+      state.badgeIcon=key; renderBadgeIcons(); openPlay(state.currentCard, {keepDabs:true});
+    });
+    row.appendChild(btn);
+  });
+}
+
+/* ---------------- daubers row ---------------- */
+function renderDaubers(){
+  const row=$("#daubers"); row.innerHTML="";
+  INKS.forEach(color=>{
+    const sw=el("button","swatch"); sw.style.background=color;
+    sw.setAttribute("aria-label","Badge color "+color);
+    sw.setAttribute("aria-pressed", color.toLowerCase()===state.ink.toLowerCase() ? "true":"false");
+    sw.addEventListener("click", ()=>{
+      state.ink=color; renderDaubers(); renderBadgeIcons(); openPlay(state.currentCard, {keepDabs:true});
+    });
+    row.appendChild(sw);
+  });
+}
+
+/* ---------------- title chips (top banner) ---------------- */
+/* ---------------- caution-tape title (top banner) ----------------
+   State-driven, not DOM-driven: fitTapeTitle() always rebuilds from state.title,
+   so a plain resize (no tilt re-roll) can safely re-decide one strip vs two. */
+function rollTilt(){ const mag = 0.4 + Math.random()*4.1; return Math.random() < 0.5 ? -mag : mag; }
+function fitOneStrip(stripEl, maxSize, minSize){
+  const txt = stripEl.querySelector(".tape-text");
+  let inner = stripEl.clientWidth - 52;   // strip width minus horizontal padding + a little breathing room
+  if(inner <= 0) inner = (document.documentElement.clientWidth || window.innerWidth || 360) - 60;
+  let size = maxSize;
+  txt.style.fontSize = size + "px";
+  let guard = 0;
+  while(size > minSize && txt.scrollWidth > inner && guard < 80){ size -= 1; txt.style.fontSize = size + "px"; guard++; }
+  return txt.scrollWidth <= inner;   // did it fit?
+}
+function fitTapeTitle(){
+  const strip1 = $("#tapeStrip1"), strip2 = $("#tapeStrip2");
+  if(!strip1 || !strip2) return;
+  const title = ((state.title && state.title.trim()) ? state.title.trim() : "Bodycam BINGO").toUpperCase();
+  const MAX = 31, MIN = 14;
+
+  strip2.hidden = true;
+  strip1.querySelector(".tape-text").textContent = title;
+  strip2.querySelector(".tape-text").textContent = "";
+  if(fitOneStrip(strip1, MAX, MIN)) return;   // fits on one full-width strip
+
+  // too long even at the smallest readable size — wrap onto a second strip at the
+  // most even whitespace split, each strip independently tilted
+  const words = title.split(" ");
+  if(words.length < 2) return;   // one unbreakable word — leave it
+  let bestI = 1, bestDiff = Infinity;
+  for(let i=1;i<words.length;i++){
+    const diff = Math.abs(words.slice(0,i).join(" ").length - words.slice(i).join(" ").length);
+    if(diff < bestDiff){ bestDiff = diff; bestI = i; }
+  }
+  strip1.querySelector(".tape-text").textContent = words.slice(0,bestI).join(" ");
+  strip2.querySelector(".tape-text").textContent = words.slice(bestI).join(" ");
+  strip2.hidden = false;
+  fitOneStrip(strip1, MAX, MIN);
+  fitOneStrip(strip2, MAX, MIN);
+}
+function renderTapeTitle(){
+  const strip1 = $("#tapeStrip1"), strip2 = $("#tapeStrip2");
+  if(!strip1 || !strip2) return;
+  if(state.tapeTilt1 == null) state.tapeTilt1 = rollTilt();
+  if(state.tapeTilt2 == null) state.tapeTilt2 = rollTilt();
+  strip1.style.transform = "rotate(" + state.tapeTilt1 + "deg)";
+  strip2.style.transform = "rotate(" + state.tapeTilt2 + "deg)";
+  fitTapeTitle();
+}
+
+/* ---------------- fit each square's text so nothing clips ----------------
+   CSS clamp can't know how long a given phrase is, so short phrases stayed
+   big while a few long ones clipped. This measures each square's real box
+   and steps the font down until the text fits — largest size that still fits,
+   per square. Runs after every card render and re-runs on resize / font load. */
+function startFontFor(cols){ return cols===5 ? 13 : cols===4 ? 16 : 20; }
+function fitCardText(cardEl){
+  if(!cardEl) return;
+  const cols = cardEl.querySelectorAll(".letters div").length || 5;
+  const start = startFontFor(cols);
+  cardEl.querySelectorAll(".cell").forEach(cell=>{
+    if(cell.classList.contains("free")) return; // PLEA DEAL keeps its own styling
+    const txt = cell.querySelector(".txt");
+    if(!txt) return;
+    const cs = getComputedStyle(cell);
+    const availW = cell.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const availH = cell.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+    let size = start;
+    txt.style.fontSize = size + "px";
+    let guard = 0;
+    while(size > 7 && (txt.scrollWidth > availW || txt.scrollHeight > availH) && guard < 80){
+      size -= 0.5;
+      txt.style.fontSize = size + "px";
+      guard++;
+    }
+  });
+}
+function fitCurrentPlayCard(){ applyCardFont($("#playCard .card")); }
+
+/* ---------------- player text-size preference (remembered across sessions) ---------------- */
+const FONT_KEY = "bustd_fontsize_v1";
+function saveFontPref(){ try{ localStorage.setItem(FONT_KEY, String(state.fontScale)); }catch(e){} }
+function loadFontPref(){ try{ const v=localStorage.getItem(FONT_KEY); return (v!=null && !isNaN(parseInt(v))) ? parseInt(v) : null; }catch(e){ return null; } }
+function effectiveFontSize(cols){ return (state.fontScale != null) ? state.fontScale : startFontFor(cols); }
+
+/* Uniform sizing (play card): one font size for every square, and every square
+   grows to the height of whichever phrase needs the most room — so the card stays
+   visually even. Squares become taller rectangles as the size goes up. Two passes:
+   (1) set the font + let text wrap at each square's real width and measure, then
+   (2) lock every square to the tallest measured height (floored at the square width). */
+function applyCardFont(cardEl){
+  cardEl = cardEl || $("#playCard .card");
+  if(!cardEl) return;
+  const cols = cardEl.querySelectorAll(".letters div").length || 5;
+  const T = effectiveFontSize(cols);
+  const cells = [...cardEl.querySelectorAll(".cell")];
+  if(!cells.length) return;
+  cells.forEach(c=>{ c.style.aspectRatio = "auto"; c.style.height = "auto"; });
+  // The slider (T) sets every square's font directly. Only a square whose longest word
+  // won't fit at T quietly shrinks itself — everyone else follows the slider exactly,
+  // so the slider stays responsive even on narrow phone screens.
+  cells.forEach(c=>{
+    const txt = c.querySelector(".txt");
+    if(!txt || c.classList.contains("free")) return;
+    let size = T;
+    txt.style.fontSize = size + "px";
+    let guard = 0;
+    while(size > 7 && c.scrollWidth > c.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
+  });
+  // pass 3: grow every square to the tallest content height (floored at a square)
+  let maxH = 0;
+  cells.forEach(c=>{ if(c.scrollHeight > maxH) maxH = c.scrollHeight; });
+  const w = cells[0].clientWidth || 0;
+  if(w > maxH) maxH = w;
+  cells.forEach(c=>{ c.style.height = maxH + "px"; });
+}
+
+function refitAll(){ fitTapeTitle(); fitCurrentPlayCard(); }
+let _fitTimer;
+window.addEventListener("resize", ()=>{ clearTimeout(_fitTimer); _fitTimer = setTimeout(refitAll, 120); });
+window.addEventListener("load", refitAll);
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(refitAll); }
+// The in-app / iframe preview reports its real width late; a ResizeObserver on
+// the banner re-fits the instant layout arrives (and on any later width change).
+if(typeof ResizeObserver !== "undefined"){
+  const _mqEl = $("#marquee");
+  if(_mqEl){ new ResizeObserver(()=>{ clearTimeout(_fitTimer); _fitTimer = setTimeout(refitAll, 50); }).observe(_mqEl); }
+}
+// belt-and-suspenders passes once the first layout has settled
+requestAnimationFrame(()=>{ refitAll(); requestAnimationFrame(refitAll); });
+
+/* ---------------- open play screen ---------------- */
+function paintCard(){
+  const host=$("#playCard"); if(!host || !state.currentCard) return;
+  host.innerHTML="";
+  const card = renderCard(state.currentCard, {interactive:true});
+  host.appendChild(card);
+  applyCardFont(card);
+}
+function playLetterWave(){
+  const row = $("#playCard .letters"); if(!row) return;
+  row.classList.remove("wave"); void row.offsetWidth; row.classList.add("wave");
+  clearTimeout(row._wt); row._wt = setTimeout(()=>row.classList.remove("wave"), 1300);
+}
+function bounceColumnLetter(idx){
+  const card = $("#playCard .card"); if(!card) return;
+  const n = state.currentCard ? Math.round(Math.sqrt(state.currentCard.length)) : 5;
+  const letter = card.querySelectorAll(".letters div")[idx % n];
+  if(!letter) return;
+  letter.classList.remove("bounce"); void letter.offsetWidth; letter.classList.add("bounce");
+}
+let _resultCloseCb = null;
+function showResultNote({icon, title, body, onClose}){
+  $("#resultIcon").textContent = icon || "";
+  $("#resultTitle").textContent = title || "";
+  $("#resultBody").textContent = body || "";
+  _resultCloseCb = onClose || null;
+  $("#resultNote").hidden = false;
+  $("#resultOk").focus();
+}
+function closeResultNote(){
+  if($("#resultNote").hidden) return;
+  $("#resultNote").hidden = true;
+  const cb = _resultCloseCb; _resultCloseCb = null;
+  if(cb) cb();
+}
+/* Dusel runs in from a random side straight to a specific square, pauses on it, then runs off.
+   onArrive fires when he reaches the square (drop the paw then); onDone fires after he leaves. */
+function playDuselSearch(targetCell, onArrive, onDone){
+  const k = $("#k9run"); const fig = k ? k.querySelector(".k9-figure") : null; const bubble = k ? k.querySelector(".k9-bubble") : null;
+  if(!k || !fig || !targetCell){ if(onArrive) onArrive(); if(onDone) onDone(); return; }
+  const vw = document.documentElement.clientWidth || window.innerWidth || 360;
+  const figW = Math.min(vw*0.44, 230);
+  const r = targetCell.getBoundingClientRect();
+  const tx = r.left + r.width/2 - figW/2;
+  const ty = r.top + r.height/2 - figW*0.30;
+  const fromLeft = Math.random() < 0.5;
+  const offX  = fromLeft ? (-figW - 40) : (vw + 40);
+  const exitX = fromLeft ? (vw + 40)    : (-figW - 40);
+  if(bubble) bubble.style.display = "none";     // no speech bubble on a search run
+  clearTimeout(k._t);
+  fig.style.animation = "none";
+  fig.style.left = "0px"; fig.style.top = "0px";
+  fig.style.transition = "none";
+  fig.style.transform = `translate(${offX}px, ${ty}px)`;
+  k.hidden = false;
+  void fig.offsetWidth;                          // commit start position
+  fig.style.transition = "transform .8s cubic-bezier(.3,0,.35,1)";
+  fig.style.transform = `translate(${tx}px, ${ty}px)`;   // run in to the square
+  k._t = setTimeout(()=>{
+    if(onArrive) onArrive();                     // he's arrived — drop the paw
+    setTimeout(()=>{
+      fig.style.transition = "transform .8s cubic-bezier(.5,0,.7,1)";
+      fig.style.transform = `translate(${exitX}px, ${ty}px)`;   // run off
+      setTimeout(()=>{
+        k.hidden = true;
+        fig.style.transition=""; fig.style.transform=""; fig.style.left=""; fig.style.top=""; fig.style.animation="";
+        if(bubble) bubble.style.display = "";
+        if(onDone) onDone();
+      }, 820);
+    }, 650);                                       // pause on the square
+  }, 820);                                         // run-in duration
+}
+function playDusel(){
+  const k = $("#k9run"); if(!k) return;
+  const fig = k.querySelector(".k9-figure");
+  if(fig){ fig.style.transition=""; fig.style.transform=""; fig.style.left=""; fig.style.top=""; fig.style.animation=""; }  // clear any leftover search styles
+  k.hidden = true; void k.offsetWidth; k.hidden = false;  // force-restart the run animation
+  clearTimeout(k._t);
+  k._t = setTimeout(()=>{ k.hidden = true; }, 3600);
+}
+function openPlay(cells, {keepDabs=false}={}){
+  renderTapeTitle();
+  state.currentCard = cells;
+  if(!keepDabs){
+    state.dabs = new Set();
+    state.bonusDabs = new Set();
+    state.searchDabs = new Set();
+    state.bonusResolved = new Set();
+    state.bonusAwards = [];
+    state.lockedSources = new Set();
+    state.pickMode = null;
+    state.bannerDismissed = null;
+  }
+  const b=$("#banner"); if(b) b.hidden = true;
+  if(state.fontScale == null){ const saved = loadFontPref(); if(saved != null) state.fontScale = saved; }
+  const fs=$("#fontSlider"); if(fs) fs.value = effectiveFontSize(state.size);
+  const ht=$("#highlightToggle");
+  if(ht){
+    const word = (LETTERS_BY_SIZE[state.size] || LETTERS_BY_SIZE[5]).join("");
+    ht.textContent = "🚨 Closest to " + word;
+    ht.setAttribute("aria-pressed", state.highlightOn ? "true" : "false");
+  }
+  show("play");
+  paintCard();
+  renderBadgeIcons();
+  renderDaubers();
+  renderBonusTracker();
+  updatePickModeUI();
+  checkWin(state.currentCard);
+  if(!keepDabs){ playDusel(); playLetterWave(); }
+}
+
+/* ---------------- print ---------------- */
+function renderPrintSet(){
+  const n = Math.max(1, Math.min(60, state.printCards|0));
+  const area=$("#printArea"); area.innerHTML="";
+  const savedDabs = state.dabs; state.dabs = new Set(); // print cards are blank
+  for(let i=0;i<n;i++){
+    const card = renderCard(buildCard(), {interactive:false});
+    area.appendChild(card);
+    fitCardText(card);
+  }
+  state.dabs = savedDabs;
+}
+
+/* ---------------- caller ---------------- */
+function resetCaller(){
+  state.called = [];
+  $("#drawn").textContent="—";
+  $("#callHistory").innerHTML="";
+  updateRemaining();
+  renderCallerPick();
+}
+function updateRemaining(){ $("#remaining").textContent = (enabledPool().length - state.called.length) + " left to call"; }
+function undoLastCall(){
+  if(!state.called.length){ toast("Nothing to undo yet"); return; }
+  state.called.pop();
+  const hist = $("#callHistory");
+  if(hist.firstElementChild) hist.removeChild(hist.firstElementChild);
+  $("#drawn").textContent = state.called.length ? state.called[state.called.length-1].text : "—";
+  updateRemaining();
+  renderCallerPick();
+}
+
+/* ---------------- validation / counts ---------------- */
+function refreshCount(){
+  const n = enabledPool().length, need = needed();
+  const c = $("#count");
+  if(n>=need){ c.innerHTML = '<span class="ok">'+n+' phrases on — enough for cards ✓</span>'; }
+  else { c.innerHTML = '<span class="no">'+n+' phrases on — need at least '+need+' (turn more on or add phrases)</span>'; }
+  const ready = n>=need;
+  ["#goPlay","#goPrint","#goCaller","#shareGame","#copyGame"].forEach(sel=>{ $(sel).disabled = !ready; });
+}
+
+/* ---------------- wire up ---------------- */
+const SIZE_BUTTON_IDS = { 5:"sizeFull", 4:"sizeQuick", 3:"sizeMini" };
+function buildPatternMini(def, n){
+  const mini = el("div","pattern-mini");
+  mini.style.gridTemplateColumns = `repeat(${n},1fr)`;
+  const onSet = new Set();
+  if(def.key==="anyline"){
+    for(let i=0;i<n;i++) onSet.add(i*n+i); // preview: one representative line
+  } else if(def.coords){
+    def.coords.forEach(group=>group.forEach(([r,c])=>onSet.add(r*n+c)));
+  }
+  for(let i=0;i<n*n;i++){
+    const pc = el("div","pc");
+    if(onSet.has(i)) pc.classList.add("on");
+    mini.appendChild(pc);
+  }
+  return mini;
+}
+function renderPatternPicker(){
+  const panel = $("#patternsPanel");
+  const defs = patternsForSize(state.size);
+  if(!defs){ panel.style.display="none"; return; }
+  panel.style.display="";
+  const grid = $("#patternsGrid"); grid.innerHTML="";
+  defs.forEach(def=>{
+    const card = el("button","pattern-card"); card.type="button";
+    card.setAttribute("aria-pressed", state.winPatterns.includes(def.key) ? "true":"false");
+    card.appendChild(buildPatternMini(def, state.size));
+    const label = el("span","pattern-label"); label.textContent = def.label;
+    card.appendChild(label);
+    card.addEventListener("click", ()=>{
+      if(state.winPatterns.includes(def.key)){
+        if(state.winPatterns.length===1){ toast("Keep at least one pattern selected"); return; }
+        state.winPatterns = state.winPatterns.filter(k=>k!==def.key);
+      } else {
+        state.winPatterns = [...state.winPatterns, def.key];
+      }
+      renderPatternPicker();
+    });
+    grid.appendChild(card);
+  });
+  updatePatternConflictNote();
+}
+function setCardSize(size){
+  state.size = size;
+  Object.entries(SIZE_BUTTON_IDS).forEach(([sz,id])=>{
+    $("#"+id).setAttribute("aria-pressed", Number(sz)===size ? "true" : "false");
+  });
+  const allowsFree = size%2===1; // odd grids have a true center cell
+  const freeToggle = $("#free"), freeLabel = freeToggle.closest("label.toggle");
+  if(!allowsFree){ state.free=false; freeToggle.checked=false; freeToggle.disabled=true; freeLabel.style.opacity=.45; }
+  else { state.free = state.lastFreePreference; freeToggle.checked = state.free; freeToggle.disabled=false; freeLabel.style.opacity=1; }
+  const defs = patternsForSize(size);
+  if(defs){
+    const validKeys = defs.map(d=>d.key);
+    state.winPatterns = state.winPatterns.filter(k=>validKeys.includes(k));
+    if(!state.winPatterns.length) state.winPatterns = ["anyline"];
+  }
+  renderPatternPicker();
+  refreshCount();
+}
+/* ---------------- pool editor (toggle list + phrase modal) ---------------- */
+function sortKey(text){ return (text||"").replace(/^[^a-z0-9]+/i, "").toLowerCase(); }
+function sortedPoolView(){
+  // returns [{p, idx}] in the chosen DISPLAY order; state.pool itself is never reordered
+  const items = state.pool.map((p, idx)=>({ p, idx }));
+  const mode = state.poolSort || "custom";
+  if(mode === "custom") return items;
+  const typeRank = { pick:0, swap:1, search:2, random:3 };
+  const byName = (a,b)=> sortKey(a.p.text).localeCompare(sortKey(b.p.text));
+  if(mode === "alpha"){
+    items.sort(byName);
+  } else if(mode === "bonus"){
+    items.sort((a,b)=>{
+      const ab = a.p.bonus ? 0 : 1, bb = b.p.bonus ? 0 : 1;
+      if(ab !== bb) return ab - bb;                                   // bonus phrases first
+      if(a.p.bonus && b.p.bonus){
+        const ar = typeRank[a.p.bonusType] ?? 0, br = typeRank[b.p.bonusType] ?? 0;
+        if(ar !== br) return ar - br;                                 // then by bonus type
+      }
+      return byName(a, b);                                            // then A→Z within group
+    });
+  }
+  return items;
+}
+function renderPoolList(){
+  const box = $("#poolList");
+  box.innerHTML = "";
+  if(!state.pool.length){
+    const empty = el("div","pool-empty");
+    empty.textContent = "No phrases yet — add one below.";
+    box.appendChild(empty);
+    return;
+  }
+  sortedPoolView().forEach(({p, idx})=>{
+    const row = el("div","pool-row");
+    if(!p.enabled) row.classList.add("off");
+
+    // on/off switch
+    const sw = el("label","switch");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = p.enabled;
+    cb.setAttribute("aria-label", (p.enabled ? "Turn off" : "Turn on") + ": " + p.text);
+    cb.addEventListener("change", ()=>{
+      p.enabled = cb.checked;
+      row.classList.toggle("off", !cb.checked);
+      cb.setAttribute("aria-label", (cb.checked ? "Turn off" : "Turn on") + ": " + p.text);
+      refreshCount();
+    });
+    sw.appendChild(cb);
+    sw.appendChild(el("span","slider"));
+    row.appendChild(sw);
+
+    // phrase text + ⭐/ⓘ badges
+    const txt = el("div","pool-text");
+    txt.textContent = p.text;
+    if(p.bonus || p.desc){
+      const badges = el("span","pool-badges");
+      if(p.bonus){
+        const t = p.bonusType==="swap" ? "Swap" : p.bonusType==="random" ? "Random" : p.bonusType==="search" ? "Search" : "Pick";
+        badges.appendChild(document.createTextNode(" ⭐ " + t));
+      }
+      if(p.desc)  badges.appendChild(document.createTextNode(" ⓘ"));
+      txt.appendChild(badges);
+    }
+    row.appendChild(txt);
+
+    // edit
+    const edit = el("button","pool-icon-btn");
+    edit.type = "button"; edit.textContent = "✎";
+    edit.setAttribute("aria-label", "Edit: " + p.text);
+    edit.addEventListener("click", ()=> openPhraseModal(idx));
+    row.appendChild(edit);
+
+    // delete
+    const del = el("button","pool-icon-btn del");
+    del.type = "button"; del.textContent = "✕";
+    del.setAttribute("aria-label", "Delete: " + p.text);
+    del.addEventListener("click", ()=>{
+      state.pool.splice(idx,1);
+      renderPoolList();
+      refreshCount();
+    });
+    row.appendChild(del);
+
+    box.appendChild(row);
+  });
+}
+function updateBonusFieldsVisibility(){
+  $("#pmBonusFields").hidden = !$("#pmIsBonus").checked;
+}
+function openPhraseModal(idx){
+  state.editingPhraseIdx = idx;
+  const adding = idx === -1;
+  const p = adding ? { text:"", desc:null, bonus:null, bonusType:null } : state.pool[idx];
+  $("#pmHeading").textContent = adding ? "Add phrase" : "Edit phrase";
+  $("#pmText").value  = p.text  || "";
+  $("#pmDesc").value  = p.desc  || "";
+  $("#pmIsBonus").checked = !!p.bonus;
+  $("#pmBonusType").value = p.bonusType || "pick";
+  $("#pmBonus").value = p.bonus || "";
+  updateBonusFieldsVisibility();
+  $("#phraseOverlay").hidden = false;
+  $("#pmText").focus();
+  updatePhraseHint();
+}
+function closePhraseModal(){
+  $("#phraseOverlay").hidden = true;
+  state.editingPhraseIdx = null;
+}
+function savePhraseModal(){
+  const text = $("#pmText").value.trim();
+  if(!text){ toast("Give the phrase some words first"); $("#pmText").focus(); return; }
+  const idx = state.editingPhraseIdx;
+  const dup = state.pool.some((q,j)=> j!==idx && q.text.toLowerCase()===text.toLowerCase());
+  if(dup){ toast("That phrase is already in the pool"); return; }
+  const desc = $("#pmDesc").value.trim() || null;
+  const isBonus = $("#pmIsBonus").checked;
+  let bonus = null, bonusType = null;
+  if(isBonus){
+    bonus = $("#pmBonus").value.trim() || null;
+    if(!bonus){ toast("Add a bonus condition, or uncheck Bonus Square"); $("#pmBonus").focus(); return; }
+    bonusType = $("#pmBonusType").value || "pick";
+  }
+  if(idx === -1){
+    state.pool.push({ text, desc, bonus, bonusType, enabled:true });
+  } else {
+    state.pool[idx].text = text;
+    state.pool[idx].desc = desc;
+    state.pool[idx].bonus = bonus;
+    state.pool[idx].bonusType = bonusType;
+  }
+  closePhraseModal();
+  renderPoolList();
+  refreshCount();
+}
+
+function initSetupUI(){
+  renderPoolList();
+  renderResumeBanner();
+  $("#title").value = (state.title && state.title !== "Bodycam BINGO") ? state.title : "";
+  renderTapeTitle();
+  $("#free").checked = state.free;
+  $("#numCards").value = state.printCards;
+  $("#bonusPerCard").value = state.bonusPerCard;
+  syncBonusModeUI();
+  setCardSize(state.size);
+  refreshCount();
+}
+$("#title").addEventListener("input", e=>{
+  if(e.target.value.length > 20) e.target.value = e.target.value.slice(0,20);
+  state.title = e.target.value.trim() ? e.target.value.trim() : "Bodycam BINGO";
+  renderTapeTitle();
+});
+$("#sizeFull").addEventListener("click", ()=> setCardSize(5));
+$("#sizeQuick").addEventListener("click", ()=> setCardSize(4));
+$("#sizeMini").addEventListener("click", ()=> setCardSize(3));
+$("#free").addEventListener("change", e=>{ state.free=e.target.checked; state.lastFreePreference=e.target.checked; refreshCount(); });
+$("#numCards").addEventListener("input", e=>{ state.printCards = parseInt(e.target.value)||1; });
+$("#resumeCard").addEventListener("click", resumeProgress);
+$("#discardCard").addEventListener("click", ()=>{ clearProgress(); renderResumeBanner(); toast("Saved card discarded"); });
+$("#bonusPerCard").addEventListener("input", e=>{ const v=parseInt(e.target.value); state.bonusPerCard = isNaN(v)?0:Math.max(0,Math.min(8,v)); });
+function syncBonusModeUI(){
+  document.querySelectorAll(".bonus-mode-opt").forEach(b=> b.setAttribute("aria-pressed", b.dataset.mode===state.bonusMode ? "true" : "false"));
+  const row = $("#bonusPerCardRow");
+  if(row){ const off = state.bonusMode === "none"; row.classList.toggle("disabled", off); const inp=$("#bonusPerCard"); if(inp) inp.disabled = off; }
+}
+document.querySelectorAll(".bonus-mode-opt").forEach(btn=>{
+  btn.addEventListener("click", ()=>{ state.bonusMode = btn.dataset.mode; syncBonusModeUI(); });
+});
+
+$("#goPlay").addEventListener("click", ()=> openPlay(buildCard()));
+$("#goPrint").addEventListener("click", ()=>{ renderPrintSet(); show("print"); });
+$("#goCaller").addEventListener("click", ()=>{ resetCaller(); show("caller"); });
+
+$("#shareGame").addEventListener("click", ()=> shareOrCopy(gameLink(), "Open your BUSTD card"));
+$("#copyGame").addEventListener("click", ()=> copy(gameLink()));
+$("#shareSetup").addEventListener("click", ()=> shareOrCopy(setupLink(), "Build your own BUSTD game"));
+$("#copySetup").addEventListener("click", ()=> copy(setupLink()));
+
+/* pool editor controls */
+$("#addPhrase").addEventListener("click", ()=> openPhraseModal(-1));
+document.querySelectorAll(".pool-sort-opt").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    state.poolSort = btn.dataset.sort;
+    document.querySelectorAll(".pool-sort-opt").forEach(b=> b.setAttribute("aria-pressed", b===btn ? "true" : "false"));
+    renderPoolList();
+  });
+});
+$("#pmSave").addEventListener("click", savePhraseModal);
+$("#pmCancel").addEventListener("click", closePhraseModal);
+function updatePhraseHint(){
+  const hint = $("#pmTextHint"); if(!hint) return;
+  const MAX = 42;   // comfy display length; not a hard cap
+  const v = ($("#pmText").value || "").trim();
+  const longest = v.split(/\s+/).reduce((m,w)=> Math.max(m, w.length), 0);
+  const remaining = MAX - v.length;
+  let warn = false, msg;
+  if(longest >= 11){ msg = `Long word (${longest}) can shrink the card's text — a space or "or" helps`; warn = true; }
+  else if(remaining < 0){ msg = `${-remaining} over the comfy length — cards may get tall`; warn = true; }
+  else { msg = `${remaining} character${remaining===1?"":"s"} left`; if(remaining <= 6) warn = true; }
+  hint.textContent = msg;
+  hint.classList.toggle("warn", warn);
+}
+$("#pmText").addEventListener("input", updatePhraseHint);
+$("#pmClose").addEventListener("click", closePhraseModal);
+$("#pmIsBonus").addEventListener("change", updateBonusFieldsVisibility);
+$("#phraseOverlay").addEventListener("click", e=>{ if(e.target===$("#phraseOverlay")) closePhraseModal(); });
+$("#bulkToggle").addEventListener("click", ()=>{
+  const w = $("#bulkWrap");
+  w.hidden = !w.hidden;
+  $("#bulkToggle").textContent = w.hidden ? "Bulk paste ▾" : "Bulk paste ▴";
+  if(!w.hidden) $("#bulkText").focus();
+});
+$("#bulkAdd").addEventListener("click", ()=>{
+  const parsed = parsePool($("#bulkText").value);
+  if(!parsed.length){ toast("Nothing to add — type one phrase per line"); return; }
+  const seen = new Set(state.pool.map(p=>p.text.toLowerCase()));
+  let added = 0;
+  parsed.forEach(p=>{
+    const key = p.text.toLowerCase();
+    if(seen.has(key)) return;
+    seen.add(key);
+    state.pool.push(p);
+    added++;
+  });
+  $("#bulkText").value = "";
+  $("#bulkWrap").hidden = true;
+  $("#bulkToggle").textContent = "Bulk paste ▾";
+  renderPoolList();
+  refreshCount();
+  toast(added ? ("Added " + added + " phrase" + (added>1?"s":"")) : "Those are already in your pool");
+});
+
+/* bonus modal + pick-mode controls */
+$("#bonusClaim").addEventListener("click", ()=>{
+  const type = state._bonusType;
+  if(type === "random" || type === "search"){
+    $("#bonusOverlay").hidden = true;   // tuck the bonus modal behind the confirm
+    askConfirm(
+      "This reward locks in the moment you claim it — it can't be undone. Claim it?",
+      ()=>{ const r = closeBonusModal(true); if(r.src!=null) startClaim(r.src, r.type); },
+      { yes:"Claim it", no:"Go back", onNo:()=>{ $("#bonusOverlay").hidden = false; $("#bonusClaim").focus(); } }
+    );
+  } else {
+    const { src, type } = closeBonusModal(true); if(src!=null) startClaim(src, type);
+  }
+});
+$("#bonusSkip").addEventListener("click", ()=> closeBonusModal(true));
+$("#bonusOverlay").addEventListener("click", e=>{ if(e.target===$("#bonusOverlay")) closeBonusModal(true); });
+$("#pickCancel").addEventListener("click", cancelPickMode);
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Escape") return;
+  if(!$("#resultNote").hidden){ closeResultNote(); }
+  else if(!$("#swapOverlay").hidden){ closeSwapChooser(); }
+  else if(!$("#confirmOverlay").hidden){ closeConfirm(false); }
+  else if(!$("#patternViewOverlay").hidden){ closePatternView(); }
+  else if(!$("#banner").hidden){ dismissBanner(); }
+  else if(!$("#phraseOverlay").hidden){ closePhraseModal(); }
+  else if(!$("#bonusOverlay").hidden){ closeBonusModal(true); }
+  else if(state.pickMode){ cancelPickMode(); }
+});
+
+$("#newCard").addEventListener("click", ()=> askConfirm("Deal a brand-new card? Your current dabs will be lost.", ()=> openPlay(buildCard())));
+$("#clearDabs").addEventListener("click", ()=> askConfirm("Clear all your dabs on this card?", ()=> openPlay(state.currentCard, {keepDabs:false})));
+let _confirmCb = null;
+let _confirmNoCb = null;
+function askConfirm(msg, cb, opts){
+  opts = opts || {};
+  $("#confirmMsg").textContent = msg;
+  $("#confirmYes").textContent = opts.yes || "Yes";
+  $("#confirmNo").textContent = opts.no || "Cancel";
+  _confirmCb = cb; _confirmNoCb = opts.onNo || null;
+  $("#confirmOverlay").hidden = false; $("#confirmYes").focus();
+}
+function closeConfirm(run){
+  $("#confirmOverlay").hidden = true;
+  const cb=_confirmCb, noCb=_confirmNoCb; _confirmCb=null; _confirmNoCb=null;
+  $("#confirmYes").textContent = "Yes"; $("#confirmNo").textContent = "Cancel";  // reset for next use
+  if(run){ if(cb) cb(); } else { if(noCb) noCb(); }
+}
+$("#confirmYes").addEventListener("click", ()=> closeConfirm(true));
+$("#resultClose").addEventListener("click", closeResultNote);
+$("#swapClose").addEventListener("click", closeSwapChooser);
+$("#swapOverlay").addEventListener("click", e=>{ if(e.target===$("#swapOverlay")) closeSwapChooser(); });
+$("#resultOk").addEventListener("click", closeResultNote);
+$("#resultNote").addEventListener("click", e=>{ if(e.target===$("#resultNote")) closeResultNote(); });
+$("#confirmNo").addEventListener("click", ()=> closeConfirm(false));
+$("#confirmOverlay").addEventListener("click", e=>{ if(e.target===$("#confirmOverlay")) closeConfirm(false); });
+$("#shareCard").addEventListener("click", ()=> shareOrCopy(cardLink(), "Here's your BUSTD card"));
+
+/* win overlay + play tools */
+$("#bannerClose").addEventListener("click", dismissBanner);
+$("#banner").addEventListener("click", e=>{ if(e.target===$("#banner")) dismissBanner(); });
+$("#patternViewBtn").addEventListener("click", openPatternView);
+$("#patternViewClose").addEventListener("click", closePatternView);
+$("#patternViewOverlay").addEventListener("click", e=>{ if(e.target===$("#patternViewOverlay")) closePatternView(); });
+$("#highlightToggle").addEventListener("click", ()=>{
+  state.highlightOn = !state.highlightOn;
+  $("#highlightToggle").setAttribute("aria-pressed", state.highlightOn ? "true" : "false");
+  applyHighlight();
+});
+$("#fontSlider").addEventListener("input", e=>{
+  state.fontScale = parseInt(e.target.value) || 13;
+  saveFontPref();
+  applyCardFont($("#playCard .card"));
+});
+
+$("#doPrint").addEventListener("click", ()=> window.print());
+$("#reshuffle").addEventListener("click", renderPrintSet);
+
+$("#undoCall").addEventListener("click", undoLastCall);
+$("#resetCaller").addEventListener("click", resetCaller);
+
+document.querySelectorAll("[data-back]").forEach(b=> b.addEventListener("click", ()=>{ cancelPickMode(); initSetupUI(); show("setup"); location.hash=""; }));
+
+/* ---------------- boot: handle incoming share links ---------------- */
+function boot(){
+  const hash = location.hash.replace(/^#/,"");
+  let mode=null, data=null;
+  if(hash.startsWith("g=")){ mode="g"; data=decodeState(hash.slice(2)); }
+  else if(hash.startsWith("c=")){ mode="c"; data=decodeState(hash.slice(2)); }
+  else if(hash.startsWith("s=")){ mode="s"; data=decodeState(hash.slice(2)); }
+
+  if(mode==="c" && data && Array.isArray(data.w)){
+    state.title = data.t || "Bodycam BINGO";
+    state.size = data.s || Math.round(Math.sqrt(data.w.length)) || 5;
+    state.winPatterns = Array.isArray(data.wp) && data.wp.length ? data.wp : ["anyline"];
+    state.free = data.w.includes(null);
+    if(typeof data.bpc === "number") state.bonusPerCard = data.bpc;
+    if(data.bm) state.bonusMode = data.bm;
+    // full pool (so Swap bonuses have fresh phrases); fall back to the card's own phrases if absent
+    state.pool = Array.isArray(data.p)
+      ? decodePoolCompact(data.p)
+      : data.w.filter(x=>x!==null).map(o=>({ text:o.text||o.t||"", desc:(o.desc||o.d)||null, bonus:(o.bonus||o.b)||null, bonusType:o.bonusType||(o.bonus?"pick":null), enabled:true })).filter(p=>p.text);
+    openPlay(data.w);            // exact same card for the recipient
+    return;
+  }
+  if(mode==="g" && data && Array.isArray(data.p)){
+    state.title = data.t || "Bodycam BINGO";
+    state.size = data.s || 5;
+    state.winPatterns = Array.isArray(data.wp) && data.wp.length ? data.wp : ["anyline"];
+    state.free = data.f ? true : false;
+    if(typeof data.bpc === "number") state.bonusPerCard = data.bpc;
+    if(data.bm) state.bonusMode = data.bm;
+    state.pool = decodePoolCompact(data.p);
+    initSetupUI();
+    openPlay(buildCard());       // recipient gets their own unique card
+    return;
+  }
+  if(mode==="s" && data && Array.isArray(data.p)){
+    state.title = data.t || "Bodycam BINGO";
+    state.size = data.s || 5;
+    state.winPatterns = Array.isArray(data.wp) && data.wp.length ? data.wp : ["anyline"];
+    state.free = data.f ? true : false;
+    if(typeof data.bpc === "number") state.bonusPerCard = data.bpc;
+    if(data.bm) state.bonusMode = data.bm;
+    state.pool = decodePoolCompact(data.p);
+    initSetupUI();
+    show("setup");                // recipient lands on Setup to build their own game
+    location.hash = "";
+    return;
+  }
+  // normal load
+  initSetupUI();
+  show("setup");
+}
+boot();
+</script>
+</body>
+</html>
