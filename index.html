@@ -46,33 +46,34 @@
   }
   /* atmospheric squad-light layer: vibrant glow + rolling textured fog + vignette, full viewport */
   .bg-fx{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  body.fog-off .bg-fx{ display:none; }
   /* base colored glow — vibrant red (left) / blue (right) on the dark canvas */
   .bg-fx::before{
     content:""; position:absolute; inset:-12%;
-    background:
-      radial-gradient(58% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%),
-      radial-gradient(58% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%),
-      radial-gradient(50% 55% at 50% 55%, rgba(150,45,150,.24), transparent 70%);
-    animation:bgPulse 8s ease-in-out infinite;
+    background:radial-gradient(50% 55% at 50% 55%, rgba(150,45,150,.22), transparent 70%);
   }
-  @keyframes bgPulse{ 0%,100%{ opacity:.82; transform:scale(1); } 50%{ opacity:1; transform:scale(1.06); } }
+  .glow-red, .glow-blue{ position:absolute; inset:-12%; }
+  .glow-red{ background:radial-gradient(58% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%); animation:swayRed 13s ease-in-out infinite; }
+  .glow-blue{ background:radial-gradient(58% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%); animation:swayBlue 13s ease-in-out infinite; }
+  @keyframes swayRed{  0%,100%{ opacity:.69; } 50%{ opacity:1; } }
+  @keyframes swayBlue{ 0%,100%{ opacity:1; } 50%{ opacity:.69; } }
   /* thick rolling clouds — soft color gradients displaced by SVG noise into wispy fog, each drifting on its own path */
   .fog-cloud{ position:absolute; pointer-events:none; mix-blend-mode:screen; will-change:transform, opacity; }
   .fog-a{ left:-22vw; top:-6vh; width:82vw; height:88vh;
     background:radial-gradient(closest-side, rgba(255,26,46,.60), rgba(255,26,46,.14) 58%, transparent 78%);
-    filter:url(#fogWisp1); animation:fogA 47s ease-in-out infinite; }
+    filter:url(#fogWisp1); animation:fogA 59s ease-in-out infinite; }
   .fog-b{ left:44vw; top:-8vh; width:84vw; height:90vh;
     background:radial-gradient(closest-side, rgba(32,112,255,.58), rgba(32,112,255,.14) 58%, transparent 78%);
-    filter:url(#fogWisp2); animation:fogB 59s ease-in-out infinite; }
+    filter:url(#fogWisp2); animation:fogB 74s ease-in-out infinite; }
   .fog-c{ left:16vw; top:14vh; width:66vw; height:66vh;
     background:radial-gradient(closest-side, rgba(168,54,205,.42), transparent 72%);
-    filter:url(#fogWisp3); animation:fogC 67s ease-in-out infinite; }
+    filter:url(#fogWisp3); animation:fogC 84s ease-in-out infinite; }
   .fog-d{ left:-18vw; top:-14vh; width:96vw; height:74vh;
     background:radial-gradient(closest-side, rgba(206,214,236,.24), transparent 70%);
-    filter:url(#fogWisp2); animation:fogD 41s linear infinite; }
+    filter:url(#fogWisp2); animation:fogD 51s linear infinite; }
   .fog-e{ left:34vw; top:34vh; width:74vw; height:70vh;
     background:radial-gradient(closest-side, rgba(255,40,60,.34), transparent 74%);
-    filter:url(#fogWisp3); animation:fogE 53s ease-in-out infinite; }
+    filter:url(#fogWisp3); animation:fogE 66s ease-in-out infinite; }
   @keyframes fogA{ 0%{transform:translate(-6vw,3vh) scale(1);} 33%{transform:translate(20vw,-7vh) scale(1.22);} 66%{transform:translate(4vw,9vh) scale(1.1);} 100%{transform:translate(-6vw,3vh) scale(1);} }
   @keyframes fogB{ 0%{transform:translate(6vw,-2vh) scale(1.05);} 30%{transform:translate(-14vw,8vh) scale(1.25);} 60%{transform:translate(-2vw,-8vh) scale(1.12);} 100%{transform:translate(6vw,-2vh) scale(1.05);} }
   @keyframes fogC{ 0%{transform:translate(0,-4vh) scale(1); opacity:.9;} 50%{transform:translate(8vw,10vh) scale(1.3); opacity:1;} 100%{transform:translate(0,-4vh) scale(1); opacity:.9;} }
@@ -81,32 +82,37 @@
   /* vignette for depth — darker toward the edges, source-light feel */
   .bg-vignette{ position:absolute; inset:0; pointer-events:none;
     background:radial-gradient(125% 105% at 50% 38%, transparent 42%, rgba(0,0,0,.5) 100%); }
-  @media (prefers-reduced-motion: reduce){ .bg-fx::before, .fog-cloud{ animation:none; } }
-  /* faint bingo-dot texture */
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:0;
-    background-image:radial-gradient(rgba(255,255,255,.9) 1.5px, transparent 1.6px);
-    background-size:26px 26px;
-  }
+  @media (prefers-reduced-motion: reduce){ .glow-red, .glow-blue, .fog-cloud{ animation:none; } }
   .wrap{ position:relative; z-index:1; max-width:820px; margin:0 auto; padding:22px 16px 60px; }
 
   /* ---------- Marquee wordmark ---------- */
-  .lightbar{ display:flex; gap:4px; justify-content:center; margin:14px 0 10px; height:6px; }
-  .lightbar span{ width:120px; max-width:30vw; border-radius:3px; }
-  .lightbar .lr{ background:var(--strobe-red); animation:flashRed 1s steps(2,end) infinite; }
-  .lightbar .lb{ background:var(--strobe-blue); animation:flashBlue 1s steps(2,end) infinite; animation-delay:.5s; }
-  @keyframes flashRed{
-    0%,49%{ opacity:1; box-shadow:0 0 10px 3px rgba(255,59,48,.95), 0 0 26px 9px rgba(255,59,48,.55); }
-    50%,100%{ opacity:.22; box-shadow:0 0 4px 1px rgba(255,59,48,.35); }
-  }
-  @keyframes flashBlue{
-    0%,49%{ opacity:.22; box-shadow:0 0 4px 1px rgba(47,124,255,.35); }
-    50%,100%{ opacity:1; box-shadow:0 0 10px 3px rgba(47,124,255,.95), 0 0 26px 9px rgba(47,124,255,.55); }
-  }
-  @media (prefers-reduced-motion: reduce){ .lightbar span{ animation:none; opacity:.85; box-shadow:none; } }
   .marquee{ display:block; width:100%; overflow:visible; margin:8px 0 4px; }
   .bodycam-icon{ width:clamp(26px,8vw,38px); height:auto; filter:drop-shadow(0 4px 0 rgba(0,0,0,.28)); }
   .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .back-row-play{ justify-content:space-between; flex-wrap:wrap; }
+  .fog-toggle-group{ display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .fog-toggle-label{ color:#fff; font-weight:800; font-size:12.5px; letter-spacing:.01em; opacity:.9; }
+  .fog-toggle{ background:none; border:none; padding:0; cursor:pointer; line-height:0; }
+  .fog-toggle-track{
+    display:inline-block; width:42px; height:24px; border-radius:999px;
+    background:rgba(255,255,255,.16); border:2px solid rgba(255,255,255,.4);
+    position:relative; transition:background .18s ease, border-color .18s ease;
+  }
+  .fog-toggle-thumb{
+    position:absolute; top:1px; left:1px; width:16px; height:16px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
+    transition:transform .18s cubic-bezier(.3,1.2,.4,1);
+  }
+  .fog-toggle[aria-checked="true"] .fog-toggle-track{ background:var(--strobe-blue); border-color:var(--strobe-blue); }
+  .fog-toggle[aria-checked="true"] .fog-toggle-thumb{ transform:translateX(18px); }
+  .fog-toggle:hover .fog-toggle-track, .fog-toggle:focus-visible .fog-toggle-track{ border-color:rgba(255,255,255,.75); outline:none; }
+  @media (prefers-reduced-motion: reduce){ .fog-toggle-thumb{ transition:none; } }
+  .fog-info{
+    display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; flex:0 0 auto;
+    background:rgba(255,255,255,.16); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px;
+    line-height:1; cursor:pointer; border:2px solid rgba(255,255,255,.4);
+  }
+  .fog-info:hover, .fog-info:focus-visible{ background:rgba(255,255,255,.26); outline:none; }
   .back-cam{ width:32px; flex:0 0 auto; }
   .bodycam-rec-dot{ animation:recBlink 1.4s ease-in-out infinite; }
   @keyframes recBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.2; } }
@@ -130,10 +136,10 @@
   .tape-strip[hidden]{ display:none; }
   .sect-info{
     display:inline-grid; place-items:center; width:19px; height:19px; border-radius:50%; margin-left:8px;
-    background:var(--strobe-blue); color:#fff; font-family:var(--mono); font-weight:700; font-size:11px;
-    line-height:1; cursor:pointer; border:none; vertical-align:middle; transform:translateY(-2px);
+    background:#fff; color:#6a92c9; font-family:var(--mono); font-weight:700; font-size:11px;
+    line-height:1; cursor:pointer; border:1.5px solid #6a92c9; vertical-align:middle; transform:translateY(-2px);
   }
-  .sect-info:hover, .sect-info:focus-visible{ filter:brightness(1.15); }
+  .sect-info:hover, .sect-info:focus-visible{ background:#eef3fb; }
   .sect-help{ display:none; }
   #title{ text-transform:uppercase; }
   .tag{ text-align:center; color:#e9ddf6; opacity:.8; margin:0 0 22px; font-weight:500; letter-spacing:.02em; }
@@ -199,9 +205,13 @@
   .num input{ width:74px; text-align:center; padding:8px; border:2px solid #e5ded1; border-radius:10px; font-size:16px; }
 
   /* ---------- Buttons ---------- */
-  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
-  .actions.actions-stack{ flex-direction:column; }
+  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; justify-content:center; }
+  .actions.actions-stack{ flex-direction:column; align-items:center; }
   .actions.actions-stack .btn{ width:100%; text-align:center; padding:14px 16px; }
+  @media (min-width:640px){
+    .actions.actions-stack{ flex-direction:row; }
+    .actions.actions-stack .btn{ width:auto; flex:1 1 160px; max-width:200px; }
+  }
   button{ font-family:var(--body); cursor:pointer; border:none; }
   .btn{
     font-weight:700; font-size:15px; padding:13px 18px; border-radius:13px; letter-spacing:.01em;
@@ -352,6 +362,11 @@
 
   /* play screen chrome */
   .playbar{ display:flex; flex-direction:column; gap:12px; margin:26px auto 0; width:min(94vw,560px); }
+  .contact-link{ text-align:center; font-size:12px; color:#c9c0d6; opacity:.7; margin:22px auto 4px; max-width:min(94vw,560px); line-height:1.5; }
+  .contact-link a{ color:#c9c0d6; text-decoration:underline; text-underline-offset:2px; }
+  .contact-link a:hover, .contact-link a:focus-visible{ opacity:1; color:#fff; }
+  .paper .contact-link{ color:#8a8195; }
+  .paper .contact-link a{ color:#5a7bb8; }
   .playbar .btn{ width:100%; text-align:center; padding:15px 16px; }
   .customize-label{ text-align:center; color:#e9ddf6; opacity:.75; font-weight:700; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; margin:26px 0 10px; }
   .badge-icons{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:0 auto 4px; width:min(94vw,560px); }
@@ -533,6 +548,8 @@
   .pm-field select{ width:100%; padding:9px 10px; }
   #pmTextHint{ display:block; font-weight:600; font-size:11.5px; margin:10px 0 0; color:#7c7385; line-height:1.4; }
   #pmTextHint.warn{ color:#c9455a; }
+  #titleHint{ display:block; font-weight:600; font-size:11.5px; margin:8px 0 0; color:#7c7385; line-height:1.4; }
+  #titleHint.warn{ color:#c9455a; }
   .pm-check{ display:flex; align-items:center; gap:9px; margin-bottom:12px; font-weight:700; font-size:13.5px; color:var(--ink-text); cursor:pointer; }
   .pm-check input{ width:18px; height:18px; flex:0 0 auto; }
   #pmBonusFields[hidden]{ display:none; }
@@ -560,7 +577,6 @@
   }
   @media print{
     body{ background:#fff !important; }
-    body::before{ display:none; }
     .wrap{ max-width:none; padding:0; }
     .noprint{ display:none !important; }
     .print-preview{ display:block; }
@@ -576,6 +592,8 @@
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true">
+  <div class="glow-red"></div>
+  <div class="glow-blue"></div>
   <div class="fog-cloud fog-a"></div>
   <div class="fog-cloud fog-b"></div>
   <div class="fog-cloud fog-c"></div>
@@ -601,7 +619,6 @@
 </svg>
 <div class="wrap">
 
-  <div class="lightbar noprint" aria-hidden="true"><span class="lr"></span><span class="lb"></span></div>
   <div class="marquee noprint" id="marquee" aria-hidden="true">
     <div class="tape-title" id="tapeTitle">
       <div class="tape-strip" id="tapeStrip1"><span class="tape-text"></span></div>
@@ -619,8 +636,9 @@
     </div>
     <div class="paper">
       <h2>1 · Game title <button class="sect-info" type="button" data-help="help-title" aria-label="About Game title">i</button></h2>
-      <label class="field"><span>Shown as the chips in the banner up top — max 20 characters</span>
-        <input id="title" type="text" maxlength="20" placeholder="Bodycam BINGO" /></label>
+      <label class="field"><span>Shown on the caution tape banner up top</span>
+        <input id="title" type="text" maxlength="20" placeholder="Bodycam BINGO" />
+        <span id="titleHint"></span></label>
       <div class="sect-help" id="help-title" hidden>Leave it as the default or make it your own — like "Joel's BUSTD Bingo". It centers and shrinks to fit automatically.</div>
     </div>
 
@@ -707,12 +725,13 @@
           <li><b>To make link-sharing work:</b> this one file has to be hosted somewhere public and free — GitHub Pages, Cloudflare Pages, or Netlify all work. Drop the file, get a URL like <b>yoursite/bingo.html</b>, and every share link points back to it. Ask me and I'll walk you through whichever host you like.</li>
         </ul>
       </details>
+      <p class="contact-link">Have feedback or found a bug? Let us know at <a href="mailto:BUSTD.Bodycam.Bingo@gmail.com">BUSTD.Bodycam.Bingo@gmail.com</a>.</p>
     </div>
   </section>
 
   <!-- ============ PLAY ============ -->
   <section id="play" class="screen">
-    <div class="back-row noprint">
+    <div class="back-row noprint back-row-play">
       <svg class="bodycam-icon back-cam" viewBox="0 0 100 140" aria-hidden="true">
         <rect x="30" y="4" width="40" height="20" rx="6" fill="var(--gold)"/>
         <rect x="10" y="20" width="80" height="102" rx="16" fill="var(--grape)" stroke="var(--gold)" stroke-width="3.5"/>
@@ -723,7 +742,15 @@
         <circle class="bodycam-rec-dot" cx="72" cy="97" r="6" fill="var(--pink)"/>
       </svg>
       <button class="backlink" data-back>Back to setup</button>
+      <div class="fog-toggle-group">
+        <span class="fog-toggle-label" id="fogToggleLabel">Effects on</span>
+        <button type="button" class="fog-toggle" id="fogToggle" role="switch" aria-checked="true" aria-label="Background effects">
+          <span class="fog-toggle-track"><span class="fog-toggle-thumb"></span></span>
+        </button>
+        <button type="button" class="fog-info" id="fogInfo" aria-label="About the background effects toggle">i</button>
+      </div>
     </div>
+    <div class="sect-help" id="help-fogtoggle" hidden>If the background looks choppy or your battery's draining faster than usual, switch it off here. It only affects this device; everyone else keeps their own setting.</div>
     <div id="playCard"></div>
     <div class="pick-banner noprint" id="pickBanner" hidden>
       <span id="pickBannerText">⭐ Bonus! Tap any open square to claim your free daub.</span>
@@ -759,6 +786,7 @@
       <button class="btn blue" id="shareCard">Share this card</button>
       <button class="btn ghost" id="clearDabs">Clear dabs</button>
     </div>
+    <p class="contact-link">Have feedback or found a bug? Let us know at <a href="mailto:BUSTD.Bodycam.Bingo@gmail.com">BUSTD.Bodycam.Bingo@gmail.com</a>.</p>
   </section>
 
   <!-- ============ PRINT ============ -->
@@ -1028,6 +1056,7 @@ const state = {
   tapeTilt1: null, tapeTilt2: null, // rolled once per session (3-10deg, random direction) for the caution-tape title
   highlightOn: false,        // "Closest to BUSTD" highlighter toggle
   fontScale: null,           // player's chosen card text size (px); null = auto default per grid size, remembered across sessions
+  fogEnabled: true,          // background glow/fog effects; remembered per-device, purely cosmetic
   _bonusSource: null,        // transient: source idx for the open bonus modal
   _bonusType: null,          // transient: bonus type for the open modal
   editingPhraseIdx: null,    // pool editor modal state (-1 = adding new)
@@ -1267,6 +1296,18 @@ document.addEventListener("click", e=>{
 $("#infoClose").addEventListener("click", closeInfoModal);
 $("#infoOverlay").addEventListener("click", e=>{ if(e.target===$("#infoOverlay")) closeInfoModal(); });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#infoOverlay").hidden) closeInfoModal(); });
+
+$("#fogToggle").addEventListener("click", ()=>{
+  state.fogEnabled = !state.fogEnabled;
+  applyFogToggle();
+  saveFogPref();
+});
+$("#fogInfo").addEventListener("click", ()=>{
+  $("#infoModalTitle").textContent = "Background effects";
+  $("#infoModalDesc").innerHTML = $("#help-fogtoggle").innerHTML;
+  $("#infoOverlay").hidden = false;
+  $("#infoClose").focus();
+});
 
 /* ---------------- URL encode / decode ---------------- */
 function encodeState(obj){
@@ -2053,7 +2094,7 @@ function renderDaubers(){
 /* ---------------- caution-tape title (top banner) ----------------
    State-driven, not DOM-driven: fitTapeTitle() always rebuilds from state.title,
    so a plain resize (no tilt re-roll) can safely re-decide one strip vs two. */
-function rollTilt(){ const mag = 0.4 + Math.random()*4.1; return Math.random() < 0.5 ? -mag : mag; }
+function rollTilt(){ const mag = 0.4 + Math.random()*3.2; return Math.random() < 0.5 ? -mag : mag; }
 function fitOneStrip(stripEl, maxSize, minSize){
   const txt = stripEl.querySelector(".tape-text");
   let inner = stripEl.clientWidth - 52;   // strip width minus horizontal padding + a little breathing room
@@ -2133,6 +2174,15 @@ function fitCurrentPlayCard(){ applyCardFont($("#playCard .card")); }
 const FONT_KEY = "bustd_fontsize_v1";
 function saveFontPref(){ try{ localStorage.setItem(FONT_KEY, String(state.fontScale)); }catch(e){} }
 function loadFontPref(){ try{ const v=localStorage.getItem(FONT_KEY); return (v!=null && !isNaN(parseInt(v))) ? parseInt(v) : null; }catch(e){ return null; } }
+const FOG_KEY = "bustd_fogfx_v1";
+function saveFogPref(){ try{ localStorage.setItem(FOG_KEY, state.fogEnabled ? "1" : "0"); }catch(e){} }
+function loadFogPref(){ try{ const v=localStorage.getItem(FOG_KEY); return v==null ? null : v==="1"; }catch(e){ return null; } }
+function applyFogToggle(){
+  document.body.classList.toggle("fog-off", !state.fogEnabled);
+  const btn = $("#fogToggle"); if(!btn) return;
+  btn.setAttribute("aria-checked", state.fogEnabled ? "true" : "false");
+  const label = $("#fogToggleLabel"); if(label) label.textContent = state.fogEnabled ? "Effects on" : "Effects off";
+}
 function effectiveFontSize(cols){ return (state.fontScale != null) ? state.fontScale : startFontFor(cols); }
 
 /* Uniform sizing (play card): one font size for every square, and every square
@@ -2157,7 +2207,12 @@ function applyCardFont(cardEl){
     let size = T;
     txt.style.fontSize = size + "px";
     let guard = 0;
-    while(size > 7 && c.scrollWidth > c.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
+    // measure the TEXT element itself, not the cell — the cell's scrollWidth can be
+    // inflated by the rotated badge-stamp icon on a dabbed square (it's visually clipped
+    // by the cell's overflow:hidden, but browsers still count its rotated bounding box
+    // toward scrollWidth), which was causing text to shrink on already-dabbed squares
+    // any time the card re-rendered (e.g. switching dauber style).
+    while(size > 7 && txt.scrollWidth > txt.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
   });
   // pass 3: grow every square to the tallest content height (floored at a square)
   let maxH = 0;
@@ -2536,6 +2591,7 @@ function initSetupUI(){
   renderPoolList();
   renderResumeBanner();
   $("#title").value = (state.title && state.title !== "Bodycam BINGO") ? state.title : "";
+  updateTitleHint();
   renderTapeTitle();
   $("#free").checked = state.free;
   $("#numCards").value = state.printCards;
@@ -2548,7 +2604,14 @@ $("#title").addEventListener("input", e=>{
   if(e.target.value.length > 20) e.target.value = e.target.value.slice(0,20);
   state.title = e.target.value.trim() ? e.target.value.trim() : "Bodycam BINGO";
   renderTapeTitle();
+  updateTitleHint();
 });
+function updateTitleHint(){
+  const hint = $("#titleHint"); if(!hint) return;
+  const remaining = 20 - $("#title").value.length;
+  hint.textContent = remaining + " character" + (remaining===1?"":"s") + " left";
+  hint.classList.toggle("warn", remaining<=3);
+}
 $("#sizeFull").addEventListener("click", ()=> setCardSize(5));
 $("#sizeQuick").addEventListener("click", ()=> setCardSize(4));
 $("#sizeMini").addEventListener("click", ()=> setCardSize(3));
@@ -2762,6 +2825,7 @@ function boot(){
   initSetupUI();
   show("setup");
 }
+{ const savedFog = loadFogPref(); if(savedFog != null) state.fogEnabled = savedFog; applyFogToggle(); }
 boot();
 </script>
 </body>
