@@ -37,36 +37,51 @@
     font-family:var(--body);
     color:var(--ink-text);
     background:
-      radial-gradient(1100px 620px at 50% -12%, #46688f, transparent 62%),
-      radial-gradient(circle at 20% 80%, rgba(140,90,200,.14), transparent 42%),
-      radial-gradient(circle at 85% 78%, rgba(60,120,220,.12), transparent 44%),
-      #3C5C86;
+      radial-gradient(1200px 720px at 50% -8%, #14203c, transparent 60%),
+      radial-gradient(80% 60% at 50% 108%, #0e0a18, transparent 60%),
+      #090c15;
     min-height:100vh;
     overflow-x:hidden;
     -webkit-text-size-adjust:100%;
   }
-  /* animated squad-light glow + drifting fog, full viewport height, behind everything */
+  /* atmospheric squad-light layer: vibrant glow + rolling textured fog + vignette, full viewport */
   .bg-fx{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  /* base colored glow — vibrant red (left) / blue (right) on the dark canvas */
   .bg-fx::before{
-    content:""; position:absolute; inset:-8%;
+    content:""; position:absolute; inset:-12%;
     background:
-      radial-gradient(650px 460px at 34% 2%, rgba(255,40,50,.34), transparent 60%),
-      radial-gradient(540px 380px at 66% 5%, rgba(40,110,255,.22), transparent 60%),
-      radial-gradient(720px 520px at 28% 97%, rgba(255,40,50,.17), transparent 62%),
-      radial-gradient(720px 520px at 74% 92%, rgba(40,110,255,.14), transparent 62%);
-    animation:bgPulse 9s ease-in-out infinite;
+      radial-gradient(58% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%),
+      radial-gradient(58% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%),
+      radial-gradient(50% 55% at 50% 55%, rgba(150,45,150,.24), transparent 70%);
+    animation:bgPulse 8s ease-in-out infinite;
   }
-  @keyframes bgPulse{ 0%,100%{ opacity:.82; transform:scale(1); } 50%{ opacity:1; transform:scale(1.05); } }
-  .bg-fx::after{
-    content:""; position:absolute; inset:-25%;
-    background:
-      radial-gradient(440px 440px at 20% 28%, rgba(185,205,238,.10), transparent 60%),
-      radial-gradient(500px 500px at 82% 58%, rgba(150,172,214,.09), transparent 60%),
-      radial-gradient(400px 400px at 52% 88%, rgba(205,214,238,.08), transparent 60%);
-    animation:bgFog 48s ease-in-out infinite alternate;
-  }
-  @keyframes bgFog{ 0%{ transform:translate(0,0) scale(1); } 100%{ transform:translate(4%,-3%) scale(1.14); } }
-  @media (prefers-reduced-motion: reduce){ .bg-fx::before,.bg-fx::after{ animation:none; } }
+  @keyframes bgPulse{ 0%,100%{ opacity:.82; transform:scale(1); } 50%{ opacity:1; transform:scale(1.06); } }
+  /* thick rolling clouds — soft color gradients displaced by SVG noise into wispy fog, each drifting on its own path */
+  .fog-cloud{ position:absolute; pointer-events:none; mix-blend-mode:screen; will-change:transform, opacity; }
+  .fog-a{ left:-22vw; top:-6vh; width:82vw; height:88vh;
+    background:radial-gradient(closest-side, rgba(255,26,46,.60), rgba(255,26,46,.14) 58%, transparent 78%);
+    filter:url(#fogWisp1); animation:fogA 47s ease-in-out infinite; }
+  .fog-b{ left:44vw; top:-8vh; width:84vw; height:90vh;
+    background:radial-gradient(closest-side, rgba(32,112,255,.58), rgba(32,112,255,.14) 58%, transparent 78%);
+    filter:url(#fogWisp2); animation:fogB 59s ease-in-out infinite; }
+  .fog-c{ left:16vw; top:14vh; width:66vw; height:66vh;
+    background:radial-gradient(closest-side, rgba(168,54,205,.42), transparent 72%);
+    filter:url(#fogWisp3); animation:fogC 67s ease-in-out infinite; }
+  .fog-d{ left:-18vw; top:-14vh; width:96vw; height:74vh;
+    background:radial-gradient(closest-side, rgba(206,214,236,.24), transparent 70%);
+    filter:url(#fogWisp2); animation:fogD 41s linear infinite; }
+  .fog-e{ left:34vw; top:34vh; width:74vw; height:70vh;
+    background:radial-gradient(closest-side, rgba(255,40,60,.34), transparent 74%);
+    filter:url(#fogWisp3); animation:fogE 53s ease-in-out infinite; }
+  @keyframes fogA{ 0%{transform:translate(-6vw,3vh) scale(1);} 33%{transform:translate(20vw,-7vh) scale(1.22);} 66%{transform:translate(4vw,9vh) scale(1.1);} 100%{transform:translate(-6vw,3vh) scale(1);} }
+  @keyframes fogB{ 0%{transform:translate(6vw,-2vh) scale(1.05);} 30%{transform:translate(-14vw,8vh) scale(1.25);} 60%{transform:translate(-2vw,-8vh) scale(1.12);} 100%{transform:translate(6vw,-2vh) scale(1.05);} }
+  @keyframes fogC{ 0%{transform:translate(0,-4vh) scale(1); opacity:.9;} 50%{transform:translate(8vw,10vh) scale(1.3); opacity:1;} 100%{transform:translate(0,-4vh) scale(1); opacity:.9;} }
+  @keyframes fogD{ 0%{transform:translate(-24vw,2vh) scale(1.1); opacity:.35;} 45%{transform:translate(34vw,7vh) scale(1.35); opacity:.7;} 100%{transform:translate(96vw,-3vh) scale(1.1); opacity:.35;} }
+  @keyframes fogE{ 0%{transform:translate(4vw,4vh) scale(1); opacity:.8;} 40%{transform:translate(-18vw,-6vh) scale(1.24); opacity:1;} 75%{transform:translate(10vw,8vh) scale(1.1); opacity:.85;} 100%{transform:translate(4vw,4vh) scale(1); opacity:.8;} }
+  /* vignette for depth — darker toward the edges, source-light feel */
+  .bg-vignette{ position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(125% 105% at 50% 38%, transparent 42%, rgba(0,0,0,.5) 100%); }
+  @media (prefers-reduced-motion: reduce){ .bg-fx::before, .fog-cloud{ animation:none; } }
   /* faint bingo-dot texture */
   body::before{
     content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:0;
@@ -89,7 +104,7 @@
     50%,100%{ opacity:1; box-shadow:0 0 10px 3px rgba(47,124,255,.95), 0 0 26px 9px rgba(47,124,255,.55); }
   }
   @media (prefers-reduced-motion: reduce){ .lightbar span{ animation:none; opacity:.85; box-shadow:none; } }
-  .marquee{ display:block; width:100%; overflow:hidden; margin:8px 0 4px; }
+  .marquee{ display:block; width:100%; overflow:visible; margin:8px 0 4px; }
   .bodycam-icon{ width:clamp(26px,8vw,38px); height:auto; filter:drop-shadow(0 4px 0 rgba(0,0,0,.28)); }
   .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
   .back-cam{ width:32px; flex:0 0 auto; }
@@ -99,8 +114,8 @@
   .tape-title{ display:flex; flex-direction:column; align-items:center; gap:11px; width:100%; padding:22px 0; }
   .tape-strip{
     position:relative; background:#EED202; color:#161311; width:100%; text-align:center;
-    padding:10px 24px; border-top:3px solid rgba(0,0,0,.6); border-bottom:3px solid rgba(0,0,0,.6);
-    box-shadow:0 5px 12px rgba(0,0,0,.4); white-space:nowrap;
+    padding:6px 24px; border-top:3px solid rgba(0,0,0,.6); border-bottom:3px solid rgba(0,0,0,.6);
+    box-shadow:0 13px 30px rgba(0,0,0,.5); white-space:nowrap;
   }
   .tape-strip::before,.tape-strip::after{
     content:""; position:absolute; top:0; bottom:0; width:16px;
@@ -110,7 +125,7 @@
   .tape-strip::after{ right:0; }
   .tape-text{
     display:inline-block; font-family:var(--disp); font-weight:700; text-transform:uppercase;
-    letter-spacing:.03em; line-height:1; font-size:var(--tape-size,28px); white-space:nowrap;
+    letter-spacing:.03em; line-height:1; font-size:var(--tape-size,25px); white-space:nowrap;
   }
   .tape-strip[hidden]{ display:none; }
   .sect-info{
@@ -151,12 +166,20 @@
   .toggle{ display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:14px; cursor:pointer; user-select:none; }
   .toggle input{ width:20px; height:20px; accent-color:var(--pink); }
   .seg{ display:inline-flex; flex-wrap:wrap; border:2px solid #e5ded1; border-radius:11px; overflow:hidden; }
+  .seg.seg-stack{ display:flex; flex-direction:column; width:100%; }
+  .seg.seg-stack .segbtn{ text-align:left; padding:13px 15px; font-size:14px; }
+  .seg.seg-stack .segbtn:not(:last-child){ border-right:none; border-bottom:2px solid #e5ded1; }
   .patterns-grid{ display:flex; flex-wrap:wrap; gap:10px; }
   .pattern-card{
     display:flex; flex-direction:column; align-items:center; gap:6px; width:82px; padding:9px 6px;
     background:#fff; border:2px solid #e5ded1; border-radius:11px; cursor:pointer; font-family:var(--body);
   }
   .pattern-card[aria-pressed="true"]{ border-color:var(--pink); box-shadow:0 0 0 2px var(--pink); }
+  .pattern-conflict{ margin-top:12px; padding:11px 13px; border-radius:11px; background:#fff5e0; border:1.5px solid #f0c874;
+    color:#6b4e12; font-family:var(--body); font-size:12.5px; line-height:1.5; display:flex; flex-direction:column; gap:5px; }
+  .pattern-conflict[hidden]{ display:none; }
+  .pattern-conflict .pcn-head{ font-weight:800; }
+  .pattern-conflict .pcn-line b{ color:#5a3d00; }
   .pattern-mini{ display:grid; gap:2px; }
   .pattern-mini .pc{ width:9px; height:9px; border-radius:2px; background:#e5ded1; }
   .pattern-mini .pc.on{ background:var(--strobe-blue); }
@@ -165,11 +188,20 @@
   .segbtn{ padding:8px 10px; font-weight:700; font-size:11.5px; background:#fff; color:var(--ink-text); border:none; cursor:pointer; font-family:var(--body); }
   .segbtn:not(:last-child){ border-right:2px solid #e5ded1; }
   .segbtn[aria-pressed="true"]{ background:var(--pink); color:#fff; }
+  .pool-sortbar{ display:flex; align-items:center; gap:9px; margin:0 0 11px; flex-wrap:wrap; }
+  .pool-sort-opt{ padding:6px 12px; font-weight:700; font-size:11.5px; background:#fff; color:var(--ink-text); border:none; cursor:pointer; font-family:var(--body); }
+  .pool-sort-opt:not(:last-child){ border-right:2px solid #e5ded1; }
+  .pool-sort-opt[aria-pressed="true"]{ background:var(--strobe-blue); color:#fff; }
+  .bonus-mode-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .bonus-mode-label{ font-weight:600; font-size:14px; }
+  #bonusPerCardRow.disabled{ opacity:.42; pointer-events:none; }
   .num{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
   .num input{ width:74px; text-align:center; padding:8px; border:2px solid #e5ded1; border-radius:10px; font-size:16px; }
 
   /* ---------- Buttons ---------- */
   .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .actions.actions-stack{ flex-direction:column; }
+  .actions.actions-stack .btn{ width:100%; text-align:center; padding:14px 16px; }
   button{ font-family:var(--body); cursor:pointer; border:none; }
   .btn{
     font-weight:700; font-size:15px; padding:13px 18px; border-radius:13px; letter-spacing:.01em;
@@ -177,6 +209,17 @@
   }
   .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.18); }
   .btn.primary{ background:var(--pink); color:#fff; }
+  .btn.gold-claim{
+    background:linear-gradient(160deg,#FFDE7A,#F0B429 55%,#D89418);
+    color:#3A2600; text-shadow:0 1px 0 rgba(255,255,255,.35);
+    box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 22px rgba(240,180,41,.35);
+    animation:goldClaimGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes goldClaimGlow{
+    0%,100%{ box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 16px rgba(240,180,41,.3); }
+    50%{ box-shadow:0 0 0 1px rgba(255,222,122,.8) inset, 0 4px 18px rgba(240,180,41,.6), 0 0 30px rgba(240,180,41,.55); }
+  }
+  @media (prefers-reduced-motion: reduce){ .btn.gold-claim{ animation:none; } }
   .btn.blue{ background:var(--blue); color:#fff; }
   .btn.dark{ background:var(--ink-text); color:#fff; }
   .btn.ghost{ background:#fff; color:var(--ink-text); box-shadow:0 0 0 2px #e5ded1 inset, 0 4px 0 rgba(0,0,0,.10); }
@@ -189,6 +232,10 @@
   details.help summary::before{ content:"▸ "; color:var(--pink); }
   details.help[open] summary::before{ content:"▾ "; }
   details.help p{ font-size:13px; color:#4b4256; line-height:1.55; margin:2px 0 12px; }
+  .faq-list{ margin:2px 0 12px; padding:0 0 0 20px; list-style:disc; }
+  .faq-list li{ font-size:13px; color:#4b4256; line-height:1.55; margin:0 0 11px; }
+  .faq-list li:last-child{ margin-bottom:0; }
+  .faq-list li > b:first-child{ color:var(--strobe-blue); }
   details.help b{ color:var(--ink-text); }
 
   /* ---------- Card (shared look) ---------- */
@@ -276,7 +323,7 @@
     color:#1A1220;
     text-shadow:-1px -1px 0 rgba(255,255,255,.9), 1px -1px 0 rgba(255,255,255,.9), -1px 1px 0 rgba(255,255,255,.9), 1px 1px 0 rgba(255,255,255,.9);
   }
-  #play.picking .cell[role="button"]:not(.dabbed){ box-shadow:0 0 0 2px var(--bonus-gold); border-color:var(--bonus-gold); }
+  #play.picking .cell[role="button"]:not(.dabbed){ border-color:var(--bonus-gold); position:relative; z-index:3; animation:goldPulse 2.6s ease-in-out infinite; }
   @keyframes stamp{ 0%{ transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1.35); opacity:0; } 60%{ opacity:1; } 100%{ opacity:1; } }
   @media (prefers-reduced-motion: reduce){ .badge-stamp{ animation:none; } .btn{ transition:none; } .rec-dot{ animation:none; opacity:.85; } }
 
@@ -304,8 +351,9 @@
   .bonus-tracker-row{ font-size:13px; font-weight:600; color:var(--ink-text); padding:1px 0; }
 
   /* play screen chrome */
-  .playbar{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin:16px auto 0; width:min(94vw,560px); }
-  .customize-label{ text-align:center; color:#e9ddf6; opacity:.75; font-weight:700; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; margin:14px 0 6px; }
+  .playbar{ display:flex; flex-direction:column; gap:12px; margin:26px auto 0; width:min(94vw,560px); }
+  .playbar .btn{ width:100%; text-align:center; padding:15px 16px; }
+  .customize-label{ text-align:center; color:#e9ddf6; opacity:.75; font-weight:700; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; margin:26px 0 10px; }
   .badge-icons{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:0 auto 4px; width:min(94vw,560px); }
   .icon-swatch{ width:38px; height:38px; border-radius:9px; background:#fff; border:3px solid rgba(255,255,255,.4); display:grid; place-items:center; cursor:pointer; padding:0; }
   .icon-swatch svg{ width:22px; height:22px; display:block; }
@@ -419,7 +467,7 @@
     0%,100%{ box-shadow:0 0 0 2px rgba(214,169,80,.45), 0 0 7px 2px rgba(240,190,60,.22); }
     50%{ box-shadow:0 0 0 3px rgba(240,190,60,.9), 0 0 13px 4px rgba(240,190,60,.5); }
   }
-  @media (prefers-reduced-motion: reduce){ .cell.one-away{ animation:none; box-shadow:0 0 0 2px rgba(240,190,60,.7); } }
+  @media (prefers-reduced-motion: reduce){ .cell.one-away, #play.picking .cell[role="button"]:not(.dabbed){ animation:none; box-shadow:0 0 0 2px rgba(240,190,60,.7); } }
 
   /* caller manual-pick list */
   .caller-pick{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-height:240px; overflow-y:auto; margin-top:6px; padding:4px; }
@@ -483,8 +531,8 @@
   .pm-field input, .pm-field textarea{ width:100%; }
   .pm-field textarea{ min-height:clamp(90px, 20vh, 150px); }
   .pm-field select{ width:100%; padding:9px 10px; }
-  .pm-hint{ display:block; font-weight:600; font-size:11.5px; margin-top:5px; color:#7c7385; }
-  .pm-hint.warn{ color:#c9455a; }
+  #pmTextHint{ display:block; font-weight:600; font-size:11.5px; margin:10px 0 0; color:#7c7385; line-height:1.4; }
+  #pmTextHint.warn{ color:#c9455a; }
   .pm-check{ display:flex; align-items:center; gap:9px; margin-bottom:12px; font-weight:700; font-size:13.5px; color:var(--ink-text); cursor:pointer; }
   .pm-check input{ width:18px; height:18px; flex:0 0 auto; }
   #pmBonusFields[hidden]{ display:none; }
@@ -493,7 +541,7 @@
   .bonus-actions{ display:flex; gap:9px; flex-wrap:wrap; margin-top:8px; }
   #bonusOverlay .bonus-modal{ padding-top:22px; }
   #bonusTitle{ margin:0 0 6px; }
-  .bonus-type-name{ font-family:var(--body); font-weight:800; font-size:12.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--strobe-red); margin:0 0 9px; }
+  .reward-type{ color:#B8860B; font-weight:800; letter-spacing:.02em; }
   #infoModalDesc.bonus-desc{ margin-bottom:4px; }
   .bonus-reward{ font-family:var(--body); font-size:14.5px; line-height:1.5; color:var(--ink-text); margin:1.8em 0 0; font-weight:600; }
 
@@ -527,7 +575,30 @@
 </style>
 </head>
 <body>
-<div class="bg-fx" aria-hidden="true"></div>
+<div class="bg-fx" aria-hidden="true">
+  <div class="fog-cloud fog-a"></div>
+  <div class="fog-cloud fog-b"></div>
+  <div class="fog-cloud fog-c"></div>
+  <div class="fog-cloud fog-d"></div>
+  <div class="fog-cloud fog-e"></div>
+  <div class="bg-vignette"></div>
+</div>
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="fogWisp1" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="4" seed="7" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="170" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fogWisp2" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.012" numOctaves="4" seed="23" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="185" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="fogWisp3" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.016" numOctaves="3" seed="44" stitchTiles="stitch" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="150" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
 <div class="wrap">
 
   <div class="lightbar noprint" aria-hidden="true"><span class="lr"></span><span class="lb"></span></div>
@@ -555,6 +626,13 @@
 
     <div class="paper">
       <h2>2 · Your phrase pool <button class="sect-info" type="button" data-help="help-pool" aria-label="About the phrase pool">i</button></h2>
+      <div class="pool-sortbar">
+        <div class="seg pool-sort-seg" role="group" aria-label="Sort phrases">
+          <button type="button" class="pool-sort-opt" data-sort="custom" aria-pressed="true">Added</button>
+          <button type="button" class="pool-sort-opt" data-sort="alpha" aria-pressed="false">A→Z</button>
+          <button type="button" class="pool-sort-opt" data-sort="bonus" aria-pressed="false">Bonuses</button>
+        </div>
+      </div>
       <div class="pool-editor" id="poolList"></div>
       <div class="pool-tools">
         <button type="button" class="pill-btn" id="addPhrase">+ Add phrase</button>
@@ -570,7 +648,7 @@
     <div class="paper">
       <h2>3 · Card size <button class="sect-info" type="button" data-help="help-size" aria-label="About card size">i</button></h2>
       <div class="rowline">
-        <div class="seg" role="group" aria-label="Card size">
+        <div class="seg seg-stack" role="group" aria-label="Card size">
           <button type="button" class="segbtn" id="sizeFull" aria-pressed="true">Classic 5×5 · BUSTD</button>
           <button type="button" class="segbtn" id="sizeQuick" aria-pressed="false">Quick 4×4 · BUST</button>
           <button type="button" class="segbtn" id="sizeMini" aria-pressed="false">Mini 3×3 · CAM</button>
@@ -580,17 +658,25 @@
         <span class="count" id="count"></span>
         <label class="toggle"><input id="free" type="checkbox" checked /> Free center space</label>
       </div>
-      <div class="rowline">
+      <div class="rowline" id="bonusPerCardRow">
         <label class="num">⭐ Bonus squares per card <input id="bonusPerCard" type="number" min="0" max="8" value="2" /></label>
       </div>
-      <label class="toggle bonus-mode-toggle"><input id="bonusModeToggle" type="checkbox" /> <span>🎲 Randomize every bonus reward</span></label>
-      <div class="sect-help" id="help-size" hidden>Each card draws a random, unique mix from your enabled phrases, so no two are alike. Quick 4×4 has no center square (even grids don't have one) — Classic 5×5 and Mini 3×3 can both use the free space if you want it.<br><br><b>Bonus squares per card</b> keeps every player's card fair; it's capped by how many ⭐ Bonus Squares you have turned on (set it to 0 for none).<br><br><b>Randomize every bonus reward</b> makes every Bonus Square roll a surprise reward (Pick, Swap, or Search) at claim time, ignoring the type set on each phrase — flip it off to use each phrase's own reward type.</div>
+      <div class="rowline bonus-mode-row">
+        <span class="bonus-mode-label">⭐ Bonus rewards</span>
+        <div class="seg" role="group" aria-label="Bonus reward mode">
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="default" aria-pressed="true">Default</button>
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="random" aria-pressed="false">Random</button>
+          <button type="button" class="segbtn bonus-mode-opt" data-mode="none" aria-pressed="false">None</button>
+        </div>
+      </div>
+      <div class="sect-help" id="help-size" hidden>Each card draws a random, unique mix from your enabled phrases, so no two are alike. Quick 4×4 has no center square (even grids don't have one) — Classic 5×5 and Mini 3×3 can both use the free space if you want it.<br><br><b>Bonus squares per card</b> keeps every player's card fair; it's capped by how many ⭐ Bonus Squares you have turned on (set it to 0 for none).<br><br><b>Bonus rewards</b> sets how Bonus Squares behave: <b>Default</b> uses the reward type set on each phrase, <b>Random</b> makes every one roll a surprise reward (Pick, Swap, or Search) at claim time, and <b>None</b> turns bonuses off entirely for a straight game.</div>
     </div>
 
     <div class="paper" id="patternsPanel">
       <h2>4 · Winning patterns <button class="sect-info" type="button" data-help="help-patterns" aria-label="About winning patterns">i</button></h2>
       <div class="sect-help" id="help-patterns" hidden>Pick which shapes count as a win, on top of a full blackout card (blackout always wins). Choose as many as you like — a card wins as soon as any one selected shape is fully dabbed. Only available for Classic 5×5 and Quick 4×4.<br><br><b>Heads up:</b> <b>Any Line</b> needs the fewest dabs of any shape, so if it's selected alongside a bigger shape (Frame, X, Plus, Siren Bars, etc.), Any Line will almost always win first — the bigger shape rarely gets to be the deciding one. Deselect Any Line if you want a specific shape to matter.</div>
       <div class="patterns-grid" id="patternsGrid"></div>
+      <div class="pattern-conflict" id="patternConflictNote" hidden></div>
     </div>
 
     <div class="paper">
@@ -598,7 +684,7 @@
       <div class="rowline">
         <label class="num">Cards to print <input id="numCards" type="number" min="1" max="60" value="4" /></label>
       </div>
-      <div class="actions">
+      <div class="actions actions-stack">
         <button class="btn primary" id="goPlay">Play a card</button>
         <button class="btn blue" id="goPrint">Print cards</button>
         <button class="btn dark" id="goCaller">Be the caller</button>
@@ -613,11 +699,13 @@
       </div>
 
       <details class="help">
-        <summary>How do I get cards onto other people's phones?</summary>
-        <p><b>Text a link (group play):</b> tap <b>Share a unique card</b>. Everyone who opens it gets their <b>own unique card</b> drawn from your pool — exactly how bingo should work. This needs the page to live at a web address (see below).</p>
-        <p><b>Let someone build their own game:</b> tap <b>Share game setup</b> instead. They land on the Setup screen with your pool and settings pre-loaded, so they can tweak the pool or size before generating their own card — good for handing off hosting duties.</p>
-        <p><b>Email with no setup:</b> just email this <b>bingo.html</b> file as an attachment. Whoever opens it on their phone gets the full app offline — they build or play cards right there, nothing to host.</p>
-        <p><b>To make link-sharing work</b>, this one file has to be hosted somewhere public and free — GitHub Pages, Cloudflare Pages, or Netlify all work. Drop the file, get a URL like <b>yoursite/bingo.html</b>, and every share link points back to it. Ask me and I'll walk you through whichever host you like.</p>
+        <summary>How do I get cards onto other people's devices?</summary>
+        <ul class="faq-list">
+          <li><b>Text a link (group play):</b> tap <b>Share a unique card</b>. Everyone who opens it gets their <b>own unique card</b> drawn from your pool — exactly how bingo should work. This needs the page to live at a web address (see below).</li>
+          <li><b>Let someone build their own game:</b> tap <b>Share game setup</b> instead. They land on the Setup screen with your pool and settings pre-loaded, so they can tweak the pool or size before generating their own card — good for handing off hosting duties.</li>
+          <li><b>Email with no setup:</b> just email this <b>bingo.html</b> file as an attachment. Whoever opens it on their device gets the full app offline — they build or play cards right there, nothing to host.</li>
+          <li><b>To make link-sharing work:</b> this one file has to be hosted somewhere public and free — GitHub Pages, Cloudflare Pages, or Netlify all work. Drop the file, get a URL like <b>yoursite/bingo.html</b>, and every share link points back to it. Ask me and I'll walk you through whichever host you like.</li>
+        </ul>
       </details>
     </div>
   </section>
@@ -656,7 +744,7 @@
       <button type="button" class="tool-btn" id="patternViewBtn">🎯 Winning patterns</button>
       <button type="button" class="tool-btn" id="highlightToggle" aria-pressed="false">🚨 Closest to BUSTD</button>
     </div>
-    <p class="customize-label noprint" style="margin-top:20px">Font size</p>
+    <p class="customize-label noprint">Font size</p>
     <div class="font-slider noprint">
       <span class="fs-a" style="font-size:13px">A</span>
       <input type="range" id="fontSlider" min="9" max="26" step="1" aria-label="Card text size" />
@@ -764,11 +852,10 @@
 <div class="info-overlay noprint" id="bonusOverlay" hidden>
   <div class="info-modal bonus-modal">
     <h3 id="bonusTitle"></h3>
-    <p id="bonusTypeName" class="bonus-type-name"></p>
     <p id="bonusDesc" class="bonus-desc"></p>
-    <p id="bonusReward" class="bonus-reward"></p>
+    <p id="bonusReward" class="bonus-reward"><b class="reward-type" id="bonusRewardType"></b> <span id="bonusRewardText"></span></p>
     <div class="bonus-actions">
-      <button class="btn primary" id="bonusClaim" type="button">⭐ Claim bonus</button>
+      <button class="btn primary gold-claim" id="bonusClaim" type="button">⭐ Claim bonus</button>
       <button class="btn ghost" id="bonusSkip" type="button">Not this time</button>
     </div>
   </div>
@@ -859,7 +946,7 @@ const DEFAULT_POOL = [
   { text:"Kicks the back seat", desc:"Going full toddler-mode in the back of the squad car.", bonus:"Causes actual damage to door, cage, camera, etc... or urinates.", bonusType:"pick" },
   { text:"Spitter", desc:"The suspect spits on or near anyone or anything.", bonus:"Beekeeper Cosplay — the suspect gets put in a spit hood.", bonusType:"pick" },
   { text:"Inappropriate touching accusation", desc:"Suspect accuses the officer of misconduct at some point — usually during a pat-down or search." },
-  { text:"Admits to drinking", desc:"Those drinks were most likely consumed about 10 hours earlier.", bonus:"They claim to have only had two drinks.", bonusType:"pick" },
+  { text:"Admits to drinking", desc:"They'll cop to a couple, but they claim it was like 10 hours ago. Suurrre, buddy.", bonus:"They claim to have only had two drinks.", bonusType:"pick" },
   { text:"\"I'm not resisting\"" },
   { text:"Kid or pet caught in the middle", desc:"A kid or pet is stuck in the middle of the dysfunction, whether they understand what's happening or not." },
   { text:"\"I didn't do anything\"" },
@@ -896,7 +983,7 @@ const DEFAULT_POOL = [
   { text:"Expired registration" },
   { text:"DUI", desc:"The stop is for — or ends in — a driving-under-the-influence charge." },
   { text:"Tow truck appears", bonus:"The tow truck leaves without doing anything.", bonusType:"pick" },
-  { text:"Ambulance appears" },
+  { text:"Ambulance appears", bonus:"The ambulance leaves without the suspect in it.", bonusType:"swap" },
   { text:"Music playing in squad car", desc:"Still counts if the subtitles note the audio was muted for copyright." },
   { text:"Backup arrives" },
   { text:"Suspect has a weapon", desc:"In the vehicle, on their person, or within reach." },
@@ -908,7 +995,6 @@ const DEFAULT_POOL = [
   { text:"Any 10-code", desc:"Known as the APCO Project 14 Aural Brevity Code. This is the way police quickly and concisely communicate on radio.\n10-4, good buddy!" },
   { text:"Cop has a shield, rifle, or 40mm" },
   { text:"A sergeant appears", desc:"• You see their chevron patch with three stripes.\n• The officer refers to themselves as a sergeant.\n• Anyone else addresses an officer as sergeant." },
-  { text:"\"Shots fired\"", desc:"An officer calls this out. Honestly, how do cops do this job??" },
   { text:"Suspect or civilian filming" }
 ];
 
@@ -925,6 +1011,7 @@ const state = {
   printCards: 4,
   bonusPerCard: 2,       // how many ⭐ Bonus Squares each card gets (creator-set, equal across cards)
   bonusMode: "default",  // "default" = each bonus uses its own type; "random" = every bonus rolls at claim time
+  poolSort: "custom",    // phrase-list display order: "custom" (added) | "alpha" | "bonus" (display only)
   // play
   currentCard: null,     // array length size*size, null = free
   dabs: new Set(),
@@ -991,6 +1078,64 @@ const PATTERNS_4 = [
   { key:"cuffs", label:"Cuffs", coords:[[[0,0],[0,1],[1,0],[1,1],[1,2],[2,1],[2,2],[2,3],[3,2],[3,3]]] }
 ];
 function patternsForSize(n){ return n===5 ? PATTERNS_5 : n===4 ? PATTERNS_4 : null; }
+/* ---- pattern conflict detection (item 71) ----
+   Pattern A "dominates" B when every way to complete B already contains a full way
+   to complete A — so B can never be the deciding shape while A is also selected. */
+function patternGroups(key, n){
+  if(key === "anyline"){
+    const groups = [];
+    for(let r=0;r<n;r++){ const g=[]; for(let c=0;c<n;c++) g.push(r+","+c); groups.push(new Set(g)); }
+    for(let c=0;c<n;c++){ const g=[]; for(let r=0;r<n;r++) g.push(r+","+c); groups.push(new Set(g)); }
+    const d1=[], d2=[]; for(let i=0;i<n;i++){ d1.push(i+","+i); d2.push(i+","+(n-1-i)); }
+    groups.push(new Set(d1)); groups.push(new Set(d2));
+    return groups;
+  }
+  const def = (patternsForSize(n)||[]).find(d=>d.key===key);
+  if(!def || !def.coords) return [];
+  return def.coords.map(group => new Set(group.map(([r,c])=> r+","+c)));
+}
+function isSubsetOf(a, b){ for(const x of a) if(!b.has(x)) return false; return true; }
+function patternDominates(aKey, bKey, n){
+  const ag = patternGroups(aKey, n), bg = patternGroups(bKey, n);
+  if(!ag.length || !bg.length) return false;
+  return bg.every(gB => ag.some(gA => gA.size <= gB.size && isSubsetOf(gA, gB)));
+}
+function patternConflicts(){
+  const n = state.size;
+  if(n!==5 && n!==4) return [];
+  const sel = state.winPatterns.length ? state.winPatterns : ["anyline"];
+  const label = k => ((patternsForSize(n)||[]).find(d=>d.key===k)||{}).label || k;
+  const out = [], seen = new Set();
+  sel.forEach(bKey=>{
+    for(const aKey of sel){
+      if(aKey===bKey) continue;
+      if(patternDominates(aKey, bKey, n)){
+        if(!seen.has(bKey)){ seen.add(bKey); out.push({ shadowed: label(bKey), by: label(aKey) }); }
+        break;
+      }
+    }
+  });
+  return out;
+}
+function updatePatternConflictNote(){
+  const note = $("#patternConflictNote"); if(!note) return;
+  const conflicts = patternConflicts();
+  note.innerHTML = "";
+  if(!conflicts.length){ note.hidden = true; return; }
+  note.hidden = false;
+  const head = el("span","pcn-head"); head.textContent = "⚠️ Heads up:";
+  note.appendChild(head);
+  conflicts.forEach(c=>{
+    const line = el("span","pcn-line");
+    const b = el("b"); b.textContent = c.shadowed;
+    const a = el("b"); a.textContent = c.by;
+    line.appendChild(b);
+    line.appendChild(document.createTextNode(" can’t be the deciding shape while "));
+    line.appendChild(a);
+    line.appendChild(document.createTextNode(" is on — " + c.by + " always completes first."));
+    note.appendChild(line);
+  });
+}
 
 /* ---------------- helpers ---------------- */
 const $ = s => document.querySelector(s);
@@ -1065,10 +1210,11 @@ function buildCard(){
   const slots = total - (useFree?1:0);
 
   // Separate pools so every card gets the SAME number of bonus squares (fair across players).
-  const pool = enabledPool();
+  let pool = enabledPool();
+  if(state.bonusMode === "none") pool = pool.map(p => ({ ...p, bonus:null, bonusType:null }));
   const bonusPhrases   = pool.filter(p => p.bonus);
   const regularPhrases = pool.filter(p => !p.bonus);
-  const nBonus = Math.min(state.bonusPerCard || 0, bonusPhrases.length, slots);
+  const nBonus = state.bonusMode === "none" ? 0 : Math.min(state.bonusPerCard || 0, bonusPhrases.length, slots);
 
   const chosenBonus = rngShuffle(bonusPhrases).slice(0, nBonus);
   let need = slots - chosenBonus.length;
@@ -1478,9 +1624,9 @@ function openBonusModal(sourceIdx, val){
   state._bonusSource = sourceIdx;
   state._bonusType = effectiveBonusType(val);
   $("#bonusTitle").textContent = "⭐ " + val.text;
-  $("#bonusTypeName").textContent = bonusTypeLabel(state._bonusType);
   $("#bonusDesc").textContent = val.bonus;
-  $("#bonusReward").textContent = bonusTypeBlurb(state._bonusType);
+  $("#bonusRewardType").textContent = bonusTypeLabel(state._bonusType).toUpperCase() + ":";
+  $("#bonusRewardText").textContent = bonusTypeBlurb(state._bonusType);
   $("#bonusOverlay").hidden = false;
   $("#bonusClaim").focus();
 }
@@ -1907,7 +2053,7 @@ function renderDaubers(){
 /* ---------------- caution-tape title (top banner) ----------------
    State-driven, not DOM-driven: fitTapeTitle() always rebuilds from state.title,
    so a plain resize (no tilt re-roll) can safely re-decide one strip vs two. */
-function rollTilt(){ const mag = 2.5 + Math.random()*2; return Math.random() < 0.5 ? -mag : mag; }
+function rollTilt(){ const mag = 0.4 + Math.random()*4.1; return Math.random() < 0.5 ? -mag : mag; }
 function fitOneStrip(stripEl, maxSize, minSize){
   const txt = stripEl.querySelector(".tape-text");
   let inner = stripEl.clientWidth - 52;   // strip width minus horizontal padding + a little breathing room
@@ -1922,7 +2068,7 @@ function fitTapeTitle(){
   const strip1 = $("#tapeStrip1"), strip2 = $("#tapeStrip2");
   if(!strip1 || !strip2) return;
   const title = ((state.title && state.title.trim()) ? state.title.trim() : "Bodycam BINGO").toUpperCase();
-  const MAX = 34, MIN = 15;
+  const MAX = 31, MIN = 14;
 
   strip2.hidden = true;
   strip1.querySelector(".tape-text").textContent = title;
@@ -2002,9 +2148,9 @@ function applyCardFont(cardEl){
   const cells = [...cardEl.querySelectorAll(".cell")];
   if(!cells.length) return;
   cells.forEach(c=>{ c.style.aspectRatio = "auto"; c.style.height = "auto"; });
-  // pass 1: for each square, find the largest size <= T where its longest word still fits on one
-  // line, then take the SMALLEST of those so every square can share one uniform, readable size.
-  let uniform = T;
+  // The slider (T) sets every square's font directly. Only a square whose longest word
+  // won't fit at T quietly shrinks itself — everyone else follows the slider exactly,
+  // so the slider stays responsive even on narrow phone screens.
   cells.forEach(c=>{
     const txt = c.querySelector(".txt");
     if(!txt || c.classList.contains("free")) return;
@@ -2012,10 +2158,7 @@ function applyCardFont(cardEl){
     txt.style.fontSize = size + "px";
     let guard = 0;
     while(size > 7 && c.scrollWidth > c.clientWidth && guard < 60){ size -= 0.5; txt.style.fontSize = size + "px"; guard++; }
-    if(size < uniform) uniform = size;
   });
-  // pass 2: apply the uniform (smallest-needed) size to every square
-  cells.forEach(c=>{ const txt = c.querySelector(".txt"); if(txt && !c.classList.contains("free")) txt.style.fontSize = uniform + "px"; });
   // pass 3: grow every square to the tallest content height (floored at a square)
   let maxH = 0;
   cells.forEach(c=>{ if(c.scrollHeight > maxH) maxH = c.scrollHeight; });
@@ -2233,6 +2376,7 @@ function renderPatternPicker(){
     });
     grid.appendChild(card);
   });
+  updatePatternConflictNote();
 }
 function setCardSize(size){
   state.size = size;
@@ -2253,6 +2397,29 @@ function setCardSize(size){
   refreshCount();
 }
 /* ---------------- pool editor (toggle list + phrase modal) ---------------- */
+function sortKey(text){ return (text||"").replace(/^[^a-z0-9]+/i, "").toLowerCase(); }
+function sortedPoolView(){
+  // returns [{p, idx}] in the chosen DISPLAY order; state.pool itself is never reordered
+  const items = state.pool.map((p, idx)=>({ p, idx }));
+  const mode = state.poolSort || "custom";
+  if(mode === "custom") return items;
+  const typeRank = { pick:0, swap:1, search:2, random:3 };
+  const byName = (a,b)=> sortKey(a.p.text).localeCompare(sortKey(b.p.text));
+  if(mode === "alpha"){
+    items.sort(byName);
+  } else if(mode === "bonus"){
+    items.sort((a,b)=>{
+      const ab = a.p.bonus ? 0 : 1, bb = b.p.bonus ? 0 : 1;
+      if(ab !== bb) return ab - bb;                                   // bonus phrases first
+      if(a.p.bonus && b.p.bonus){
+        const ar = typeRank[a.p.bonusType] ?? 0, br = typeRank[b.p.bonusType] ?? 0;
+        if(ar !== br) return ar - br;                                 // then by bonus type
+      }
+      return byName(a, b);                                            // then A→Z within group
+    });
+  }
+  return items;
+}
 function renderPoolList(){
   const box = $("#poolList");
   box.innerHTML = "";
@@ -2262,7 +2429,7 @@ function renderPoolList(){
     box.appendChild(empty);
     return;
   }
-  state.pool.forEach((p, i)=>{
+  sortedPoolView().forEach(({p, idx})=>{
     const row = el("div","pool-row");
     if(!p.enabled) row.classList.add("off");
 
@@ -2299,7 +2466,7 @@ function renderPoolList(){
     const edit = el("button","pool-icon-btn");
     edit.type = "button"; edit.textContent = "✎";
     edit.setAttribute("aria-label", "Edit: " + p.text);
-    edit.addEventListener("click", ()=> openPhraseModal(i));
+    edit.addEventListener("click", ()=> openPhraseModal(idx));
     row.appendChild(edit);
 
     // delete
@@ -2307,7 +2474,7 @@ function renderPoolList(){
     del.type = "button"; del.textContent = "✕";
     del.setAttribute("aria-label", "Delete: " + p.text);
     del.addEventListener("click", ()=>{
-      state.pool.splice(i,1);
+      state.pool.splice(idx,1);
       renderPoolList();
       refreshCount();
     });
@@ -2373,7 +2540,7 @@ function initSetupUI(){
   $("#free").checked = state.free;
   $("#numCards").value = state.printCards;
   $("#bonusPerCard").value = state.bonusPerCard;
-  $("#bonusModeToggle").checked = state.bonusMode === "random";
+  syncBonusModeUI();
   setCardSize(state.size);
   refreshCount();
 }
@@ -2390,7 +2557,14 @@ $("#numCards").addEventListener("input", e=>{ state.printCards = parseInt(e.targ
 $("#resumeCard").addEventListener("click", resumeProgress);
 $("#discardCard").addEventListener("click", ()=>{ clearProgress(); renderResumeBanner(); toast("Saved card discarded"); });
 $("#bonusPerCard").addEventListener("input", e=>{ const v=parseInt(e.target.value); state.bonusPerCard = isNaN(v)?0:Math.max(0,Math.min(8,v)); });
-$("#bonusModeToggle").addEventListener("change", e=>{ state.bonusMode = e.target.checked ? "random" : "default"; });
+function syncBonusModeUI(){
+  document.querySelectorAll(".bonus-mode-opt").forEach(b=> b.setAttribute("aria-pressed", b.dataset.mode===state.bonusMode ? "true" : "false"));
+  const row = $("#bonusPerCardRow");
+  if(row){ const off = state.bonusMode === "none"; row.classList.toggle("disabled", off); const inp=$("#bonusPerCard"); if(inp) inp.disabled = off; }
+}
+document.querySelectorAll(".bonus-mode-opt").forEach(btn=>{
+  btn.addEventListener("click", ()=>{ state.bonusMode = btn.dataset.mode; syncBonusModeUI(); });
+});
 
 $("#goPlay").addEventListener("click", ()=> openPlay(buildCard()));
 $("#goPrint").addEventListener("click", ()=>{ renderPrintSet(); show("print"); });
@@ -2403,16 +2577,25 @@ $("#copySetup").addEventListener("click", ()=> copy(setupLink()));
 
 /* pool editor controls */
 $("#addPhrase").addEventListener("click", ()=> openPhraseModal(-1));
+document.querySelectorAll(".pool-sort-opt").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    state.poolSort = btn.dataset.sort;
+    document.querySelectorAll(".pool-sort-opt").forEach(b=> b.setAttribute("aria-pressed", b===btn ? "true" : "false"));
+    renderPoolList();
+  });
+});
 $("#pmSave").addEventListener("click", savePhraseModal);
 $("#pmCancel").addEventListener("click", closePhraseModal);
 function updatePhraseHint(){
   const hint = $("#pmTextHint"); if(!hint) return;
+  const MAX = 42;   // comfy display length; not a hard cap
   const v = ($("#pmText").value || "").trim();
-  if(!v){ hint.textContent = ""; hint.classList.remove("warn"); return; }
   const longest = v.split(/\s+/).reduce((m,w)=> Math.max(m, w.length), 0);
-  let msg = v.length + " characters", warn = false;
-  if(longest >= 11){ msg += ` · long word (${longest}) can shrink the card's text — a space or "or" helps`; warn = true; }
-  else if(v.length > 42){ msg += " · fairly long, so cards may get tall"; warn = true; }
+  const remaining = MAX - v.length;
+  let warn = false, msg;
+  if(longest >= 11){ msg = `Long word (${longest}) can shrink the card's text — a space or "or" helps`; warn = true; }
+  else if(remaining < 0){ msg = `${-remaining} over the comfy length — cards may get tall`; warn = true; }
+  else { msg = `${remaining} character${remaining===1?"":"s"} left`; if(remaining <= 6) warn = true; }
   hint.textContent = msg;
   hint.classList.toggle("warn", warn);
 }
@@ -2447,7 +2630,19 @@ $("#bulkAdd").addEventListener("click", ()=>{
 });
 
 /* bonus modal + pick-mode controls */
-$("#bonusClaim").addEventListener("click", ()=>{ const { src, type } = closeBonusModal(true); if(src!=null) startClaim(src, type); });
+$("#bonusClaim").addEventListener("click", ()=>{
+  const type = state._bonusType;
+  if(type === "random" || type === "search"){
+    $("#bonusOverlay").hidden = true;   // tuck the bonus modal behind the confirm
+    askConfirm(
+      "This reward locks in the moment you claim it — it can't be undone. Claim it?",
+      ()=>{ const r = closeBonusModal(true); if(r.src!=null) startClaim(r.src, r.type); },
+      { yes:"Claim it", no:"Go back", onNo:()=>{ $("#bonusOverlay").hidden = false; $("#bonusClaim").focus(); } }
+    );
+  } else {
+    const { src, type } = closeBonusModal(true); if(src!=null) startClaim(src, type);
+  }
+});
 $("#bonusSkip").addEventListener("click", ()=> closeBonusModal(true));
 $("#bonusOverlay").addEventListener("click", e=>{ if(e.target===$("#bonusOverlay")) closeBonusModal(true); });
 $("#pickCancel").addEventListener("click", cancelPickMode);
