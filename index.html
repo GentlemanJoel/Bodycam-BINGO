@@ -10,6 +10,8 @@
 <!-- Compression for short share links (with graceful fallback if it can't load) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <style>
+  @font-face{ font-family:"TeXGyreSchola"; font-style:normal; font-weight:700; font-display:swap;
+    src:url(data:font/woff2;base64,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) format("woff2"); }
   :root{
     --paper:#F1F2F3;
     --ink-text:#1C2D42;
@@ -53,27 +55,27 @@
     background:radial-gradient(50% 55% at 50% 55%, rgba(150,45,150,.22), transparent 70%);
   }
   .glow-red, .glow-blue{ position:absolute; inset:-12%; }
-  .glow-red{ background:radial-gradient(58% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%); animation:swayRed 13s ease-in-out infinite; }
-  .glow-blue{ background:radial-gradient(58% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%); animation:swayBlue 13s ease-in-out infinite; }
+  .glow-red{ background:radial-gradient(46% 88% at 6% 42%, rgba(255,22,44,.62), transparent 66%); animation:swayRed 13s ease-in-out infinite; }
+  .glow-blue{ background:radial-gradient(46% 88% at 94% 42%, rgba(30,108,255,.60), transparent 66%); animation:swayBlue 13s ease-in-out infinite; }
   @keyframes swayRed{  0%,100%{ opacity:.69; } 50%{ opacity:1; } }
   @keyframes swayBlue{ 0%,100%{ opacity:1; } 50%{ opacity:.69; } }
   /* thick rolling clouds — soft color gradients displaced by SVG noise into wispy fog, each drifting on its own path */
   .fog-cloud{ position:absolute; pointer-events:none; mix-blend-mode:screen; will-change:transform, opacity; }
   .fog-a{ left:-22vw; top:-6vh; width:82vw; height:88vh;
     background:radial-gradient(closest-side, rgba(255,26,46,.60), rgba(255,26,46,.14) 58%, transparent 78%);
-    filter:url(#fogWisp1); animation:fogA 59s ease-in-out infinite; }
+    filter:url(#fogWisp1); animation:fogA 74s ease-in-out infinite -19s; }
   .fog-b{ left:44vw; top:-8vh; width:84vw; height:90vh;
     background:radial-gradient(closest-side, rgba(32,112,255,.58), rgba(32,112,255,.14) 58%, transparent 78%);
-    filter:url(#fogWisp2); animation:fogB 74s ease-in-out infinite; }
+    filter:url(#fogWisp2); animation:fogB 93s ease-in-out infinite -61s; }
   .fog-c{ left:16vw; top:14vh; width:66vw; height:66vh;
     background:radial-gradient(closest-side, rgba(168,54,205,.42), transparent 72%);
-    filter:url(#fogWisp3); animation:fogC 84s ease-in-out infinite; }
+    filter:url(#fogWisp3); animation:fogC 105s ease-in-out infinite -34s; }
   .fog-d{ left:-18vw; top:-14vh; width:96vw; height:74vh;
     background:radial-gradient(closest-side, rgba(206,214,236,.24), transparent 70%);
-    filter:url(#fogWisp2); animation:fogD 51s linear infinite; }
+    filter:url(#fogWisp2); animation:fogD 64s linear infinite -49s; }
   .fog-e{ left:34vw; top:34vh; width:74vw; height:70vh;
     background:radial-gradient(closest-side, rgba(255,40,60,.34), transparent 74%);
-    filter:url(#fogWisp3); animation:fogE 66s ease-in-out infinite; }
+    filter:url(#fogWisp3); animation:fogE 83s ease-in-out infinite -12s; }
   @keyframes fogA{ 0%{transform:translate(-6vw,3vh) scale(1);} 33%{transform:translate(20vw,-7vh) scale(1.22);} 66%{transform:translate(4vw,9vh) scale(1.1);} 100%{transform:translate(-6vw,3vh) scale(1);} }
   @keyframes fogB{ 0%{transform:translate(6vw,-2vh) scale(1.05);} 30%{transform:translate(-14vw,8vh) scale(1.25);} 60%{transform:translate(-2vw,-8vh) scale(1.12);} 100%{transform:translate(6vw,-2vh) scale(1.05);} }
   @keyframes fogC{ 0%{transform:translate(0,-4vh) scale(1); opacity:.9;} 50%{transform:translate(8vw,10vh) scale(1.3); opacity:1;} 100%{transform:translate(0,-4vh) scale(1); opacity:.9;} }
@@ -181,8 +183,10 @@
     background:#fff; border:2px solid #e5ded1; border-radius:11px; cursor:pointer; font-family:var(--body);
   }
   .pattern-card[aria-pressed="true"]{ border-color:var(--pink); box-shadow:0 0 0 2px var(--pink); }
+  .pattern-card.locked{ cursor:default; }
   .pattern-conflict{ margin-top:12px; padding:11px 13px; border-radius:11px; background:#fff5e0; border:1.5px solid #f0c874;
     color:#6b4e12; font-family:var(--body); font-size:12.5px; line-height:1.5; display:flex; flex-direction:column; gap:5px; }
+  .pattern-conflict.pattern-conflict-info{ background:#eef1fb; border-color:#c3cbea; color:#3d4670; }
   .pattern-conflict[hidden]{ display:none; }
   .pattern-conflict .pcn-head{ font-weight:800; }
   .pattern-conflict .pcn-line b{ color:#5a3d00; }
@@ -196,9 +200,10 @@
   .segbtn[aria-pressed="true"]{ background:var(--pink); color:#fff; }
   .pool-sortbar{ display:flex; align-items:center; gap:9px; margin:0 0 11px; flex-wrap:wrap; }
   .pool-sort-opt{ padding:6px 12px; font-weight:700; font-size:11.5px; background:#fff; color:var(--ink-text); border:none; cursor:pointer; font-family:var(--body); }
+  .sort-arrow{ display:inline-block; margin:0 4px; }
   .pool-sort-opt:not(:last-child){ border-right:2px solid #e5ded1; }
   .pool-sort-opt[aria-pressed="true"]{ background:var(--strobe-blue); color:#fff; }
-  .bonus-mode-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .bonus-mode-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
   .bonus-mode-label{ font-weight:600; font-size:14px; }
   #bonusPerCardRow.disabled{ opacity:.42; pointer-events:none; }
   .num{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
@@ -220,19 +225,34 @@
   .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.18); }
   .btn.primary{ background:var(--pink); color:#fff; }
   .btn.gold-claim{
+    position:relative; overflow:hidden;
     background:linear-gradient(160deg,#FFDE7A,#F0B429 55%,#D89418);
     color:#3A2600; text-shadow:0 1px 0 rgba(255,255,255,.35);
     box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 22px rgba(240,180,41,.35);
     animation:goldClaimGlow 2.4s ease-in-out infinite;
   }
+  .btn.gold-claim::after{
+    content:""; position:absolute; top:0; left:-60%; width:45%; height:100%; pointer-events:none;
+    background:linear-gradient(105deg, transparent, rgba(255,255,255,.7) 50%, transparent);
+    transform:skewX(-18deg); animation:goldSheen 3.4s ease-in-out infinite;
+  }
+  @keyframes goldSheen{ 0%{ left:-60%; } 58%,100%{ left:135%; } }
   @keyframes goldClaimGlow{
     0%,100%{ box-shadow:0 0 0 1px rgba(255,222,122,.6) inset, 0 4px 14px rgba(240,180,41,.45), 0 0 16px rgba(240,180,41,.3); }
     50%{ box-shadow:0 0 0 1px rgba(255,222,122,.8) inset, 0 4px 18px rgba(240,180,41,.6), 0 0 30px rgba(240,180,41,.55); }
   }
-  @media (prefers-reduced-motion: reduce){ .btn.gold-claim{ animation:none; } }
+  @media (prefers-reduced-motion: reduce){ .btn.gold-claim{ animation:none; } .btn.gold-claim::after{ animation:none; display:none; } }
+  /* shiny gold star in the bonus modal title (animated glint via SVG gradient) */
+  .shiny-star{ width:1.15em; height:1.15em; vertical-align:-0.18em; margin-right:.12em; }
   .btn.blue{ background:var(--blue); color:#fff; }
   .btn.dark{ background:var(--ink-text); color:#fff; }
   .btn.ghost{ background:#fff; color:var(--ink-text); box-shadow:0 0 0 2px #e5ded1 inset, 0 4px 0 rgba(0,0,0,.10); }
+  .btn.share-cta{ background:#fff; color:var(--blue); box-shadow:0 0 0 2px var(--blue) inset, 0 4px 0 rgba(0,0,0,.12); font-weight:800; }
+  .btn.share-cta:hover{ background:#f3f7ff; }
+  .share-row{ margin-top:12px; }
+  .share-row .btn{ width:100%; max-width:340px; text-align:center; padding:14px 16px; }
+  .share-sheet-actions{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .share-sheet-actions .btn{ width:100%; text-align:center; padding:14px 16px; }
   .btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
   .btn:focus-visible{ outline:3px solid #fff; outline-offset:2px; }
 
@@ -296,7 +316,7 @@
     border-color:var(--gold);
   }
   .cell.free .pleadeal{ display:block; text-align:center; }
-  .cell.free .txt{ font-family:var(--disp); font-weight:800; color:var(--paper); font-size:clamp(11px,3.9vw,17px); letter-spacing:.03em; line-height:1.08; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+  .cell.free .txt{ font-family:"TeXGyreSchola", var(--disp); font-weight:700; color:var(--paper); font-size:clamp(11px,3.9vw,17px); letter-spacing:.03em; line-height:1.08; text-shadow:0 1px 3px rgba(0,0,0,.4); }
   /* the dauber badge stamp — solid-color police shield, inserted as an SVG on dab */
   .badge-stamp{
     position:absolute; z-index:1; left:50%; top:50%; width:76%; height:76%; pointer-events:none;
@@ -323,11 +343,10 @@
   .info-icon:hover, .info-icon:focus-visible{ background:var(--purple); }
   /* bonus square: source indicator (top-left, mirrors the ⓘ) */
   .bonus-indicator{
-    position:absolute; z-index:5; top:3px; left:3px; width:16px; height:16px;
-    background:var(--grape); border:1px solid var(--bonus-gold); border-radius:50%;
+    position:absolute; z-index:5; top:2px; left:2px; width:18px; height:18px;
     display:grid; place-items:center; pointer-events:none;
   }
-  .bonus-indicator-svg{ width:11px; height:11px; display:block; }
+  .bonus-indicator-svg{ width:18px; height:18px; display:block; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.4)); }
   /* a square daubed via a claimed bonus: gold chevrons + dark text */
   .cell.bonus-dab .txt{
     color:#1A1220;
@@ -380,6 +399,14 @@
   .win-overlay{ position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:20px; overflow:hidden;
     background:rgba(10,15,25,.6); }
   .win-overlay[hidden]{ display:none; }
+  /* item 88: winning-pattern "wave" — each winning square pops in sequence, rippling out from the finishing dab */
+  @keyframes winBounce{
+    0%{ transform:scale(1); } 35%{ transform:scale(1.2) translateY(-7px); }
+    68%{ transform:scale(.96); } 100%{ transform:scale(1); }
+  }
+  .cell.win-bounce{ animation:winBounce .44s cubic-bezier(.3,1.35,.5,1); z-index:4; }
+  #playCard.wave-lock{ pointer-events:none; }
+  @media (prefers-reduced-motion: reduce){ .cell.win-bounce{ animation:none; } }
   /* slate jail-cell doors: vertical bars over a dark gap, slamming in from each side */
   .jail-door{ position:absolute; top:0; bottom:0; width:53%; z-index:1;
     background-color:#4c5460;
@@ -431,6 +458,8 @@
     font-family:var(--body); font-weight:600; font-size:14px; color:var(--ink-text); cursor:pointer; display:flex; align-items:center; gap:8px; }
   .swap-choice:hover, .swap-choice:focus-visible{ border-color:var(--strobe-blue); background:#fff; outline:none; }
   .swap-choice .bonus-tag{ margin-left:auto; flex:0 0 auto; font-size:10.5px; font-weight:800; letter-spacing:.03em; color:var(--strobe-red); }
+  .swap-choice.swap-keep{ margin-top:12px; background:#e9edf6; border-color:#b9c4dd; color:#3d4670; font-weight:700; }
+  .swap-choice.swap-keep:hover, .swap-choice.swap-keep:focus-visible{ border-color:#8ea3d6; background:#fff; }
   /* Dusel the K9 runs in from the left, stops centre-stage to bark, then runs off the right */
   .k9-run{ position:fixed; inset:0; z-index:56; pointer-events:none; overflow:hidden; }
   .k9-run[hidden]{ display:none; }
@@ -444,9 +473,10 @@
   .k9-svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));
     animation:duselBob .3s ease-in-out infinite alternate; transform-origin:center bottom; }
   @keyframes duselBob{ from{ transform:translateY(0) rotate(-1.5deg);} to{ transform:translateY(-6px) rotate(1.5deg);} }
-  .k9-bubble{ position:absolute; top:-18px; left:58%; background:#fff; color:#161311;
-    font-family:var(--body); font-weight:800; font-size:15px; padding:7px 13px; border-radius:13px;
-    white-space:nowrap; box-shadow:0 5px 14px rgba(0,0,0,.35); opacity:0; animation:duselBubble 3.5s ease forwards; }
+  .k9-bubble{ position:absolute; top:-34px; left:50%; background:#fff; color:#161311;
+    font-family:var(--body); font-weight:700; font-size:12.5px; line-height:1.3; padding:8px 13px; border-radius:13px;
+    max-width:min(240px,66vw); text-align:center; white-space:normal;
+    box-shadow:0 5px 14px rgba(0,0,0,.35); opacity:0; animation:duselBubble 3.5s ease forwards; }
   .k9-bubble::after{ content:""; position:absolute; bottom:-7px; left:20px; border:8px solid transparent; border-top-color:#fff; border-bottom:0; }
   @keyframes duselBubble{ 0%,26%{opacity:0; transform:translateY(8px) scale(.8);} 31%,68%{opacity:1; transform:translateY(0) scale(1);} 72%,100%{opacity:0; transform:translateY(-4px) scale(.9);} }
   @media (prefers-reduced-motion: reduce){ .k9-run{ display:none !important; } }
@@ -549,6 +579,7 @@
   #pmTextHint{ display:block; font-weight:600; font-size:11.5px; margin:10px 0 0; color:#7c7385; line-height:1.4; }
   #pmTextHint.warn{ color:#c9455a; }
   #titleHint{ display:block; font-weight:600; font-size:11.5px; margin:8px 0 0; color:#7c7385; line-height:1.4; }
+  #titleHint.caution{ color:#B8860B; }
   #titleHint.warn{ color:#c9455a; }
   .pm-check{ display:flex; align-items:center; gap:9px; margin-bottom:12px; font-weight:700; font-size:13.5px; color:var(--ink-text); cursor:pointer; }
   .pm-check input{ width:18px; height:18px; flex:0 0 auto; }
@@ -557,6 +588,7 @@
   .pm-actions{ display:flex; gap:9px; justify-content:flex-end; flex-wrap:wrap; }
   .bonus-actions{ display:flex; gap:9px; flex-wrap:wrap; margin-top:8px; }
   #bonusOverlay .bonus-modal{ padding-top:22px; }
+  #bonusOverlay .bonus-actions{ margin-top:24px; }
   #bonusTitle{ margin:0 0 6px; }
   .reward-type{ color:#B8860B; font-weight:800; letter-spacing:.02em; }
   #infoModalDesc.bonus-desc{ margin-bottom:4px; }
@@ -647,7 +679,7 @@
       <div class="pool-sortbar">
         <div class="seg pool-sort-seg" role="group" aria-label="Sort phrases">
           <button type="button" class="pool-sort-opt" data-sort="custom" aria-pressed="true">Added</button>
-          <button type="button" class="pool-sort-opt" data-sort="alpha" aria-pressed="false">A→Z</button>
+          <button type="button" class="pool-sort-opt" data-sort="alpha" aria-pressed="false">A<span class="sort-arrow">→</span>Z</button>
           <button type="button" class="pool-sort-opt" data-sort="bonus" aria-pressed="false">Bonuses</button>
         </div>
       </div>
@@ -668,7 +700,7 @@
       <div class="rowline">
         <div class="seg seg-stack" role="group" aria-label="Card size">
           <button type="button" class="segbtn" id="sizeFull" aria-pressed="true">Classic 5×5 · BUSTD</button>
-          <button type="button" class="segbtn" id="sizeQuick" aria-pressed="false">Quick 4×4 · BUST</button>
+          <button type="button" class="segbtn" id="sizeQuick" aria-pressed="false">Quick 4×4 · BODY</button>
           <button type="button" class="segbtn" id="sizeMini" aria-pressed="false">Mini 3×3 · CAM</button>
         </div>
       </div>
@@ -692,7 +724,7 @@
 
     <div class="paper" id="patternsPanel">
       <h2>4 · Winning patterns <button class="sect-info" type="button" data-help="help-patterns" aria-label="About winning patterns">i</button></h2>
-      <div class="sect-help" id="help-patterns" hidden>Pick which shapes count as a win, on top of a full blackout card (blackout always wins). Choose as many as you like — a card wins as soon as any one selected shape is fully dabbed. Only available for Classic 5×5 and Quick 4×4.<br><br><b>Heads up:</b> <b>Any Line</b> needs the fewest dabs of any shape, so if it's selected alongside a bigger shape (Frame, X, Plus, Siren Bars, etc.), Any Line will almost always win first — the bigger shape rarely gets to be the deciding one. Deselect Any Line if you want a specific shape to matter.</div>
+      <div class="sect-help" id="help-patterns" hidden>Pick which shapes count as a win, on top of a full blackout card (blackout always wins). Choose as many as you like — a card wins as soon as any one selected shape is fully dabbed. Mini 3×3 is too small for shape patterns, so it always wins on Any Line.<br><br><b>Heads up:</b> <b>Any Line</b> needs the fewest dabs of any shape, so if it's selected alongside a bigger shape (Frame, X, Plus, Siren Bars, etc.), Any Line will almost always win first — the bigger shape rarely gets to be the deciding one. Deselect Any Line if you want a specific shape to matter.</div>
       <div class="patterns-grid" id="patternsGrid"></div>
       <div class="pattern-conflict" id="patternConflictNote" hidden></div>
     </div>
@@ -707,13 +739,11 @@
         <button class="btn blue" id="goPrint">Print cards</button>
         <button class="btn dark" id="goCaller">Be the caller</button>
       </div>
-      <div class="actions">
-        <button class="btn ghost" id="shareGame">Share a unique card</button>
-        <button class="btn ghost" id="copyGame">Copy unique card link</button>
+      <div class="actions share-row">
+        <button class="btn share-cta" id="shareGame">🔗 Share a unique card</button>
       </div>
-      <div class="actions">
+      <div class="actions share-row">
         <button class="btn ghost" id="shareSetup">Share game setup</button>
-        <button class="btn ghost" id="copySetup">Copy setup link</button>
       </div>
 
       <details class="help">
@@ -750,7 +780,7 @@
         <button type="button" class="fog-info" id="fogInfo" aria-label="About the background effects toggle">i</button>
       </div>
     </div>
-    <div class="sect-help" id="help-fogtoggle" hidden>If the background looks choppy or your battery's draining faster than usual, switch it off here. It only affects this device; everyone else keeps their own setting.</div>
+    <div class="sect-help" id="help-fogtoggle" hidden>If the background looks choppy or your battery's draining faster than usual, switch it off here.<br><br>It only affects this device; everyone else keeps their own setting.</div>
     <div id="playCard"></div>
     <div class="pick-banner noprint" id="pickBanner" hidden>
       <span id="pickBannerText">⭐ Bonus! Tap any open square to claim your free daub.</span>
@@ -879,7 +909,7 @@
 </div>
 <div class="info-overlay noprint" id="bonusOverlay" hidden>
   <div class="info-modal bonus-modal">
-    <h3 id="bonusTitle"></h3>
+    <h3 id="bonusTitle"><span id="bonusStar"></span><span id="bonusTitleText"></span></h3>
     <p id="bonusDesc" class="bonus-desc"></p>
     <p id="bonusReward" class="bonus-reward"><b class="reward-type" id="bonusRewardType"></b> <span id="bonusRewardText"></span></p>
     <div class="bonus-actions">
@@ -941,11 +971,22 @@
   </div>
 </div>
 
+<div class="info-overlay noprint" id="shareSheet" hidden>
+  <div class="info-modal share-sheet">
+    <button class="info-close" id="shareSheetClose" type="button" aria-label="Close">✕</button>
+    <h3 id="shareSheetTitle">Share</h3>
+    <p class="swap-sub" id="shareSheetSub"></p>
+    <div class="share-sheet-actions">
+      <button class="btn primary" id="shareSheetText" type="button">📲 Send as text</button>
+      <button class="btn blue" id="shareSheetCopy" type="button">🔗 Copy link</button>
+    </div>
+  </div>
+</div>
+
 <div class="info-overlay noprint" id="swapOverlay" hidden>
   <div class="info-modal wide">
-    <button class="info-close" id="swapClose" type="button" aria-label="Close">✕</button>
     <h3>Swap in a new phrase</h3>
-    <p class="swap-sub">Pick a replacement for this square:</p>
+    <p class="swap-sub" id="swapSub">Pick a replacement, or keep your current phrase. This choice is final.</p>
     <div class="swap-choices" id="swapChoices"></div>
   </div>
 </div>
@@ -1421,6 +1462,25 @@ function copy(url){
   if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(()=>prompt("Copy this link:",url)); }
   else{ prompt("Copy this link:", url); }
 }
+function sendAsText(url, label){
+  if(navigator.share){
+    navigator.share({ title:state.title, text:label, url }).catch(e=>{ if(e && e.name==="AbortError") return; copy(url); });
+    return;
+  }
+  copy(url);   // desktop fallback — copy so they can paste into their messaging app
+}
+function openShareSheet(kind){
+  state._shareKind = kind;
+  const isCard = kind==="card";
+  $("#shareSheetTitle").textContent = isCard ? "Share a unique card" : "Share game setup";
+  $("#shareSheetSub").textContent = isCard
+    ? "Everyone who opens your link gets their own unique card drawn from your pool."
+    : "Opens the Setup screen with your pool and settings pre-loaded, so they can build their own.";
+  $("#shareSheet").hidden = false;
+}
+function shareSheetUrl(){ return state._shareKind==="setup" ? setupLink() : gameLink(); }
+function shareSheetLabel(){ return state._shareKind==="setup" ? "Build your own BUSTD game" : "Open your BUSTD card"; }
+function closeShareSheet(){ $("#shareSheet").hidden = true; state._shareKind = null; }
 
 /* ---------------- screen switching ---------------- */
 function show(id){
@@ -1548,6 +1608,7 @@ function buildBadgeSVG(iconKey, fillColor){
    Sergeant chevrons (below) = the marker on a square daubed via a claimed
    bonus. Two different icons so "this is a bonus" reads differently from
    "this square was won with a bonus." */
+const FULL_STAR_PATH = "M50 3 L63.8 31 L94.7 35.5 L72.35 57.26 L77.6 88 L50 73.5 L22.4 88 L27.65 57.26 L5.3 35.5 L36.2 31 Z";
 function buildStarSVG(fill, className){
   const svg = document.createElementNS(SVGNS,"svg");
   if(className) svg.setAttribute("class",className);
@@ -1555,7 +1616,31 @@ function buildStarSVG(fill, className){
   svg.setAttribute("aria-hidden","true");
   const path = document.createElementNS(SVGNS,"path");
   path.setAttribute("fill", fill);
-  path.setAttribute("d","M50 5 L60.6 35.4 L92.8 36.1 L67.1 55.6 L76.5 86.4 L50 68 L23.5 86.4 L32.9 55.6 L7.2 36.1 L39.4 35.4 Z");
+  path.setAttribute("stroke", "#9A6A08");
+  path.setAttribute("stroke-width", "3");
+  path.setAttribute("stroke-linejoin", "round");
+  path.setAttribute("d", FULL_STAR_PATH);
+  svg.appendChild(path);
+  return svg;
+}
+function buildShinyStar(){
+  const NS = SVGNS;
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox","0 0 100 100"); svg.setAttribute("class","shiny-star"); svg.setAttribute("aria-hidden","true");
+  const defs = document.createElementNS(NS,"defs");
+  const grad = document.createElementNS(NS,"linearGradient");
+  grad.setAttribute("id","starSheen"); grad.setAttribute("x1","0"); grad.setAttribute("y1","0.15"); grad.setAttribute("x2","1"); grad.setAttribute("y2","0.85");
+  [["0","#D9920E"],["0.4","#F3B72A"],["0.5","#FFF7D6"],["0.6","#F3B72A"],["1","#D9920E"]].forEach(([o,c])=>{
+    const s=document.createElementNS(NS,"stop"); s.setAttribute("offset",o); s.setAttribute("stop-color",c); grad.appendChild(s);
+  });
+  const anim = document.createElementNS(NS,"animateTransform");
+  anim.setAttribute("attributeName","gradientTransform"); anim.setAttribute("type","translate");
+  anim.setAttribute("values","-1 0; 1 0; 1 0"); anim.setAttribute("keyTimes","0; 0.6; 1");
+  anim.setAttribute("dur","3s"); anim.setAttribute("repeatCount","indefinite");
+  grad.appendChild(anim); defs.appendChild(grad); svg.appendChild(defs);
+  const path = document.createElementNS(NS,"path");
+  path.setAttribute("d", FULL_STAR_PATH); path.setAttribute("fill","url(#starSheen)");
+  path.setAttribute("stroke","#B8790A"); path.setAttribute("stroke-width","2.5"); path.setAttribute("stroke-linejoin","round");
   svg.appendChild(path);
   return svg;
 }
@@ -1613,6 +1698,7 @@ function unstampCell(cell){
 
 /* ---------------- dab / un-dab ---------------- */
 function toggleDab(idx, cell, cells){
+  if(state.cardLocked) return;   // brief lock while the win-wave plays
   if(state.dabs.has(idx)){
     if(state.lockedSources.has(idx) || state.searchDabs.has(idx)){ toast("This bonus is locked in — it can't be undone."); return; }
     // ---- un-dab ----
@@ -1637,6 +1723,7 @@ function toggleDab(idx, cell, cells){
   state.dabs.add(idx);
   stampCell(cell, false);
   bounceColumnLetter(idx);
+  state._justDabbed = true; state._lastDab = idx;
   checkWin(cells);
   const val = cells[idx];
   if(val && val.bonus && !state.bonusResolved.has(idx)){
@@ -1664,7 +1751,9 @@ function bonusTypeLabel(type){
 function openBonusModal(sourceIdx, val){
   state._bonusSource = sourceIdx;
   state._bonusType = effectiveBonusType(val);
-  $("#bonusTitle").textContent = "⭐ " + val.text;
+  const starSlot = $("#bonusStar");
+  if(starSlot && !starSlot.firstChild) starSlot.appendChild(buildShinyStar());
+  $("#bonusTitleText").textContent = " " + val.text;
   $("#bonusDesc").textContent = val.bonus;
   $("#bonusRewardType").textContent = bonusTypeLabel(state._bonusType).toUpperCase() + ":";
   $("#bonusRewardText").textContent = bonusTypeBlurb(state._bonusType);
@@ -1715,6 +1804,7 @@ function doSearch(src, wasRandom){
   const host = $("#playCard");
   const targetCell = host ? host.querySelectorAll(".cell")[target] : null;
   const finish = ()=>{
+    state._justDabbed = true; state._lastDab = target;
     checkWin(cells);
     saveProgress();
     if($("#banner").hidden){   // if it didn't trigger a win, announce what Dusel did
@@ -1732,7 +1822,6 @@ function openSwapChooser(targetIdx, src, isRandom){
   const onCard = new Set(cells.filter(Boolean).map(p => p.text.toLowerCase()));
   const avail = enabledPool().filter(p => !onCard.has(p.text.toLowerCase()));   // bonus phrases allowed (bonus-in-bonus)
   const choices = rngShuffle(avail).slice(0, 6);
-  if(!choices.length){ toast("No fresh phrases left to swap in."); cancelPickMode(); return; }
   cancelPickMode();
   state._swapCtx = { targetIdx, src, isRandom:!!isRandom };
   const box = $("#swapChoices"); box.innerHTML = "";
@@ -1743,6 +1832,17 @@ function openSwapChooser(targetIdx, src, isRandom){
     btn.addEventListener("click", ()=> chooseSwap(p));
     box.appendChild(btn);
   });
+  // keep-original option — always available, visually distinct, and final
+  const orig = cells[targetIdx];
+  const keepBtn = el("button","swap-choice swap-keep"); keepBtn.type = "button";
+  const kt = el("span"); kt.textContent = "Keep original phrase (" + (orig ? orig.text : "current") + ")";
+  keepBtn.appendChild(kt);
+  keepBtn.addEventListener("click", keepSwapOriginal);
+  box.appendChild(keepBtn);
+  const sub = $("#swapSub");
+  if(sub) sub.textContent = choices.length
+    ? "Pick a replacement, or keep your current phrase. This choice is final."
+    : "No fresh phrases left to swap in — you can keep your current phrase. This is final.";
   $("#swapOverlay").hidden = false;
 }
 function chooseSwap(phrase){
@@ -1751,6 +1851,7 @@ function chooseSwap(phrase){
   const orig = cells[ctx.targetIdx];
   // bonus-in-bonus: if the chosen phrase is bonus-eligible, the new square becomes a bonus square
   cells[ctx.targetIdx] = { text:phrase.text, desc:phrase.desc||null, bonus:phrase.bonus||null, bonusType:phrase.bonusType||null, enabled:true };
+  state.lockedSources.add(ctx.src);   // lock the bonus square so the swap can't be un-dabbed and re-triggered
   const srcText = cells[ctx.src] ? cells[ctx.src].text : "Bonus";
   state.bonusAwards.push({ sourceIdx:ctx.src, targetIdx:ctx.targetIdx, type:ctx.isRandom?"random":"swap", rolled:"swap", sourceText:srcText, targetText:phrase.text, origPhrase:orig });
   state._swapCtx = null;
@@ -1759,11 +1860,26 @@ function chooseSwap(phrase){
   renderBonusTracker();
   checkWin(cells);
 }
-function closeSwapChooser(){
-  if($("#swapOverlay").hidden) return;
-  $("#swapOverlay").hidden = true;
-  const ctx = state._swapCtx; state._swapCtx = null;
-  if(ctx) startPickMode(ctx.src, "swap", ctx.isRandom);   // let them pick a square again rather than lose the swap
+function keepSwapOriginal(){
+  const ctx = state._swapCtx; if(!ctx) return;
+  const cells = state.currentCard;
+  const orig = cells[ctx.targetIdx];
+  const name = orig ? orig.text : "this phrase";
+  $("#swapOverlay").hidden = true;   // tuck behind the confirm
+  askConfirm(
+    "Keep \u201C" + name + "\u201D and skip the swap? This can't be undone.",
+    ()=>{
+      const c = state._swapCtx; if(!c) return;
+      state.lockedSources.add(c.src);   // same lock — the bonus is spent either way
+      const srcText = cells[c.src] ? cells[c.src].text : "Bonus";
+      state.bonusAwards.push({ sourceIdx:c.src, targetIdx:c.targetIdx, type:c.isRandom?"random":"swap", rolled:"swap-kept", sourceText:srcText, targetText:name, origPhrase:orig, kept:true });
+      state._swapCtx = null;
+      renderBonusTracker();
+      saveProgress();
+      checkWin(cells);
+    },
+    { yes:"Keep it", no:"Go back", onNo:()=>{ $("#swapOverlay").hidden = false; } }
+  );
 }
 function startPickMode(sourceIdx, mode, isRandom){
   state.pickMode = { sourceIdx, mode, isRandom:!!isRandom };
@@ -1807,6 +1923,7 @@ function handleBonusPick(targetIdx, cell){
   state.bonusAwards.push({ sourceIdx:src, targetIdx, type:isRandom?"random":"pick", rolled:"pick", sourceText, targetText: pickedText });
   cancelPickMode();
   renderBonusTracker();
+  state._justDabbed = true; state._lastDab = targetIdx;
   checkWin(cells);
   // acknowledge + lock (item 65): confirm the choice, then it can't be moved
   askConfirm(
@@ -1887,31 +2004,60 @@ function checkWin(cells){
 
   const defs = patternsForSize(n);
   const activeKeys = defs ? (state.winPatterns.length ? state.winPatterns : ["anyline"]) : ["anyline"];
-  let bingo = false;
+  let bingo = false, winCells = null;
   for(const key of activeKeys){
     if(key==="anyline"){
-      if(dynamicLines.some(line=>line.every(i=>isMarked(cells,i)))){ bingo=true; break; }
+      const line = dynamicLines.find(line=>line.every(i=>isMarked(cells,i)));
+      if(line){ bingo=true; winCells=line; break; }
       continue;
     }
     const def = defs && defs.find(p=>p.key===key);
     if(!def || !def.coords) continue;
     const groups = def.coords.map(group=>group.map(([r,c])=>r*n+c));
-    if(groups.some(group=>group.every(i=>isMarked(cells,i)))){ bingo=true; break; }
+    const g = groups.find(group=>group.every(i=>isMarked(cells,i)));
+    if(g){ bingo=true; winCells=g; break; }
   }
   const blackout = cells.every((_,i)=>isMarked(cells,i));
+  if(blackout) winCells = cells.map((_,i)=>i);
+  const fromDab = state._justDabbed; state._justDabbed = false;
   const b=$("#banner"), bt=$("#bannerText");
   if(blackout || bingo){
     const kind = blackout ? "BLACKOUT" : "BUSTD";
     if(bt) bt.textContent = blackout ? "🚨 FULL SCENE — BLACKOUT! 🚨" : "🚔 BUSTD! 🚔";
     if(b){
       b.dataset.kind = kind;
-      if(state.bannerDismissed !== kind && b.hidden){ b.hidden = false; launchFireworks(); }
+      if(state.bannerDismissed !== kind && b.hidden){
+        const reveal = ()=>{ if(b.hidden){ b.hidden = false; launchFireworks(); } };
+        if(fromDab && winCells && $("#playCard") && !prefersReducedMotion()){
+          playWinWave(winCells, state._lastDab, reveal);   // wave first, banner after
+        } else {
+          reveal();
+        }
+      }
     }
   } else {
     if(b) b.hidden = true;
     state.bannerDismissed = null;   // cleared, so a fresh win later can pop again
   }
   applyHighlight();
+}
+function prefersReducedMotion(){ return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+function playWinWave(groupCells, origin, done){
+  const host = $("#playCard");
+  const cellEls = host ? [...host.querySelectorAll(".cell")] : [];
+  if(!cellEls.length){ done(); return; }
+  state.cardLocked = true;
+  host.classList.add("wave-lock");
+  groupCells.forEach(ci=>{
+    const elc = cellEls[ci]; if(!elc) return;
+    elc.classList.remove("win-bounce"); void elc.offsetWidth; elc.classList.add("win-bounce");
+    setTimeout(()=>elc.classList.remove("win-bounce"), 470);
+  });
+  setTimeout(()=>{
+    state.cardLocked = false;
+    host.classList.remove("wave-lock");
+    done();
+  }, 470 + 140);
 }
 function launchFireworks(){
   const box = $("#fireworks"); if(!box) return;
@@ -2308,10 +2454,28 @@ function playDuselSearch(targetCell, onArrive, onDone){
     }, 650);                                       // pause on the square
   }, 820);                                         // run-in duration
 }
+/* item 87 — Dusel's fun facts. Every fact below is drawn from a reputable source:
+   • Body-worn-camera stats: U.S. DOJ Bureau of Justice Statistics, "Body-Worn Cameras in
+     Law Enforcement Agencies, 2016" (bjs.ojp.gov) — a .gov primary source.
+   • K9 history: Encyclopaedia Britannica (police dogs first trained ~turn of the 20th century,
+     Ghent, Belgium) + widely corroborated K9-unit histories (NYPD 1907; National K-9 Veterans
+     Day, March 13, marks the 1942 founding of the U.S. Army K-9 Corps).
+   Keep each short so it reads inside the bubble during Dusel's run. */
+const POLICE_FACTS = [
+  "Good luck out there!",
+  "Fun fact: the first police-dog training started around 1900 in Ghent, Belgium.",
+  "Fun fact: the NYPD ran one of America's first K9 units back in 1907.",
+  "Fun fact: March 13 is National K-9 Veterans Day.",
+  "Fun fact: by 2016, 47% of U.S. police agencies had body cameras — 80% of big-city ones.",
+  "Fun fact: most body-cam policies require officers to record every traffic stop.",
+  "Fun fact: in 2016, more U.S. agencies had dashboard cameras than body cameras."
+];
 function playDusel(){
   const k = $("#k9run"); if(!k) return;
   const fig = k.querySelector(".k9-figure");
   if(fig){ fig.style.transition=""; fig.style.transform=""; fig.style.left=""; fig.style.top=""; fig.style.animation=""; }  // clear any leftover search styles
+  const bubble = k.querySelector(".k9-bubble");
+  if(bubble) bubble.textContent = POLICE_FACTS[Math.floor(Math.random()*POLICE_FACTS.length)];
   k.hidden = true; void k.offsetWidth; k.hidden = false;  // force-restart the run animation
   clearTimeout(k._t);
   k._t = setTimeout(()=>{ k.hidden = true; }, 3600);
@@ -2387,7 +2551,7 @@ function refreshCount(){
   if(n>=need){ c.innerHTML = '<span class="ok">'+n+' phrases on — enough for cards ✓</span>'; }
   else { c.innerHTML = '<span class="no">'+n+' phrases on — need at least '+need+' (turn more on or add phrases)</span>'; }
   const ready = n>=need;
-  ["#goPlay","#goPrint","#goCaller","#shareGame","#copyGame"].forEach(sel=>{ $(sel).disabled = !ready; });
+  ["#goPlay","#goPrint","#goCaller","#shareGame","#shareSetup"].forEach(sel=>{ const b=$(sel); if(b) b.disabled = !ready; });
 }
 
 /* ---------------- wire up ---------------- */
@@ -2410,10 +2574,26 @@ function buildPatternMini(def, n){
 }
 function renderPatternPicker(){
   const panel = $("#patternsPanel");
-  const defs = patternsForSize(state.size);
-  if(!defs){ panel.style.display="none"; return; }
-  panel.style.display="";
   const grid = $("#patternsGrid"); grid.innerHTML="";
+  const defs = patternsForSize(state.size);
+  panel.style.display = "";
+  if(!defs){
+    // Mini 3×3 is too small for shape patterns — show a single locked Any Line card instead of an empty section
+    const card = el("button","pattern-card locked"); card.type = "button";
+    card.disabled = true;
+    card.setAttribute("aria-pressed","true");
+    card.appendChild(buildPatternMini({key:"anyline"}, state.size));
+    const label = el("span","pattern-label"); label.textContent = "Any Line";
+    card.appendChild(label);
+    grid.appendChild(card);
+    const note = $("#patternConflictNote");
+    note.hidden = false;
+    note.classList.remove("pattern-conflict-warn");
+    note.classList.add("pattern-conflict-info");
+    note.textContent = "Mini cards are too small for shape patterns — any full line (row, column, or diagonal) wins.";
+    return;
+  }
+  $("#patternConflictNote").classList.remove("pattern-conflict-info");
   defs.forEach(def=>{
     const card = el("button","pattern-card"); card.type="button";
     card.setAttribute("aria-pressed", state.winPatterns.includes(def.key) ? "true":"false");
@@ -2610,7 +2790,8 @@ function updateTitleHint(){
   const hint = $("#titleHint"); if(!hint) return;
   const remaining = 20 - $("#title").value.length;
   hint.textContent = remaining + " character" + (remaining===1?"":"s") + " left";
-  hint.classList.toggle("warn", remaining<=3);
+  hint.classList.toggle("caution", remaining>0 && remaining<=3);
+  hint.classList.toggle("warn", remaining<=0);
 }
 $("#sizeFull").addEventListener("click", ()=> setCardSize(5));
 $("#sizeQuick").addEventListener("click", ()=> setCardSize(4));
@@ -2633,10 +2814,12 @@ $("#goPlay").addEventListener("click", ()=> openPlay(buildCard()));
 $("#goPrint").addEventListener("click", ()=>{ renderPrintSet(); show("print"); });
 $("#goCaller").addEventListener("click", ()=>{ resetCaller(); show("caller"); });
 
-$("#shareGame").addEventListener("click", ()=> shareOrCopy(gameLink(), "Open your BUSTD card"));
-$("#copyGame").addEventListener("click", ()=> copy(gameLink()));
-$("#shareSetup").addEventListener("click", ()=> shareOrCopy(setupLink(), "Build your own BUSTD game"));
-$("#copySetup").addEventListener("click", ()=> copy(setupLink()));
+$("#shareGame").addEventListener("click", ()=> openShareSheet("card"));
+$("#shareSetup").addEventListener("click", ()=> openShareSheet("setup"));
+$("#shareSheetCopy").addEventListener("click", ()=>{ const u=shareSheetUrl(); closeShareSheet(); copy(u); });
+$("#shareSheetText").addEventListener("click", ()=>{ const u=shareSheetUrl(), l=shareSheetLabel(); closeShareSheet(); sendAsText(u, l); });
+$("#shareSheetClose").addEventListener("click", closeShareSheet);
+$("#shareSheet").addEventListener("click", e=>{ if(e.target===$("#shareSheet")) closeShareSheet(); });
 
 /* pool editor controls */
 $("#addPhrase").addEventListener("click", ()=> openPhraseModal(-1));
@@ -2712,7 +2895,7 @@ $("#pickCancel").addEventListener("click", cancelPickMode);
 document.addEventListener("keydown", e=>{
   if(e.key!=="Escape") return;
   if(!$("#resultNote").hidden){ closeResultNote(); }
-  else if(!$("#swapOverlay").hidden){ closeSwapChooser(); }
+  else if(!$("#shareSheet").hidden){ closeShareSheet(); }
   else if(!$("#confirmOverlay").hidden){ closeConfirm(false); }
   else if(!$("#patternViewOverlay").hidden){ closePatternView(); }
   else if(!$("#banner").hidden){ dismissBanner(); }
@@ -2741,8 +2924,6 @@ function closeConfirm(run){
 }
 $("#confirmYes").addEventListener("click", ()=> closeConfirm(true));
 $("#resultClose").addEventListener("click", closeResultNote);
-$("#swapClose").addEventListener("click", closeSwapChooser);
-$("#swapOverlay").addEventListener("click", e=>{ if(e.target===$("#swapOverlay")) closeSwapChooser(); });
 $("#resultOk").addEventListener("click", closeResultNote);
 $("#resultNote").addEventListener("click", e=>{ if(e.target===$("#resultNote")) closeResultNote(); });
 $("#confirmNo").addEventListener("click", ()=> closeConfirm(false));
